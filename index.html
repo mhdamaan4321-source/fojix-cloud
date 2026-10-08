@@ -68,15 +68,20 @@
 
     <!-- Main Content Area -->
     <div class="main-content">
-        <header style="display: flex; justify-content: space-between; align-items: center;">
+        <header style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
             <div>
                 <h1 id="page-title">Fojix Cloud Management Console</h1>
                 <p id="page-subtitle">Enterprise infrastructure, secure VPN gateways, and edge network control center.</p>
             </div>
-            <!-- Theme Switcher Dropdown -->
-            <div>
+            
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <!-- Backup & Restore Buttons -->
+                <button class="aws-btn" onclick="exportCloudBackup()" title="Download JSON Backup" style="padding: 8px 12px; font-size: 12px; border-radius: 6px; cursor: pointer;"><i class="fa-solid fa-download"></i> Backup</button>
+                <label class="aws-btn" title="Restore JSON Backup" style="padding: 8px 12px; font-size: 12px; border-radius: 6px; cursor: pointer; display: inline-block; margin-bottom: 0;"><i class="fa-solid fa-upload"></i> Restore <input type="file" id="restoreFile" accept=".json" onchange="importCloudBackup(event)" style="display: none;"></label>
+
+                <!-- Theme Switcher Dropdown -->
                 <select id="themeSelector" onchange="changeTheme(this.value)" style="padding: 8px 12px; background: var(--bg-card); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: 6px; cursor: pointer; font-size: 13px;">
-                    <option value="theme-aws">⚡ AWS Dark (Default)</option>
+                    <option value="theme-aws">⚡ AWS Dark</option>
                     <option value="theme-matrix">🟢 Matrix Green</option>
                     <option value="theme-cyberpunk">💖 Cyberpunk Neon</option>
                 </select>
@@ -131,9 +136,7 @@
                 <button class="aws-btn" onclick="openDeployModal()"><i class="fa-solid fa-plus"></i> Deploy New Client Project</button>
                 
                 <!-- Dynamic Projects Container -->
-                <div id="project-list-container" style="margin-top: 20px;">
-                    <!-- Deployed projects appear here -->
-                </div>
+                <div id="project-list-container" style="margin-top: 20px;"></div>
             </div>
         </div>
 
@@ -178,11 +181,11 @@
             </div>
         </div>
 
-        <!-- 4. Client Vault Section (Browser Local Storage) -->
+        <!-- 4. Client Vault Section -->
         <div id="vault-section" class="content-section" style="display: none;">
             <div class="card">
                 <h3><i class="fa-solid fa-vault"></i> Decentralized Client Vault (Local Storage)</h3>
-                <p>Store encrypted team notes, client API keys, and configuration files directly inside your browser storage securely.</p>
+                <p>Store encrypted team notes, client API keys, and configuration files securely.</p>
                 
                 <div style="margin-top: 15px;">
                     <input type="text" id="vaultItemName" placeholder="Item Name (e.g., Client DB Credentials)" style="width: 100%; padding: 10px; background: var(--bg-main); border: 1px solid var(--border-color); border-radius: 6px; color: var(--text-primary); margin-bottom: 10px; box-sizing: border-box;">
@@ -217,8 +220,23 @@
         <div id="dns-section" class="content-section" style="display: none;">
             <div class="card">
                 <h3><i class="fa-solid fa-globe"></i> DNS & Edge Routing Management</h3>
-                <p>Manage domain names, custom records (A, CNAME, TXT), and global edge CDN caching policies.</p>
-                <button class="aws-btn" onclick="alert('Domain zone configured successfully!')"><i class="fa-solid fa-plus"></i> Add Domain Zone</button>
+                <p>Manage custom domain zones, A/CNAME records, and global edge CDN caching.</p>
+                
+                <div style="margin-top: 15px; display: grid; grid-template-columns: 1fr 1fr 1fr auto; gap: 10px; align-items: center;">
+                    <input type="text" id="dnsName" placeholder="Record (e.g., api.fojixcloud.com)" style="padding: 10px; background: var(--bg-main); border: 1px solid var(--border-color); border-radius: 6px; color: var(--text-primary); box-sizing: border-box;">
+                    <select id="dnsType" style="padding: 10px; background: var(--bg-main); border: 1px solid var(--border-color); border-radius: 6px; color: var(--text-primary); box-sizing: border-box;">
+                        <option value="A">A Record (IP)</option>
+                        <option value="CNAME">CNAME Record</option>
+                        <option value="TXT">TXT Record</option>
+                    </select>
+                    <input type="text" id="dnsValue" placeholder="Value (e.g., 192.168.1.50)" style="padding: 10px; background: var(--bg-main); border: 1px solid var(--border-color); border-radius: 6px; color: var(--text-primary); box-sizing: border-box;">
+                    <button class="aws-btn" onclick="addDNSRecord()" style="padding: 10px 15px;"><i class="fa-solid fa-plus"></i> Add Record</button>
+                </div>
+
+                <div style="margin-top: 25px;">
+                    <h4 style="color: var(--accent-color); font-size: 14px; margin-bottom: 10px;">Active Zone DNS Records:</h4>
+                    <div id="dns-list-container"></div>
+                </div>
             </div>
         </div>
 
@@ -268,7 +286,7 @@
         </div>
     </div>
 
-    <!-- JavaScript for Interactivity, Theme Switcher, Live Telemetry & LocalStorage -->
+    <!-- JavaScript for Interactivity, Theme Switcher, DNS, Backup/Restore & Telemetry -->
     <script>
         const navLinks = document.querySelectorAll('.nav-link');
         const sections = document.querySelectorAll('.content-section');
@@ -314,16 +332,16 @@
             });
         });
 
-        // Theme Switcher Function
+        // Theme Switcher
         function changeTheme(themeName) {
             document.body.className = themeName;
             localStorage.setItem('fojix_theme', themeName);
         }
 
-        // Live CPU & RAM Telemetry Simulator
+        // Live CPU & RAM Telemetry
         setInterval(() => {
-            const cpu = Math.floor(Math.random() * 25) + 25; // 25% to 50%
-            const ram = Math.floor(Math.random() * 15) + 50; // 50% to 65%
+            const cpu = Math.floor(Math.random() * 25) + 25;
+            const ram = Math.floor(Math.random() * 15) + 50;
 
             const loadEl = document.getElementById('metric-load');
             if(loadEl) loadEl.textContent = `CPU: ${cpu}% | RAM: ${ram}%`;
@@ -365,7 +383,7 @@
             if(terminalBox) terminalBox.innerHTML = '<div style="color: #94a3b8;">[Fojix-CLI] Terminal logs cleared. Ready for operations.</div>';
         }
 
-        // Persistent Deployments
+        // Persistent Projects & Termination
         function submitDeployment() {
             const name = document.getElementById('projName').value;
             const env = document.getElementById('projEnv').value;
@@ -424,17 +442,58 @@
             });
         }
 
-        function downloadVPNProfile() {
-            const config = `[Interface]\nPrivateKey = a9z7Xy2qLp8R1vK... \nAddress = 10.8.0.2/32\n[Peer]\nEndpoint = vpn.fojixcloud.com:51820`;
-            const blob = new Blob([config], { type: 'text/plain' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url; a.download = 'fojix-vpn-node.conf';
-            a.click(); URL.revokeObjectURL(url);
-            logToTerminal('Zero-Trust VPN profile configuration downloaded.', 'success');
-            alert('VPN profile downloaded successfully!');
+        // DNS Records Management
+        function addDNSRecord() {
+            const name = document.getElementById('dnsName').value;
+            const type = document.getElementById('dnsType').value;
+            const value = document.getElementById('dnsValue').value;
+
+            if(!name || !value) { alert('Please fill in both DNS record name and value.'); return; }
+
+            let dnsRecords = JSON.parse(localStorage.getItem('fojix_dns') || '[]');
+            dnsRecords.push({ id: Date.now(), name, type, value });
+            localStorage.setItem('fojix_dns', JSON.stringify(dnsRecords));
+
+            document.getElementById('dnsName').value = '';
+            document.getElementById('dnsValue').value = '';
+            loadDNSRecords();
+            logToTerminal(`DNS Zone Record added: [${type}] ${name} -> ${value}`, 'success');
+            alert('DNS record added successfully!');
         }
 
+        function deleteDNSRecord(id) {
+            let dnsRecords = JSON.parse(localStorage.getItem('fojix_dns') || '[]');
+            localStorage.setItem('fojix_dns', JSON.stringify(dnsRecords.filter(d => d.id !== id)));
+            loadDNSRecords();
+            logToTerminal(`DNS record ID [${id}] removed.`, 'warning');
+        }
+
+        function loadDNSRecords() {
+            const container = document.getElementById('dns-list-container');
+            if(!container) return;
+            let dnsRecords = JSON.parse(localStorage.getItem('fojix_dns') || '[]');
+            container.innerHTML = '';
+
+            if(dnsRecords.length === 0) {
+                container.innerHTML = '<p style="color: var(--text-secondary); font-size: 13px;">No custom DNS records added yet.</p>';
+                return;
+            }
+
+            dnsRecords.forEach((dns) => {
+                const card = document.createElement('div');
+                card.style.cssText = "background: var(--bg-main); padding: 10px 15px; border-radius: 6px; margin: 8px 0; border: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center;";
+                card.innerHTML = `
+                    <div>
+                        <strong style="color: var(--accent-color); font-size: 13px;">[${dns.type}] ${dns.name}</strong>
+                        <span style="color: var(--text-secondary); font-size: 12px; margin-left: 10px;">➔ ${dns.value}</span>
+                    </div>
+                    <button onclick="deleteDNSRecord(${dns.id})" style="background: rgba(239, 68, 68, 0.15); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.4); padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 11px;"><i class="fa-solid fa-trash"></i> Delete</button>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // Vault Management
         function saveToVault() {
             const name = document.getElementById('vaultItemName').value;
             const data = document.getElementById('vaultItemData').value;
@@ -462,12 +521,74 @@
             });
         }
 
+        // Cloud JSON Backup & Restore
+        function exportCloudBackup() {
+            const backupData = {
+                projects: JSON.parse(localStorage.getItem('fojix_projects') || '[]'),
+                vault: JSON.parse(localStorage.getItem('fojix_vault') || '[]'),
+                dns: JSON.parse(localStorage.getItem('fojix_dns') || '[]'),
+                theme: localStorage.getItem('fojix_theme') || 'theme-aws',
+                exportDate: new Date().toISOString()
+            };
+
+            const blob = new Blob([JSON.stringify(backupData, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `fojix-cloud-backup-${new Date().toISOString().slice(0,10)}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+            logToTerminal('System configuration backup exported successfully.', 'success');
+        }
+
+        function importCloudBackup(event) {
+            const file = event.target.files[0];
+            if(!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    if(data.projects) localStorage.setItem('fojix_projects', JSON.stringify(data.projects));
+                    if(data.vault) localStorage.setItem('fojix_vault', JSON.stringify(data.vault));
+                    if(data.dns) localStorage.setItem('fojix_dns', JSON.stringify(data.dns));
+                    if(data.theme) {
+                        localStorage.setItem('fojix_theme', data.theme);
+                        document.body.className = data.theme;
+                        document.getElementById('themeSelector').value = data.theme;
+                    }
+
+                    loadProjects();
+                    loadVaultItems();
+                    loadDNSRecords();
+                    logToTerminal('Cloud backup restored successfully from JSON file.', 'success');
+                    alert('Cloud configuration restored successfully!');
+                } catch(err) {
+                    alert('Invalid backup JSON file.');
+                    logToTerminal('Failed to import backup file: Invalid format.', 'error');
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        function downloadVPNProfile() {
+            const config = `[Interface]\nPrivateKey = a9z7Xy2qLp8R1vK...\nAddress = 10.8.0.2/32\n[Peer]\nEndpoint = vpn.fojixcloud.com:51820`;
+            const blob = new Blob([config], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url; a.download = 'fojix-vpn-node.conf';
+            a.click(); URL.revokeObjectURL(url);
+            logToTerminal('Zero-Trust VPN profile configuration downloaded.', 'success');
+            alert('VPN profile downloaded successfully!');
+        }
+
         window.onload = function() {
             const savedTheme = localStorage.getItem('fojix_theme') || 'theme-aws';
             document.body.className = savedTheme;
             document.getElementById('themeSelector').value = savedTheme;
             loadProjects();
             loadVaultItems();
+            loadDNSRecords();
             logToTerminal('Fojix Cloud Management Console fully booted and operational.', 'success');
         };
     </script>

@@ -80,7 +80,7 @@
                 
                 <!-- Dynamic Projects Container -->
                 <div id="project-list-container" style="margin-top: 20px;">
-                    <!-- Deployed projects appear here -->
+                    <!-- Persistent deployed projects appear here -->
                 </div>
             </div>
         </div>
@@ -276,6 +276,7 @@
             }
         }
 
+        // Persistent Project Deployment Functions
         function submitDeployment() {
             const name = document.getElementById('projName').value;
             const env = document.getElementById('projEnv').value;
@@ -286,6 +287,11 @@
                 return;
             }
 
+            // Save to localStorage
+            let projects = JSON.parse(localStorage.getItem('fojix_projects') || '[]');
+            projects.push({ name, env, domain, date: new Date().toLocaleDateString() });
+            localStorage.setItem('fojix_projects', JSON.stringify(projects));
+
             // Log deployment steps to terminal
             logToTerminal(`Initiating build pipeline for project: "${name}" (${env})`, 'info');
             setTimeout(() => logToTerminal(`Cloning repository files to edge node container...`, 'info'), 600);
@@ -293,26 +299,40 @@
             setTimeout(() => logToTerminal(`SSL certificate successfully provisioned for ${domain}`, 'success'), 1800);
             setTimeout(() => logToTerminal(`Project "${name}" deployed live successfully at https://${domain}`, 'success'), 2400);
 
-            const container = document.getElementById('project-list-container');
-            const projectCard = document.createElement('div');
-            projectCard.style.cssText = "background: #050b14; padding: 12px 15px; border-radius: 6px; margin: 10px 0; border: 1px solid rgba(255, 204, 0, 0.2); display: flex; justify-content: space-between; align-items: center;";
-            
-            projectCard.innerHTML = `
-                <div>
-                    <div style="color: #ffffff; font-weight: bold; font-size: 14px;"><i class="fa-solid fa-circle" style="color: #22c55e; font-size: 10px; margin-right: 6px;"></i> ${name} (${env})</div>
-                    <div style="color: #93c5fd; font-size: 12px; margin-top: 2px;">Domain: ${domain}</div>
-                </div>
-                <span style="background: rgba(255, 204, 0, 0.1); color: #ffcc00; padding: 4px 10px; border-radius: 4px; font-size: 12px; font-weight: bold;">Active</span>
-            `;
-
-            container.appendChild(projectCard);
+            loadProjects();
             closeDeployModal();
             
             document.getElementById('projName').value = '';
             document.getElementById('projDomain').value = '';
             
-            // Switch alert to notification or smooth terminal switch suggestion
             alert('Deployment initiated! Check the "Live Terminal" tab to watch real-time build logs.');
+        }
+
+        function loadProjects() {
+            const container = document.getElementById('project-list-container');
+            if(!container) return;
+
+            let projects = JSON.parse(localStorage.getItem('fojix_projects') || '[]');
+            container.innerHTML = '';
+
+            if(projects.length === 0) {
+                container.innerHTML = '<p style="color: #94a3b8; font-size: 13px;">No active client projects currently deployed. Team members can initialize or deploy projects anytime.</p>';
+                return;
+            }
+
+            projects.forEach((proj) => {
+                const projectCard = document.createElement('div');
+                projectCard.style.cssText = "background: #050b14; padding: 12px 15px; border-radius: 6px; margin: 10px 0; border: 1px solid rgba(255, 204, 0, 0.2); display: flex; justify-content: space-between; align-items: center;";
+                
+                projectCard.innerHTML = `
+                    <div>
+                        <div style="color: #ffffff; font-weight: bold; font-size: 14px;"><i class="fa-solid fa-circle" style="color: #22c55e; font-size: 10px; margin-right: 6px;"></i> ${proj.name} (${proj.env})</div>
+                        <div style="color: #93c5fd; font-size: 12px; margin-top: 2px;">Domain: ${proj.domain}</div>
+                    </div>
+                    <span style="background: rgba(255, 204, 0, 0.1); color: #ffcc00; padding: 4px 10px; border-radius: 4px; font-size: 12px; font-weight: bold;">Active</span>
+                `;
+                container.appendChild(projectCard);
+            });
         }
 
         // Vault LocalStorage Functions
@@ -348,7 +368,7 @@
                 return;
             }
 
-            vaultItems.forEach((item, index) => {
+            vaultItems.forEach((item) => {
                 const card = document.createElement('div');
                 card.style.cssText = "background: #050b14; padding: 12px 15px; border-radius: 6px; margin: 8px 0; border: 1px solid rgba(147, 197, 253, 0.2);";
                 card.innerHTML = `
@@ -363,6 +383,7 @@
         }
 
         window.onload = function() {
+            loadProjects();
             loadVaultItems();
             logToTerminal('Fojix Cloud Management Console fully booted and operational.', 'success');
         };

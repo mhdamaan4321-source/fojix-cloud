@@ -70,10 +70,16 @@
                 <p>Manage zero-trust private network gateways, secure team access nodes, and encrypted client tunnels.</p>
                 <button class="aws-btn" onclick="switchTab('vpn-section')"><i class="fa-solid fa-arrow-right"></i> Open VPN Gateway</button>
             </div>
+            
             <div class="card">
                 <h3><i class="fa-solid fa-rocket"></i> Client Deployments & Project Hub</h3>
                 <p>Deploy client web apps, PHP backend nodes, and static frontends instantly to the Fojix edge network.</p>
                 <button class="aws-btn" onclick="openDeployModal()"><i class="fa-solid fa-plus"></i> Deploy New Client Project</button>
+                
+                <!-- Dynamic Projects Container -->
+                <div id="project-list-container" style="margin-top: 20px;">
+                    <!-- Newly deployed projects will appear here automatically -->
+                </div>
             </div>
         </div>
 
@@ -137,9 +143,9 @@
                 
                 <label>Runtime Environment</label>
                 <select id="projEnv">
-                    <option value="php">PHP / MySQL Node</option>
-                    <option value="node">Node.js Express Backend</option>
-                    <option value="static">Static HTML/CSS/JS</option>
+                    <option value="PHP / MySQL Node">PHP / MySQL Node</option>
+                    <option value="Node.js Express">Node.js Express Backend</option>
+                    <option value="Static HTML/JS">Static HTML/CSS/JS</option>
                 </select>
 
                 <label>Custom Domain / Subdomain</label>
@@ -205,12 +211,32 @@
 
         function submitDeployment() {
             const name = document.getElementById('projName').value;
+            const env = document.getElementById('projEnv').value;
+            const domain = document.getElementById('projDomain').value || 'fojixcloud.com';
+
             if(!name) {
                 alert('Please enter a project name.');
                 return;
             }
+
+            // Create dynamic project card element
+            const container = document.getElementById('project-list-container');
+            const projectCard = document.createElement('div');
+            projectCard.style.cssText = "background: #050b14; padding: 12px 15px; border-radius: 6px; margin: 10px 0; border: 1px solid rgba(255, 204, 0, 0.2); display: flex; justify-content: space-between; align-items: center;";
+            
+            projectCard.innerHTML = `
+                <div>
+                    <div style="color: #ffffff; font-weight: bold; font-size: 14px;"><i class="fa-solid fa-circle" style="color: #22c55e; font-size: 10px; margin-right: 6px;"></i> ${name} (${env})</div>
+                    <div style="color: #93c5fd; font-size: 12px; margin-top: 2px;">Domain: ${domain}</div>
+                </div>
+                <span style="background: rgba(255, 204, 0, 0.1); color: #ffcc00; padding: 4px 10px; border-radius: 4px; font-size: 12px; font-weight: bold;">Active</span>
+            `;
+
+            container.appendChild(projectCard);
             alert('Deployment pipeline initiated successfully for: ' + name);
             closeDeployModal();
+            
+            // Reset fields
             document.getElementById('projName').value = '';
             document.getElementById('projDomain').value = '';
         }

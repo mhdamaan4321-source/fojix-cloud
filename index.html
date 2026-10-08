@@ -16,6 +16,7 @@
             <li><a href="#" class="nav-link active" data-target="home-section"><i class="fa-solid fa-house"></i> Console Home</a></li>
             <li><a href="#" class="nav-link" data-target="ec2-section"><i class="fa-solid fa-server"></i> EC2 (Servers)</a></li>
             <li><a href="#" class="nav-link" data-target="s3-section"><i class="fa-solid fa-database"></i> S3 (Storage)</a></li>
+            <li><a href="#" class="nav-link" data-target="vault-section"><i class="fa-solid fa-vault"></i> Client Vault</a></li>
             <li><a href="#" class="nav-link" data-target="dns-section"><i class="fa-solid fa-globe"></i> DNS & Edge</a></li>
             <li><a href="#" class="nav-link" data-target="vpn-section"><i class="fa-solid fa-shield-halved"></i> VPN Gateway</a></li>
             <li><a href="#" class="nav-link" data-target="iam-section"><i class="fa-solid fa-users"></i> IAM (Team Access)</a></li>
@@ -26,7 +27,7 @@
     <div class="main-content">
         <header>
             <h1 id="page-title">Fojix Cloud Management Console</h1>
-            <p id="page-subtitle">Enterprise infrastructure, secure VPN gateways, and edge network control center.</p>
+            <p id="page-subtitle">Enterprise infrastructure, secure VPN gateways, and decentralized browser storage.</p>
         </header>
 
         <!-- TOP METRICS GRID (Visible on Home) -->
@@ -39,10 +40,10 @@
                 </div>
             </div>
             <div class="metric-card">
-                <i class="fa-solid fa-globe"></i>
+                <i class="fa-solid fa-vault"></i>
                 <div>
-                    <h4>Client Deployments</h4>
-                    <h2>Live & Ready</h2>
+                    <h4>Client Vault</h4>
+                    <h2>Local Active</h2>
                 </div>
             </div>
             <div class="metric-card">
@@ -78,7 +79,7 @@
                 
                 <!-- Dynamic Projects Container -->
                 <div id="project-list-container" style="margin-top: 20px;">
-                    <!-- Newly deployed projects will appear here automatically -->
+                    <!-- Deployed projects appear here -->
                 </div>
             </div>
         </div>
@@ -101,7 +102,28 @@
             </div>
         </div>
 
-        <!-- 4. DNS & Edge Section -->
+        <!-- 4. Client Vault Section (Browser Local Storage) -->
+        <div id="vault-section" class="content-section" style="display: none;">
+            <div class="card">
+                <h3><i class="fa-solid fa-vault"></i> Decentralized Client Vault (Local Storage)</h3>
+                <p>Store encrypted team notes, client API keys, and configuration files directly inside your browser storage securely.</p>
+                
+                <div style="margin-top: 15px;">
+                    <input type="text" id="vaultItemName" placeholder="Item Name (e.g., Client DB Credentials)" style="width: 100%; padding: 10px; background: #050b14; border: 1px solid rgba(147, 197, 253, 0.3); border-radius: 6px; color: #fff; margin-bottom: 10px; box-sizing: border-box;">
+                    <textarea id="vaultItemData" placeholder="Enter secure data or text notes here..." style="width: 100%; height: 80px; padding: 10px; background: #050b14; border: 1px solid rgba(147, 197, 253, 0.3); border-radius: 6px; color: #fff; box-sizing: border-box;"></textarea>
+                    <button class="aws-btn" onclick="saveToVault()"><i class="fa-solid fa-save"></i> Save to Browser Vault</button>
+                </div>
+
+                <div style="margin-top: 25px;">
+                    <h4 style="color: #ffcc00; font-size: 14px; margin-bottom: 10px;">Saved Vault Items:</h4>
+                    <div id="vault-list-container">
+                        <!-- Local storage items will load here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 5. DNS & Edge Section -->
         <div id="dns-section" class="content-section" style="display: none;">
             <div class="card">
                 <h3><i class="fa-solid fa-globe"></i> DNS & Edge Routing Management</h3>
@@ -110,7 +132,7 @@
             </div>
         </div>
 
-        <!-- 5. VPN Gateway Section -->
+        <!-- 6. VPN Gateway Section -->
         <div id="vpn-section" class="content-section" style="display: none;">
             <div class="card">
                 <h3><i class="fa-solid fa-shield-halved"></i> Fojix Zero-Trust VPN Gateway</h3>
@@ -119,7 +141,7 @@
             </div>
         </div>
 
-        <!-- 6. IAM Team Access Section -->
+        <!-- 7. IAM Team Access Section -->
         <div id="iam-section" class="content-section" style="display: none;">
             <div class="card">
                 <h3><i class="fa-solid fa-users"></i> Identity & Access Management (IAM)</h3>
@@ -156,7 +178,7 @@
         </div>
     </div>
 
-    <!-- JavaScript for Interactivity and Modals -->
+    <!-- JavaScript for Interactivity, Modals, and LocalStorage Vault -->
     <script>
         const navLinks = document.querySelectorAll('.nav-link');
         const sections = document.querySelectorAll('.content-section');
@@ -168,6 +190,7 @@
             'home-section': { title: 'Fojix Cloud Management Console', subtitle: 'Enterprise infrastructure, secure VPN gateways, and edge network control center.', showMetrics: true },
             'ec2-section': { title: 'EC2 Virtual Servers', subtitle: 'Manage compute capacity, virtual machine instances, and runtime environments.', showMetrics: false },
             's3-section': { title: 'S3 Object Storage', subtitle: 'Secure buckets, file repositories, and asset distribution networks.', showMetrics: false },
+            'vault-section': { title: 'Client Vault & Storage', subtitle: 'Decentralized local storage vault for team files and credentials.', showMetrics: false },
             'dns-section': { title: 'DNS & Edge Network', subtitle: 'Global name resolution, SSL termination, and CDN edge optimization.', showMetrics: false },
             'vpn-section': { title: 'VPN Gateway & Tunnels', subtitle: 'Zero-trust private network connections and encrypted routing.', showMetrics: false },
             'iam-section': { title: 'IAM Team Access', subtitle: 'Manage user credentials, permissions, and security policies.', showMetrics: false }
@@ -219,7 +242,6 @@
                 return;
             }
 
-            // Create dynamic project card element
             const container = document.getElementById('project-list-container');
             const projectCard = document.createElement('div');
             projectCard.style.cssText = "background: #050b14; padding: 12px 15px; border-radius: 6px; margin: 10px 0; border: 1px solid rgba(255, 204, 0, 0.2); display: flex; justify-content: space-between; align-items: center;";
@@ -236,10 +258,60 @@
             alert('Deployment pipeline initiated successfully for: ' + name);
             closeDeployModal();
             
-            // Reset fields
             document.getElementById('projName').value = '';
             document.getElementById('projDomain').value = '';
         }
+
+        // Vault LocalStorage Functions
+        function saveToVault() {
+            const name = document.getElementById('vaultItemName').value;
+            const data = document.getElementById('vaultItemData').value;
+
+            if(!name || !data) {
+                alert('Please fill in both name and vault data.');
+                return;
+            }
+
+            let vaultItems = JSON.parse(localStorage.getItem('fojix_vault') || '[]');
+            vaultItems.push({ name, data, date: new Date().toLocaleDateString() });
+            localStorage.setItem('fojix_vault', JSON.stringify(vaultItems));
+
+            document.getElementById('vaultItemName').value = '';
+            document.getElementById('vaultItemData').value = '';
+            loadVaultItems();
+            alert('Item securely saved to browser local vault!');
+        }
+
+        function loadVaultItems() {
+            const container = document.getElementById('vault-list-container');
+            if(!container) return;
+            
+            let vaultItems = JSON.parse(localStorage.getItem('fojix_vault') || '[]');
+            container.innerHTML = '';
+
+            if(vaultItems.length === 0) {
+                container.innerHTML = '<p style="color: #94a3b8; font-size: 13px;">No items saved in vault yet.</p>';
+                return;
+            }
+
+            vaultItems.forEach((item, index) => {
+                const card = document.createElement('div');
+                card.style.cssText = "background: #050b14; padding: 12px 15px; border-radius: 6px; margin: 8px 0; border: 1px solid rgba(147, 197, 253, 0.2);";
+                card.innerHTML = `
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <strong style="color: #ffcc00; font-size: 13px;">${item.name}</strong>
+                        <span style="color: #94a3b8; font-size: 11px;">${item.date}</span>
+                    </div>
+                    <p style="color: #e2e8f0; font-size: 13px; margin: 6px 0 0 0; word-break: break-all;">${item.data}</p>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // Load vault items on page load
+        window.onload = function() {
+            loadVaultItems();
+        };
     </script>
 </body>
 </html>

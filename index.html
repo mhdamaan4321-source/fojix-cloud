@@ -13,36 +13,36 @@
     <div class="sidebar">
         <h2><i class="fa-solid fa-cloud"></i> Fojix Cloud</h2>
         <ul>
-            <li><a href="#" class="active"><i class="fa-solid fa-house"></i> Console Home</a></li>
-            <li><a href="#"><i class="fa-solid fa-server"></i> EC2 (Servers)</a></li>
-            <li><a href="#"><i class="fa-solid fa-database"></i> S3 (Storage)</a></li>
-            <li><a href="#"><i class="fa-solid fa-globe"></i> DNS & Edge</a></li>
-            <li><a href="#"><i class="fa-solid fa-shield-halved"></i> VPN Gateway</a></li>
-            <li><a href="#"><i class="fa-solid fa-users"></i> IAM (Team Access)</a></li>
+            <li><a href="#" class="nav-link active" data-target="home-section"><i class="fa-solid fa-house"></i> Console Home</a></li>
+            <li><a href="#" class="nav-link" data-target="ec2-section"><i class="fa-solid fa-server"></i> EC2 (Servers)</a></li>
+            <li><a href="#" class="nav-link" data-target="s3-section"><i class="fa-solid fa-database"></i> S3 (Storage)</a></li>
+            <li><a href="#" class="nav-link" data-target="dns-section"><i class="fa-solid fa-globe"></i> DNS & Edge</a></li>
+            <li><a href="#" class="nav-link" data-target="vpn-section"><i class="fa-solid fa-shield-halved"></i> VPN Gateway</a></li>
+            <li><a href="#" class="nav-link" data-target="iam-section"><i class="fa-solid fa-users"></i> IAM (Team Access)</a></li>
         </ul>
     </div>
 
     <!-- Main Content Area -->
     <div class="main-content">
         <header>
-            <h1>Fojix Cloud Management Console</h1>
-            <p>Enterprise infrastructure, secure VPN gateways, and edge network control center.</p>
+            <h1 id="page-title">Fojix Cloud Management Console</h1>
+            <p id="page-subtitle">Enterprise infrastructure, secure VPN gateways, and edge network control center.</p>
         </header>
 
-        <!-- Top Metrics Grid -->
-        <div class="metrics-grid">
+        <!-- TOP METRICS GRID (Visible on Home) -->
+        <div id="metrics-container" class="metrics-grid">
             <div class="metric-card">
                 <i class="fa-solid fa-server"></i>
                 <div>
                     <h4>Active Servers</h4>
-                    <h2>0 Nodes</h2>
+                    <h2>2 Nodes</h2>
                 </div>
             </div>
             <div class="metric-card">
                 <i class="fa-solid fa-globe"></i>
                 <div>
                     <h4>Client Deployments</h4>
-                    <h2>Ready for Setup</h2>
+                    <h2>Live & Ready</h2>
                 </div>
             </div>
             <div class="metric-card">
@@ -61,21 +61,159 @@
             </div>
         </div>
 
-        <!-- VPN & Security Management Section -->
-        <div class="card">
-            <h3><i class="fa-solid fa-shield-halved"></i> Fojix Secure VPN & Tunnels</h3>
-            <p>Manage zero-trust private network gateways, secure team access nodes, and encrypted client tunnels.</p>
-            <button class="aws-btn"><i class="fa-solid fa-plus"></i> Initialize VPN Gateway</button>
+        <!-- TAB CONTENT SECTIONS -->
+
+        <!-- 1. Console Home Section -->
+        <div id="home-section" class="content-section">
+            <div class="card">
+                <h3><i class="fa-solid fa-shield-halved"></i> Fojix Secure VPN & Tunnels</h3>
+                <p>Manage zero-trust private network gateways, secure team access nodes, and encrypted client tunnels.</p>
+                <button class="aws-btn" onclick="switchTab('vpn-section')"><i class="fa-solid fa-arrow-right"></i> Open VPN Gateway</button>
+            </div>
+            <div class="card">
+                <h3><i class="fa-solid fa-rocket"></i> Client Deployments & Project Hub</h3>
+                <p>Deploy client web apps, PHP backend nodes, and static frontends instantly to the Fojix edge network.</p>
+                <button class="aws-btn" onclick="openDeployModal()"><i class="fa-solid fa-plus"></i> Deploy New Client Project</button>
+            </div>
         </div>
 
-        <!-- Client & Team Project Hub (Clean & Empty for future addition) -->
-        <div class="card">
-            <h3><i class="fa-solid fa-rocket"></i> Client Deployments & Project Hub</h3>
-            <p>No active client projects currently deployed. Team members can initialize or deploy projects anytime.</p>
-            <button class="aws-btn"><i class="fa-solid fa-plus"></i> Deploy New Client Project</button>
+        <!-- 2. EC2 Servers Section -->
+        <div id="ec2-section" class="content-section" style="display: none;">
+            <div class="card">
+                <h3><i class="fa-solid fa-server"></i> Virtual Node Instances (EC2)</h3>
+                <p>Deploy and scale cloud virtual servers with custom resources, CPU management, and high-performance routing.</p>
+                <button class="aws-btn" onclick="alert('Launching new EC2 compute instance node...')"><i class="fa-solid fa-plus"></i> Launch New Instance</button>
+            </div>
+        </div>
+
+        <!-- 3. S3 Storage Section -->
+        <div id="s3-section" class="content-section" style="display: none;">
+            <div class="card">
+                <h3><i class="fa-solid fa-database"></i> Object Storage & Buckets (S3)</h3>
+                <p>Secure, highly scalable object storage for client assets, static backups, and media files.</p>
+                <button class="aws-btn" onclick="alert('Storage bucket container created successfully!')"><i class="fa-solid fa-plus"></i> Create Storage Bucket</button>
+            </div>
+        </div>
+
+        <!-- 4. DNS & Edge Section -->
+        <div id="dns-section" class="content-section" style="display: none;">
+            <div class="card">
+                <h3><i class="fa-solid fa-globe"></i> DNS & Edge Routing Management</h3>
+                <p>Manage domain names, custom records (A, CNAME, TXT), and global edge CDN caching policies.</p>
+                <button class="aws-btn" onclick="alert('Domain zone configured successfully!')"><i class="fa-solid fa-plus"></i> Add Domain Zone</button>
+            </div>
+        </div>
+
+        <!-- 5. VPN Gateway Section -->
+        <div id="vpn-section" class="content-section" style="display: none;">
+            <div class="card">
+                <h3><i class="fa-solid fa-shield-halved"></i> Fojix Zero-Trust VPN Gateway</h3>
+                <p>Configure WireGuard / Tailscale encrypted endpoints for team members and secure microservices communication.</p>
+                <button class="aws-btn" onclick="alert('VPN Gateway configuration profile generated successfully!')"><i class="fa-solid fa-download"></i> Download VPN Client Profile</button>
+            </div>
+        </div>
+
+        <!-- 6. IAM Team Access Section -->
+        <div id="iam-section" class="content-section" style="display: none;">
+            <div class="card">
+                <h3><i class="fa-solid fa-users"></i> Identity & Access Management (IAM)</h3>
+                <p>Control team member permissions, roles (Admin, Developer, Viewer), and access security keys.</p>
+                <button class="aws-btn" onclick="alert('Team invitation link generated!')"><i class="fa-solid fa-user-plus"></i> Invite Team Member</button>
+            </div>
         </div>
 
     </div>
 
+    <!-- DEPLOYMENT MODAL POPUP -->
+    <div id="deployModal" class="modal-overlay" style="display: none;">
+        <div class="modal-box">
+            <div class="modal-header">
+                <h3><i class="fa-solid fa-rocket"></i> Deploy New Client Project</h3>
+                <button class="close-btn" onclick="closeDeployModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <label>Project Name</label>
+                <input type="text" placeholder="e.g., Zendo Marketplace" id="projName">
+                
+                <label>Runtime Environment</label>
+                <select id="projEnv">
+                    <option value="php">PHP / MySQL Node</option>
+                    <option value="node">Node.js Express Backend</option>
+                    <option value="static">Static HTML/CSS/JS</option>
+                </select>
+
+                <label>Custom Domain / Subdomain</label>
+                <input type="text" placeholder="e.g., client.fojixcloud.com" id="projDomain">
+
+                <button class="aws-btn" style="width: 100%; margin-top: 20px;" onclick="submitDeployment()">Initialize Deployment</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript for Interactivity and Modals -->
+    <script>
+        const navLinks = document.querySelectorAll('.nav-link');
+        const sections = document.querySelectorAll('.content-section');
+        const pageTitle = document.getElementById('page-title');
+        const pageSubtitle = document.getElementById('page-subtitle');
+        const metricsContainer = document.getElementById('metrics-container');
+
+        const pageData = {
+            'home-section': { title: 'Fojix Cloud Management Console', subtitle: 'Enterprise infrastructure, secure VPN gateways, and edge network control center.', showMetrics: true },
+            'ec2-section': { title: 'EC2 Virtual Servers', subtitle: 'Manage compute capacity, virtual machine instances, and runtime environments.', showMetrics: false },
+            's3-section': { title: 'S3 Object Storage', subtitle: 'Secure buckets, file repositories, and asset distribution networks.', showMetrics: false },
+            'dns-section': { title: 'DNS & Edge Network', subtitle: 'Global name resolution, SSL termination, and CDN edge optimization.', showMetrics: false },
+            'vpn-section': { title: 'VPN Gateway & Tunnels', subtitle: 'Zero-trust private network connections and encrypted routing.', showMetrics: false },
+            'iam-section': { title: 'IAM Team Access', subtitle: 'Manage user credentials, permissions, and security policies.', showMetrics: false }
+        };
+
+        function switchTab(targetId) {
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                if(link.getAttribute('data-target') === targetId) {
+                    link.classList.add('active');
+                }
+            });
+
+            sections.forEach(sec => {
+                sec.style.display = sec.id === targetId ? 'block' : 'none';
+            });
+
+            if(pageData[targetId]) {
+                pageTitle.textContent = pageData[targetId].title;
+                pageSubtitle.textContent = pageData[targetId].subtitle;
+                metricsContainer.style.display = pageData[targetId].showMetrics ? 'grid' : 'none';
+            }
+        }
+
+        navLinks.forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const targetId = link.getAttribute('data-target');
+                switchTab(targetId);
+            });
+        });
+
+        // Modal Functions
+        function openDeployModal() {
+            document.getElementById('deployModal').style.display = 'flex';
+        }
+
+        function closeDeployModal() {
+            document.getElementById('deployModal').style.display = 'none';
+        }
+
+        function submitDeployment() {
+            const name = document.getElementById('projName').value;
+            if(!name) {
+                alert('Please enter a project name.');
+                return;
+            }
+            alert('Deployment pipeline initiated successfully for: ' + name);
+            closeDeployModal();
+            document.getElementById('projName').value = '';
+            document.getElementById('projDomain').value = '';
+        }
+    </script>
 </body>
 </html>

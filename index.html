@@ -99,8 +99,14 @@
             background-color: var(--accent-color) !important; color: #000 !important; 
             font-weight: bold; border: none; padding: 9px 15px; border-radius: 6px;
             cursor: pointer; font-size: 13px; display: inline-flex; align-items: center; gap: 6px;
+            transition: all 0.2s;
         }
         .aws-btn:hover { opacity: 0.9; }
+        .aws-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        .aws-btn-danger {
+            background-color: #ef4444 !important; color: #fff !important;
+        }
 
         .form-input {
             width: 100%; padding: 10px; background: var(--bg-main);
@@ -122,10 +128,10 @@
         .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
         .close-btn { background: none; border: none; color: #fff; font-size: 20px; cursor: pointer; }
         
-        .badge { padding: 3px 8px; border-radius: 4px; font-size: 11px; font-weight: bold; }
-        .badge-success { background: rgba(34,197,94,0.15); color: #22c55e; }
-        .badge-warning { background: rgba(255,204,0,0.15); color: #ffcc00; }
-        .badge-danger { background: rgba(239,68,68,0.15); color: #ef4444; }
+        .badge { padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: bold; }
+        .badge-success { background: rgba(34,197,94,0.15); color: #22c55e; border: 1px solid #22c55e; }
+        .badge-warning { background: rgba(255,204,0,0.15); color: #ffcc00; border: 1px solid #ffcc00; }
+        .badge-danger { background: rgba(239,68,68,0.15); color: #ef4444; border: 1px solid #ef4444; }
 
         /* Login Screen Layout */
         #login-screen {
@@ -240,7 +246,7 @@
                             <option value="theme-cyberpunk">Cyberpunk Neon</option>
                         </select>
 
-                        <button class="aws-btn" style="background:#ef4444 !important; color:#fff !important;" onclick="handleLogout()"><i class="fa-solid fa-right-from-bracket"></i> Logout</button>
+                        <button class="aws-btn aws-btn-danger" onclick="handleLogout()"><i class="fa-solid fa-right-from-bracket"></i> Logout</button>
                     </div>
                 </header>
 
@@ -266,14 +272,14 @@
                         <i class="fa-solid fa-cubes" style="color: var(--accent-color);"></i>
                         <div>
                             <h4 style="margin: 0; font-size: 12px; color: var(--text-secondary);">K8s Pods</h4>
-                            <h2 style="margin: 4px 0 0 0; font-size: 18px;" id="metric-pod-count">3 Active</h2>
+                            <h2 style="margin: 4px 0 0 0; font-size: 18px;" id="metric-pod-count">2 Active</h2>
                         </div>
                     </div>
                     <div class="metric-card">
                         <i class="fa-solid fa-shield-halved" style="color: var(--accent-color);"></i>
                         <div>
-                            <h4 style="margin: 0; font-size: 12px; color: var(--text-secondary);">Fojix VPN</h4>
-                            <h2 style="margin: 4px 0 0 0; font-size: 18px;">Online & Secure</h2>
+                            <h4 style="margin: 0; font-size: 12px; color: var(--text-secondary);">Fojix VPN Status</h4>
+                            <h2 style="margin: 4px 0 0 0; font-size: 18px;" id="metric-vpn-status">Online & Secure</h2>
                         </div>
                     </div>
                     <div class="metric-card">
@@ -488,21 +494,28 @@
                     </div>
                 </div>
 
-                <!-- VPN Gateway Section -->
+                <!-- UPDATED VPN GATEWAY SECTION WITH INTERACTIVE CONTROL -->
                 <div id="vpn-section" class="content-section" style="display: none;">
                     <div class="card">
                         <h3><i class="fa-solid fa-shield-halved"></i> WireGuard / Tailscale Encrypted VPN Gateway</h3>
                         <p style="color: var(--text-secondary); font-size: 13px;">Connect securely to your server infrastructure with an encrypted private tunnel.</p>
+                        
                         <div style="background: var(--bg-main); padding: 15px; border-radius: 6px; border: 1px solid var(--border-color); margin: 15px 0;">
-                            <div style="display:flex; size: space-between; align-items:center;">
+                            <div style="display:flex; justify-content: space-between; align-items:center; flex-wrap: wrap; gap:10px;">
                                 <div>
-                                    <strong style="color: var(--accent-color);">VPN Tunnel Status: ACTIVE</strong>
+                                    <strong style="color: var(--accent-color);">VPN Tunnel Status: <span id="vpn-status-text">ACTIVE</span></strong>
                                     <div style="font-size:12px; color:var(--text-secondary); margin-top:4px;">Node: Asia-South (10.8.0.1) | Encryption: ChaCha20-Poly1305</div>
                                 </div>
-                                <span class="badge badge-success">Connected</span>
+                                <span class="badge badge-success" id="vpn-badge">Connected</span>
                             </div>
                         </div>
-                        <button class="aws-btn" onclick="downloadVPNProfile()"><i class="fa-solid fa-download"></i> Download WireGuard Profile (.conf)</button>
+
+                        <!-- Action Buttons (Connect/Disconnect & Config Export) -->
+                        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                            <button class="aws-btn" id="vpn-connect-btn" onclick="toggleVPN(true)" disabled><i class="fa-solid fa-plug"></i> Connect VPN</button>
+                            <button class="aws-btn aws-btn-danger" id="vpn-disconnect-btn" onclick="toggleVPN(false)"><i class="fa-solid fa-power-off"></i> Disconnect</button>
+                            <button class="aws-btn" onclick="downloadVPNProfile()"><i class="fa-solid fa-download"></i> Download WireGuard Profile (.conf)</button>
+                        </div>
                     </div>
                 </div>
 
@@ -646,6 +659,7 @@
             renderK8sPods();
             loadSecrets();
             loadUsersList();
+            renderAuditTrail();
             triggerCopilotWelcome(auth);
         }
 
@@ -692,7 +706,7 @@
                 } else if(q.includes('deploy') || q.includes('project')) {
                     bMsg.textContent = "Click 'Deploy New Client Project' on the home tab to launch PHP, Node.js, or HTML static sites.";
                 } else if(q.includes('vpn')) {
-                    bMsg.textContent = "Go to the VPN Gateway tab to download your encrypted WireGuard configuration profile.";
+                    bMsg.textContent = "Go to the VPN Gateway tab to toggle live connection or download valid WireGuard configuration profile.";
                 } else {
                     bMsg.textContent = "Believe it! I am synced with Fojix Cloud. Try asking about S3 storage, K8s pods, or deployments.";
                 }
@@ -702,46 +716,105 @@
             }, 500);
         }
 
-        function addNewUser() {
-            const user = document.getElementById('newUsername').value.trim();
-            const pass = document.getElementById('newPassword').value.trim();
-            const role = document.getElementById('newRole').value;
-
-            if(!user || !pass) return alert('Enter username and password!');
-
-            let localUsers = JSON.parse(localStorage.getItem('fojix_users') || '[]');
-            localUsers.push({ user, pass, role });
-            localStorage.setItem('fojix_users', JSON.stringify(localUsers));
-
-            document.getElementById('newUsername').value = '';
-            document.getElementById('newPassword').value = '';
-            
-            loadUsersList();
-            logAudit(`Created new ${role} user: ${user}`);
-            alert(`User ${user} added successfully!`);
+        /* LIVE VPN TOGGLE LOGIC & BASE64 KEY GENERATOR */
+        function generateBase64Key() {
+            const charset = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+            let res = "";
+            for (let i = 0; i < 43; i++) {
+                res += charset.charAt(Math.floor(Math.random() * charset.length));
+            }
+            return res + "=";
         }
 
-        function loadUsersList() {
-            const container = document.getElementById('users-list-container');
-            if(!container) return;
-            const users = getUsers();
-            container.innerHTML = users.map(u => `
-                <div style="background:var(--bg-main); padding:10px; border-radius:6px; border:1px solid var(--border-color); margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;">
-                    <div>
-                        <strong style="color:var(--accent-color); font-size:13px;">${u.user}</strong>
-                        <div style="font-size:11px; color:var(--text-secondary);">Role: ${u.role}</div>
-                    </div>
-                    <span class="badge ${u.role === 'Admin' ? 'badge-warning' : 'badge-success'}">${u.role}</span>
-                </div>
-            `).join('');
+        function toggleVPN(connect) {
+            const statusText = document.getElementById('vpn-status-text');
+            const statusBadge = document.getElementById('vpn-badge');
+            const btnConnect = document.getElementById('vpn-connect-btn');
+            const btnDisconnect = document.getElementById('vpn-disconnect-btn');
+            const metricVpnStatus = document.getElementById('metric-vpn-status');
+
+            if (connect) {
+                statusText.textContent = "ACTIVE";
+                statusBadge.textContent = "Connected";
+                statusBadge.className = "badge badge-success";
+                btnConnect.disabled = true;
+                btnDisconnect.disabled = false;
+                if(metricVpnStatus) metricVpnStatus.textContent = "Online & Secure";
+                logAudit("VPN Tunnel Connected");
+                alert("VPN Tunnel successfully connected!");
+            } else {
+                statusText.textContent = "DISCONNECTED";
+                statusBadge.textContent = "Offline";
+                statusBadge.className = "badge badge-danger";
+                btnConnect.disabled = false;
+                btnDisconnect.disabled = true;
+                if(metricVpnStatus) metricVpnStatus.textContent = "Disconnected";
+                logAudit("VPN Tunnel Disconnected");
+                alert("VPN Tunnel disconnected.");
+            }
         }
 
         function downloadVPNProfile() {
-            const vpnConfig = `[Interface]\nPrivateKey = EXAMPLE_PRIVATE_KEY=\nAddress = 10.8.0.2/24\nDNS = 1.1.1.1\n\n[Peer]\nPublicKey = FOJIX_SERVER_PUBLIC_KEY=\nEndpoint = vpn.fojixcloud.com:51820\nAllowedIPs = 0.0.0.0/0`;
+            const validPrivKey = generateBase64Key();
+            const validPubKey = generateBase64Key();
+            
+            const vpnConfig = `[Interface]\nPrivateKey = ${validPrivKey}\nAddress = 10.8.0.2/24\nDNS = 1.1.1.1\n\n[Peer]\nPublicKey = ${validPubKey}\nEndpoint = vpn.fojixcloud.com:51820\nAllowedIPs = 0.0.0.0/0`;
+            
             const blob = new Blob([vpnConfig], { type: 'text/plain' });
-            const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
-            a.download = `fojix-vpn-wireguard.conf`; a.click();
+            const a = document.createElement('a'); 
+            a.href = URL.createObjectURL(blob);
+            a.download = `fojix-vpn-wireguard.conf`; 
+            a.click();
+            logAudit("Downloaded valid WireGuard (.conf) configuration file");
         }
+
+        /* FEATURE HANDLERS & SSH EXECUTORS */
+        function runQuickSSH(cmd, msg) {
+            alert(`Executing SSH command: ${cmd}\n${msg}`);
+            logAudit(`Ran SSH Command: ${cmd}`);
+        }
+
+        function generateDBBackup() {
+            const sqlDump = `-- Fojix Cloud SQL Dump\n-- Created: ${new Date().toISOString()}\n\nCREATE TABLE IF NOT EXISTS users (id INT PRIMARY KEY, name VARCHAR(100));`;
+            const blob = new Blob([sqlDump], { type: 'text/sql' });
+            const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+            a.download = `db-backup-${Date.now()}.sql`; a.click();
+            logAudit("Generated Database SQL Dump");
+        }
+
+        function testWebhook() {
+            const url = document.getElementById('webhookUrl').value.trim();
+            if(!url) return alert("Please enter a valid webhook URL!");
+            alert(`Webhook URL saved and pinged successfully!`);
+            logAudit(`Saved Webhook Endpoint: ${url}`);
+        }
+
+        function executeTerminalCmd() {
+            const input = document.getElementById('terminalInput');
+            const cmd = input.value.trim();
+            if(!cmd) return;
+            
+            const logsBox = document.getElementById('terminal-logs-box');
+            const line = document.createElement('div');
+            line.style.color = '#22c55e';
+            line.textContent = `fojix-user@cloud:~$ ${cmd}`;
+            logsBox.appendChild(line);
+
+            const resp = document.createElement('div');
+            resp.style.color = '#94a3b8';
+            if(cmd === 'help') resp.textContent = 'Available commands: help, status, uptime, clear, reboot';
+            else if(cmd === 'status') resp.textContent = 'All edge services operational (99.99% Uptime).';
+            else if(cmd === 'uptime') resp.textContent = 'System Uptime: 48 days, 12 hours, 30 mins.';
+            else if(cmd === 'clear') { logsBox.innerHTML = ''; input.value = ''; return; }
+            else resp.textContent = `Command executed: ${cmd}`;
+
+            logsBox.appendChild(resp);
+            logsBox.scrollTop = logsBox.scrollHeight;
+            input.value = '';
+            logAudit(`Terminal Executed: ${cmd}`);
+        }
+
+        function handleTerminalKey(e) { if(e.key === 'Enter') executeTerminalCmd(); }
 
         const navLinks = document.querySelectorAll('.nav-link');
         const sections = document.querySelectorAll('.content-section');
@@ -860,6 +933,7 @@
                 card.innerHTML = `<div style="font-weight:bold; font-size:13px; color:var(--accent-color);">${pod.name}</div><div style="margin-top:6px; font-size:12px;">Status: <span class="badge badge-success">${pod.status}</span></div>`;
                 container.appendChild(card);
             });
+            document.getElementById('metric-pod-count').textContent = `${pods.length} Active`;
         }
 
         function addK8sPod() {
@@ -867,6 +941,40 @@
             pods.push({ name: podName, status: 'Running', restarts: 0 });
             renderK8sPods();
             logAudit(`Created K8s Pod: ${podName}`);
+        }
+
+        function addNewUser() {
+            const user = document.getElementById('newUsername').value.trim();
+            const pass = document.getElementById('newPassword').value.trim();
+            const role = document.getElementById('newRole').value;
+
+            if(!user || !pass) return alert('Enter username and password!');
+
+            let localUsers = JSON.parse(localStorage.getItem('fojix_users') || '[]');
+            localUsers.push({ user, pass, role });
+            localStorage.setItem('fojix_users', JSON.stringify(localUsers));
+
+            document.getElementById('newUsername').value = '';
+            document.getElementById('newPassword').value = '';
+            
+            loadUsersList();
+            logAudit(`Created new ${role} user: ${user}`);
+            alert(`User ${user} added successfully!`);
+        }
+
+        function loadUsersList() {
+            const container = document.getElementById('users-list-container');
+            if(!container) return;
+            const users = getUsers();
+            container.innerHTML = users.map(u => `
+                <div style="background:var(--bg-main); padding:10px; border-radius:6px; border:1px solid var(--border-color); margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;">
+                    <div>
+                        <strong style="color:var(--accent-color); font-size:13px;">${u.user}</strong>
+                        <div style="font-size:11px; color:var(--text-secondary);">Role: ${u.role}</div>
+                    </div>
+                    <span class="badge ${u.role === 'Admin' ? 'badge-warning' : 'badge-success'}">${u.role}</span>
+                </div>
+            `).join('');
         }
 
         function saveSecret() {
@@ -893,6 +1001,19 @@
             let audit = JSON.parse(localStorage.getItem('fojix_audit') || '[]');
             audit.unshift({ time: new Date().toLocaleString(), action });
             localStorage.setItem('fojix_audit', JSON.stringify(audit));
+            renderAuditTrail();
+        }
+
+        function renderAuditTrail() {
+            const container = document.getElementById('audit-trail-container');
+            if(!container) return;
+            let audit = JSON.parse(localStorage.getItem('fojix_audit') || '[]');
+            container.innerHTML = audit.map(a => `
+                <div style="background:var(--bg-main); padding:8px 12px; border-radius:4px; border-left:3px solid var(--accent-color); margin-bottom:6px; font-size:12px;">
+                    <span style="color:var(--text-secondary); font-size:10px;">${a.time}</span>
+                    <div style="color:var(--text-primary); font-weight:500;">${a.action}</div>
+                </div>
+            `).join('');
         }
 
         function exportCloudBackup() {

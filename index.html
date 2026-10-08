@@ -186,13 +186,17 @@
             <li><a href="#" class="nav-link active" data-target="home-section"><i class="fa-solid fa-house"></i> <span data-i18n="nav_home">Console Home</span></a></li>
             <li><a href="#" class="nav-link" data-target="ec2-section"><i class="fa-solid fa-server"></i> <span data-i18n="nav_ec2">EC2 & Metrics</span></a></li>
             <li><a href="#" class="nav-link" data-target="k8s-section"><i class="fa-solid fa-cubes"></i> Kubernetes Pods</a></li>
+            <li><a href="#" class="nav-link" data-target="registry-section"><i class="fa-brands fa-docker"></i> Container Registry</a></li>
+            <li><a href="#" class="nav-link" data-target="firewall-section"><i class="fa-solid fa-fire-flame-curved"></i> WAF & Firewall</a></li>
             <li><a href="#" class="nav-link" data-target="s3-section"><i class="fa-solid fa-database"></i> <span data-i18n="nav_s3">S3 Storage & DB</span></a></li>
             <li><a href="#" class="nav-link" data-target="secrets-section"><i class="fa-solid fa-key"></i> Secret Manager</a></li>
             <li><a href="#" class="nav-link" data-target="ssl-section"><i class="fa-solid fa-lock"></i> SSL / TLS Manager</a></li>
             <li><a href="#" class="nav-link" data-target="dns-section"><i class="fa-solid fa-globe"></i> DNS & Latency</a></li>
+            <li><a href="#" class="nav-link" data-target="cron-section"><i class="fa-solid fa-clock-rotate-left"></i> Cron Scheduler</a></li>
             <li><a href="#" class="nav-link" data-target="lb-section"><i class="fa-solid fa-network-wired"></i> Auto-Scaling & LB</a></li>
             <li><a href="#" class="nav-link" data-target="vault-section"><i class="fa-solid fa-vault"></i> Client Vault</a></li>
             <li><a href="#" class="nav-link" data-target="billing-section"><i class="fa-solid fa-file-invoice-dollar"></i> Cost & Invoicing</a></li>
+            <li><a href="#" class="nav-link" data-target="incidents-section"><i class="fa-solid fa-triangle-exclamation"></i> Incidents Status</a></li>
             <li><a href="#" class="nav-link" data-target="audit-section"><i class="fa-solid fa-timeline"></i> Audit Log Trail</a></li>
             <li><a href="#" class="nav-link" data-target="terminal-section"><i class="fa-solid fa-terminal"></i> Interactive Shell</a></li>
             <li><a href="#" class="nav-link" data-target="vpn-section"><i class="fa-solid fa-shield-halved"></i> VPN Gateway</a></li>
@@ -319,6 +323,42 @@
             </div>
         </div>
 
+        <!-- NEW FEATURE: Container Registry -->
+        <div id="registry-section" class="content-section" style="display: none;">
+            <div class="card">
+                <h3><i class="fa-brands fa-docker"></i> Private Container Image Registry</h3>
+                <p style="color: var(--text-secondary); font-size: 13px;">Manage Docker image repositories, scan vulnerabilities, and deploy tags.</p>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr auto; gap: 10px; margin-top: 15px;">
+                    <input type="text" id="repoName" class="form-input" placeholder="Repository Name (e.g., fojix/api-server)">
+                    <input type="text" id="repoTag" class="form-input" placeholder="Tag (e.g., v1.0.4)">
+                    <button class="aws-btn" onclick="pushContainerImage()" style="height: 40px;"><i class="fa-solid fa-upload"></i> Push Image</button>
+                </div>
+
+                <div id="registry-list-container" style="margin-top: 20px;"></div>
+            </div>
+        </div>
+
+        <!-- NEW FEATURE: WAF & Firewall -->
+        <div id="firewall-section" class="content-section" style="display: none;">
+            <div class="card">
+                <h3><i class="fa-solid fa-fire-flame-curved"></i> Web Application Firewall (WAF) & Network Rules</h3>
+                <p style="color: var(--text-secondary); font-size: 13px;">Filter IP addresses, manage open ports, and mitigate DDoS traffic.</p>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr auto; gap: 10px; margin-top: 15px;">
+                    <input type="text" id="fwIp" class="form-input" placeholder="IP Address / Subnet (e.g. 192.168.1.50)">
+                    <select id="fwAction" class="form-input">
+                        <option value="BLOCK">Block IP</option>
+                        <option value="ALLOW">Allow IP</option>
+                    </select>
+                    <input type="text" id="fwPort" class="form-input" placeholder="Port (e.g. 80, 443, 22)">
+                    <button class="aws-btn" onclick="addFirewallRule()" style="height: 40px;"><i class="fa-solid fa-shield"></i> Add Rule</button>
+                </div>
+
+                <div id="firewall-list-container" style="margin-top: 20px;"></div>
+            </div>
+        </div>
+
         <!-- 4. S3 Storage & Database -->
         <div id="s3-section" class="content-section" style="display: none;">
             <div class="card">
@@ -400,6 +440,22 @@
             </div>
         </div>
 
+        <!-- NEW FEATURE: Cron Job Scheduler -->
+        <div id="cron-section" class="content-section" style="display: none;">
+            <div class="card">
+                <h3><i class="fa-solid fa-clock-rotate-left"></i> Scheduled Task & Cron Manager</h3>
+                <p style="color: var(--text-secondary); font-size: 13px;">Automate background scripts, database cleanups, and batch jobs.</p>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr auto; gap: 10px; margin-top: 15px;">
+                    <input type="text" id="cronName" class="form-input" placeholder="Task Name (e.g., Daily DB Vacuum)">
+                    <input type="text" id="cronSchedule" class="form-input" placeholder="Cron Expression (e.g., 0 0 * * *)">
+                    <button class="aws-btn" onclick="addCronJob()" style="height: 40px;"><i class="fa-solid fa-calendar-plus"></i> Schedule</button>
+                </div>
+
+                <div id="cron-list-container" style="margin-top: 20px;"></div>
+            </div>
+        </div>
+
         <!-- 8. Auto-Scaling & Load Balancer -->
         <div id="lb-section" class="content-section" style="display: none;">
             <div class="card">
@@ -428,8 +484,17 @@
         <div id="billing-section" class="content-section" style="display: none;">
             <div class="card">
                 <h3><i class="fa-solid fa-file-invoice-dollar"></i> Monthly Billing & PDF Invoicing</h3>
-                <p style="color: var(--text-secondary); font-size: 13px;">Current Estimated Bill: <strong style="color: #22c55e;">\$36.70 / mo</strong></p>
+                <p style="color: var(--text-secondary); font-size: 13px;">Current Estimated Bill: <strong style="color: #22c55e;">$36.70 / mo</strong></p>
                 <button class="aws-btn" onclick="downloadPDFInvoice()"><i class="fa-solid fa-file-pdf"></i> Download Official Statement (.txt/PDF)</button>
+            </div>
+        </div>
+
+        <!-- NEW FEATURE: Active Incidents Status -->
+        <div id="incidents-section" class="content-section" style="display: none;">
+            <div class="card">
+                <h3><i class="fa-solid fa-triangle-exclamation"></i> Edge Incidents & Maintenance Board</h3>
+                <p style="color: var(--text-secondary); font-size: 13px;">Monitor real-time network outages, SSL renewals, and system warnings.</p>
+                <div id="incidents-list-container" style="margin-top: 15px;"></div>
             </div>
         </div>
 
@@ -682,6 +747,130 @@
             logAudit(`Created K8s Pod: ${podName}`);
         }
 
+        // Container Registry Logic
+        function pushContainerImage() {
+            const repo = document.getElementById('repoName').value;
+            const tag = document.getElementById('repoTag').value;
+            if(!repo || !tag) return alert('Enter repo name and tag!');
+
+            let images = JSON.parse(localStorage.getItem('fojix_registry') || '[]');
+            images.push({ repo, tag, date: new Date().toLocaleDateString(), scan: '0 Vulnerabilities' });
+            localStorage.setItem('fojix_registry', JSON.stringify(images));
+
+            document.getElementById('repoName').value = '';
+            document.getElementById('repoTag').value = '';
+            loadContainerImages();
+            logAudit(`Pushed Docker Image: ${repo}:${tag}`);
+        }
+
+        function loadContainerImages() {
+            const container = document.getElementById('registry-list-container');
+            if(!container) return;
+            let images = JSON.parse(localStorage.getItem('fojix_registry') || '[]');
+            container.innerHTML = images.length === 0 ? '<p style="color:var(--text-secondary); font-size:13px;">No container images stored.</p>' : '';
+            images.forEach(img => {
+                const card = document.createElement('div');
+                card.style.cssText = "background:var(--bg-main); padding:10px; border-radius:6px; border:1px solid var(--border-color); margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;";
+                card.innerHTML = `
+                    <div>
+                        <strong style="color:var(--accent-color); font-size:13px;">${img.repo}:${img.tag}</strong>
+                        <div style="font-size:12px; color:var(--text-secondary);">Uploaded: ${img.date}</div>
+                    </div>
+                    <span class="badge badge-success">${img.scan}</span>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // Firewall WAF Logic
+        function addFirewallRule() {
+            const ip = document.getElementById('fwIp').value;
+            const action = document.getElementById('fwAction').value;
+            const port = document.getElementById('fwPort').value || 'ALL';
+            if(!ip) return alert('Enter IP address!');
+
+            let rules = JSON.parse(localStorage.getItem('fojix_fw') || '[]');
+            rules.push({ ip, action, port });
+            localStorage.setItem('fojix_fw', JSON.stringify(rules));
+
+            document.getElementById('fwIp').value = '';
+            document.getElementById('fwPort').value = '';
+            loadFirewallRules();
+            logAudit(`Added WAF Rule: ${action} ${ip} on Port ${port}`);
+        }
+
+        function loadFirewallRules() {
+            const container = document.getElementById('firewall-list-container');
+            if(!container) return;
+            let rules = JSON.parse(localStorage.getItem('fojix_fw') || '[]');
+            container.innerHTML = rules.length === 0 ? '<p style="color:var(--text-secondary); font-size:13px;">No active firewall rules.</p>' : '';
+            rules.forEach(r => {
+                const card = document.createElement('div');
+                card.style.cssText = "background:var(--bg-main); padding:10px; border-radius:6px; border:1px solid var(--border-color); margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;";
+                card.innerHTML = `
+                    <div>
+                        <strong style="color:var(--accent-color); font-size:13px;">${r.ip}</strong> (Port: ${r.port})
+                    </div>
+                    <span class="badge ${r.action === 'ALLOW' ? 'badge-success' : 'badge-danger'}">${r.action}</span>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // Cron Job Logic
+        function addCronJob() {
+            const name = document.getElementById('cronName').value;
+            const expr = document.getElementById('cronSchedule').value;
+            if(!name || !expr) return alert('Enter task name and schedule!');
+
+            let crons = JSON.parse(localStorage.getItem('fojix_crons') || '[]');
+            crons.push({ name, expr, status: 'Active' });
+            localStorage.setItem('fojix_crons', JSON.stringify(crons));
+
+            document.getElementById('cronName').value = '';
+            document.getElementById('cronSchedule').value = '';
+            loadCronJobs();
+            logAudit(`Scheduled Cron Job: ${name}`);
+        }
+
+        function loadCronJobs() {
+            const container = document.getElementById('cron-list-container');
+            if(!container) return;
+            let crons = JSON.parse(localStorage.getItem('fojix_crons') || '[]');
+            container.innerHTML = crons.length === 0 ? '<p style="color:var(--text-secondary); font-size:13px;">No cron jobs scheduled.</p>' : '';
+            crons.forEach(c => {
+                const card = document.createElement('div');
+                card.style.cssText = "background:var(--bg-main); padding:10px; border-radius:6px; border:1px solid var(--border-color); margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;";
+                card.innerHTML = `
+                    <div>
+                        <strong style="color:var(--accent-color); font-size:13px;">${c.name}</strong>
+                        <div style="font-size:12px; color:var(--text-secondary);">Schedule: <code>${c.expr}</code></div>
+                    </div>
+                    <button class="aws-btn" onclick="alert('Running task: ${c.name}')" style="padding:4px 8px; font-size:11px;">Trigger Now</button>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // Incidents Status Logic
+        function loadIncidents() {
+            const container = document.getElementById('incidents-list-container');
+            if(!container) return;
+            let incidents = [
+                { title: 'Colombo Edge Latency Spike', status: 'Resolved', date: 'Yesterday' },
+                { title: 'SSL Auto-Renew Completed', status: 'Healthy', date: 'Today' }
+            ];
+            container.innerHTML = incidents.map(i => `
+                <div style="background:var(--bg-main); padding:10px; border-radius:6px; border:1px solid var(--border-color); margin-bottom:8px; display:flex; justify-content:space-between;">
+                    <div>
+                        <strong style="font-size:13px; color:var(--text-primary);">${i.title}</strong>
+                        <div style="font-size:11px; color:var(--text-secondary);">${i.date}</div>
+                    </div>
+                    <span class="badge badge-success">${i.status}</span>
+                </div>
+            `).join('');
+        }
+
         // Interactive Terminal CLI
         function handleTerminalKey(e) { if(e.key === 'Enter') executeTerminalCmd(); }
         function executeTerminalCmd() {
@@ -693,7 +882,7 @@
             input.value = '';
 
             if(cmd === 'help') {
-                logToTerminal('Available CLI commands: status, clear, docker, ping, date, version, pods', 'info');
+                logToTerminal('Available CLI commands: status, clear, docker, ping, date, version, pods, firewall', 'info');
             } else if(cmd === 'status') {
                 logToTerminal('System Status: 100% Operational | 0 Active Critical Incidents', 'success');
             } else if(cmd === 'clear') {
@@ -706,6 +895,8 @@
                 logToTerminal(new Date().toString(), 'info');
             } else if(cmd === 'pods') {
                 logToTerminal(`Active Pods: ${pods.map(p => p.name).join(', ')}`, 'info');
+            } else if(cmd === 'firewall') {
+                logToTerminal('WAF Protection ACTIVE: Filtering incoming malicious HTTP/S traffic', 'success');
             } else {
                 logToTerminal(`Command not recognized: '${cmd}'. Type 'help' for options.`, 'error');
             }
@@ -967,6 +1158,9 @@
                 dns: JSON.parse(localStorage.getItem('fojix_dns') || '[]'),
                 vault: JSON.parse(localStorage.getItem('fojix_vault') || '[]'),
                 s3: JSON.parse(localStorage.getItem('fojix_s3') || '[]'),
+                registry: JSON.parse(localStorage.getItem('fojix_registry') || '[]'),
+                fw: JSON.parse(localStorage.getItem('fojix_fw') || '[]'),
+                crons: JSON.parse(localStorage.getItem('fojix_crons') || '[]'),
                 audit: JSON.parse(localStorage.getItem('fojix_audit') || '[]'),
                 theme: localStorage.getItem('fojix_theme') || 'theme-aws'
             };
@@ -989,6 +1183,9 @@
                     if(data.dns) localStorage.setItem('fojix_dns', JSON.stringify(data.dns));
                     if(data.vault) localStorage.setItem('fojix_vault', JSON.stringify(data.vault));
                     if(data.s3) localStorage.setItem('fojix_s3', JSON.stringify(data.s3));
+                    if(data.registry) localStorage.setItem('fojix_registry', JSON.stringify(data.registry));
+                    if(data.fw) localStorage.setItem('fojix_fw', JSON.stringify(data.fw));
+                    if(data.crons) localStorage.setItem('fojix_crons', JSON.stringify(data.crons));
                     if(data.audit) localStorage.setItem('fojix_audit', JSON.stringify(data.audit));
                     if(data.theme) changeTheme(data.theme);
 
@@ -1010,6 +1207,10 @@
             loadDNSRecords();
             loadVaultItems();
             loadS3Buckets();
+            loadContainerImages();
+            loadFirewallRules();
+            loadCronJobs();
+            loadIncidents();
             loadAuditTrail();
 
             const savedTheme = localStorage.getItem('fojix_theme');

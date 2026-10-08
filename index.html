@@ -242,14 +242,14 @@
                 <i class="fa-solid fa-server" style="color: var(--accent-color);"></i>
                 <div>
                     <h4 style="margin: 0; font-size: 12px; color: var(--text-secondary);">Active Servers</h4>
-                    <h2 style="margin: 4px 0 0 0; font-size: 18px;">2 Nodes</h2>
+                    <h2 style="margin: 4px 0 0 0; font-size: 18px;" id="metric-server-count">2 Nodes</h2>
                 </div>
             </div>
             <div class="metric-card">
                 <i class="fa-solid fa-cubes" style="color: var(--accent-color);"></i>
                 <div>
                     <h4 style="margin: 0; font-size: 12px; color: var(--text-secondary);">K8s Pods</h4>
-                    <h2 style="margin: 4px 0 0 0; font-size: 18px;">4 Active</h2>
+                    <h2 style="margin: 4px 0 0 0; font-size: 18px;" id="metric-pod-count">3 Active</h2>
                 </div>
             </div>
             <div class="metric-card">
@@ -330,7 +330,8 @@
             <div class="card">
                 <h3><i class="fa-solid fa-folder"></i> S3 Object Storage Buckets</h3>
                 <p style="color: var(--text-secondary); font-size: 13px;">Secure scalable object storage for static client assets and media files.</p>
-                <button class="aws-btn" onclick="alert('Storage bucket created successfully!')"><i class="fa-solid fa-plus"></i> Create New Bucket</button>
+                <button class="aws-btn" onclick="createS3Bucket()"><i class="fa-solid fa-plus"></i> Create New Bucket</button>
+                <div id="s3-bucket-list" style="margin-top: 15px;"></div>
             </div>
         </div>
 
@@ -407,7 +408,7 @@
                 <div style="display: flex; gap: 15px; align-items: center; margin-top: 15px;">
                     <label style="font-size: 13px;">CPU Threshold (%):</label>
                     <input type="number" id="autoScaleCpu" class="form-input" value="80" style="width: 100px; margin:0;">
-                    <button class="aws-btn" onclick="alert('Auto-scaling policy updated!')">Update Policy</button>
+                    <button class="aws-btn" onclick="updateScalingPolicy()">Update Policy</button>
                 </div>
             </div>
         </div>
@@ -474,7 +475,7 @@
             <div class="card">
                 <h3><i class="fa-solid fa-users"></i> Role-Based Access Control (RBAC)</h3>
                 <p style="color: var(--text-secondary); font-size: 13px;">Manage access tiers for team developers and viewers.</p>
-                <button class="aws-btn" onclick="alert('Team invite token copied!')"><i class="fa-solid fa-user-plus"></i> Invite Team Member</button>
+                <button class="aws-btn" onclick="inviteTeamMember()"><i class="fa-solid fa-user-plus"></i> Invite Team Member</button>
             </div>
         </div>
 
@@ -526,8 +527,6 @@
     <script>
         const navLinks = document.querySelectorAll('.nav-link');
         const sections = document.querySelectorAll('.content-section');
-        const pageTitle = document.getElementById('page-title');
-        const pageSubtitle = document.getElementById('page-subtitle');
         const metricsContainer = document.getElementById('metrics-container');
 
         // Translations Dictionary
@@ -609,7 +608,47 @@
             // Latency jitter
             const pingCol = document.getElementById('ping-colombo');
             if(pingCol) pingCol.textContent = (12 + Math.floor(Math.random() * 5)) + ' ms';
+            const pingVir = document.getElementById('ping-virginia');
+            if(pingVir) pingVir.textContent = (180 + Math.floor(Math.random() * 10)) + ' ms';
+            const pingFra = document.getElementById('ping-frankfurt');
+            if(pingFra) pingFra.textContent = (140 + Math.floor(Math.random() * 8)) + ' ms';
         }, 3000);
+
+        // Client Projects Storage
+        function loadProjects() {
+            const container = document.getElementById('project-list-container');
+            if(!container) return;
+            let projects = JSON.parse(localStorage.getItem('fojix_projects') || '[]');
+            container.innerHTML = projects.length === 0 ? '<p style="color:var(--text-secondary); font-size:13px;">No projects deployed yet.</p>' : '';
+            projects.forEach(p => {
+                const card = document.createElement('div');
+                card.style.cssText = "background:var(--bg-main); padding:12px; border-radius:6px; border:1px solid var(--border-color); margin-bottom:10px; display:flex; justify-content:space-between; align-items:center;";
+                card.innerHTML = `
+                    <div>
+                        <strong style="color:var(--accent-color); font-size:14px;">${p.name}</strong>
+                        <div style="font-size:12px; color:var(--text-secondary);">${p.env} | <a href="https://${p.domain}" target="_blank" style="color:#22c55e;">${p.domain}</a></div>
+                    </div>
+                    <span class="badge badge-success">Active</span>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function submitDeployment() {
+            const name = document.getElementById('projName').value;
+            const env = document.getElementById('projEnv').value;
+            const domain = document.getElementById('projDomain').value;
+            if(!name || !domain) return alert('Fill all fields!');
+
+            let projects = JSON.parse(localStorage.getItem('fojix_projects') || '[]');
+            projects.push({ name, env, domain });
+            localStorage.setItem('fojix_projects', JSON.stringify(projects));
+            
+            closeDeployModal();
+            loadProjects();
+            logAudit(`Deployed project: ${name}`);
+            logToTerminal(`Project [${name}] deployed to ${domain}`, 'success');
+        }
 
         // K8s Pods Management
         let pods = [
@@ -622,7 +661,7 @@
             const container = document.getElementById('k8s-pod-list');
             if(!container) return;
             container.innerHTML = '';
-            pods.forEach((pod, index) => {
+            pods.forEach((pod) => {
                 const card = document.createElement('div');
                 card.style.cssText = "background: var(--bg-main); padding: 12px; border-radius: 6px; border: 1px solid var(--border-color);";
                 card.innerHTML = `
@@ -632,6 +671,7 @@
                 `;
                 container.appendChild(card);
             });
+            document.getElementById('metric-pod-count').textContent = `${pods.length} Active`;
         }
 
         function addK8sPod() {
@@ -639,6 +679,7 @@
             pods.push({ name: podName, status: 'Running', restarts: 0 });
             renderK8sPods();
             logToTerminal(`K8s Cluster: Spin up new pod [${podName}]`, 'success');
+            logAudit(`Created K8s Pod: ${podName}`);
         }
 
         // Interactive Terminal CLI
@@ -652,7 +693,7 @@
             input.value = '';
 
             if(cmd === 'help') {
-                logToTerminal('Available CLI commands: status, clear, docker, ping, date, version', 'info');
+                logToTerminal('Available CLI commands: status, clear, docker, ping, date, version, pods', 'info');
             } else if(cmd === 'status') {
                 logToTerminal('System Status: 100% Operational | 0 Active Critical Incidents', 'success');
             } else if(cmd === 'clear') {
@@ -663,6 +704,8 @@
                 logToTerminal('PING edge.fojixcloud.com (192.168.1.1): 64 bytes, time=14.2ms', 'success');
             } else if(cmd === 'date') {
                 logToTerminal(new Date().toString(), 'info');
+            } else if(cmd === 'pods') {
+                logToTerminal(`Active Pods: ${pods.map(p => p.name).join(', ')}`, 'info');
             } else {
                 logToTerminal(`Command not recognized: '${cmd}'. Type 'help' for options.`, 'error');
             }
@@ -719,6 +762,134 @@
             });
         }
 
+        // SSL Certificates
+        function provisionSSLCert() {
+            const domain = document.getElementById('sslDomainInput').value;
+            if(!domain) return alert('Enter domain name!');
+            let ssls = JSON.parse(localStorage.getItem('fojix_ssl') || '[]');
+            ssls.push({ domain, status: 'Active (Auto-Renew)' });
+            localStorage.setItem('fojix_ssl', JSON.stringify(ssls));
+            document.getElementById('sslDomainInput').value = '';
+            loadSSLCerts();
+            logAudit(`Provisioned SSL for ${domain}`);
+        }
+
+        function loadSSLCerts() {
+            const container = document.getElementById('ssl-list-container');
+            if(!container) return;
+            let ssls = JSON.parse(localStorage.getItem('fojix_ssl') || '[]');
+            container.innerHTML = ssls.length === 0 ? '<p style="color:var(--text-secondary); font-size:13px;">No custom SSL issued.</p>' : '';
+            ssls.forEach(s => {
+                const card = document.createElement('div');
+                card.style.cssText = "background:var(--bg-main); padding:10px; border-radius:6px; border:1px solid var(--border-color); margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;";
+                card.innerHTML = `
+                    <div>
+                        <strong style="color:var(--accent-color); font-size:13px;">${s.domain}</strong>
+                        <div style="font-size:12px; color:var(--text-secondary);">${s.status}</div>
+                    </div>
+                    <span class="badge badge-success"><i class="fa-solid fa-lock"></i> Secured</span>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // DNS Management
+        function addDNSRecord() {
+            const name = document.getElementById('dnsName').value;
+            const type = document.getElementById('dnsType').value;
+            const val = document.getElementById('dnsValue').value;
+            if(!name || !val) return alert('Enter DNS record details!');
+            let dns = JSON.parse(localStorage.getItem('fojix_dns') || '[]');
+            dns.push({ name, type, val });
+            localStorage.setItem('fojix_dns', JSON.stringify(dns));
+            document.getElementById('dnsName').value = '';
+            document.getElementById('dnsValue').value = '';
+            loadDNSRecords();
+            logAudit(`Added DNS record: ${name} (${type})`);
+        }
+
+        function loadDNSRecords() {
+            const container = document.getElementById('dns-list-container');
+            if(!container) return;
+            let dns = JSON.parse(localStorage.getItem('fojix_dns') || '[]');
+            container.innerHTML = dns.length === 0 ? '<p style="color:var(--text-secondary); font-size:13px;">No DNS records added.</p>' : '';
+            dns.forEach(d => {
+                const card = document.createElement('div');
+                card.style.cssText = "background:var(--bg-main); padding:10px; border-radius:6px; border:1px solid var(--border-color); margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;";
+                card.innerHTML = `
+                    <div>
+                        <strong style="color:var(--accent-color); font-size:13px;">${d.name}</strong> (${d.type})
+                        <div style="font-size:12px; color:var(--text-secondary);">${d.val}</div>
+                    </div>
+                    <span class="badge badge-success">Synced</span>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // Vault Management
+        function saveToVault() {
+            const name = document.getElementById('vaultItemName').value;
+            const data = document.getElementById('vaultItemData').value;
+            if(!name || !data) return alert('Enter vault item details!');
+            let vault = JSON.parse(localStorage.getItem('fojix_vault') || '[]');
+            vault.push({ name, data, date: new Date().toLocaleDateString() });
+            localStorage.setItem('fojix_vault', JSON.stringify(vault));
+            document.getElementById('vaultItemName').value = '';
+            document.getElementById('vaultItemData').value = '';
+            loadVaultItems();
+            logAudit(`Saved item to Vault: ${name}`);
+        }
+
+        function loadVaultItems() {
+            const container = document.getElementById('vault-list-container');
+            if(!container) return;
+            let vault = JSON.parse(localStorage.getItem('fojix_vault') || '[]');
+            container.innerHTML = vault.length === 0 ? '<p style="color:var(--text-secondary); font-size:13px;">Vault is empty.</p>' : '';
+            vault.forEach(v => {
+                const card = document.createElement('div');
+                card.style.cssText = "background:var(--bg-main); padding:10px; border-radius:6px; border:1px solid var(--border-color); margin-bottom:8px;";
+                card.innerHTML = `
+                    <div style="display:flex; justify-content:space-between;">
+                        <strong style="color:var(--accent-color); font-size:13px;">${v.name}</strong>
+                        <span style="font-size:11px; color:var(--text-secondary);">${v.date}</span>
+                    </div>
+                    <div style="font-size:12px; color:var(--text-secondary); margin-top:5px; white-space:pre-wrap;">${v.data}</div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // S3 Buckets
+        function createS3Bucket() {
+            const bucket = prompt('Enter S3 Bucket Name:', 'fojix-media-bucket');
+            if(!bucket) return;
+            let buckets = JSON.parse(localStorage.getItem('fojix_s3') || '[]');
+            buckets.push({ name: bucket, region: 'Asia-South (Colombo)' });
+            localStorage.setItem('fojix_s3', JSON.stringify(buckets));
+            loadS3Buckets();
+            logAudit(`Created S3 Bucket: ${bucket}`);
+        }
+
+        function loadS3Buckets() {
+            const container = document.getElementById('s3-bucket-list');
+            if(!container) return;
+            let buckets = JSON.parse(localStorage.getItem('fojix_s3') || '[]');
+            container.innerHTML = buckets.length === 0 ? '<p style="color:var(--text-secondary); font-size:13px;">No custom buckets created.</p>' : '';
+            buckets.forEach(b => {
+                const card = document.createElement('div');
+                card.style.cssText = "background:var(--bg-main); padding:10px; border-radius:6px; border:1px solid var(--border-color); margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;";
+                card.innerHTML = `
+                    <div>
+                        <strong style="color:var(--accent-color); font-size:13px;">${b.name}</strong>
+                        <div style="font-size:12px; color:var(--text-secondary);">${b.region}</div>
+                    </div>
+                    <span class="badge badge-success">Active</span>
+                `;
+                container.appendChild(card);
+            });
+        }
+
         // Invoicing & DB Backup
         function downloadPDFInvoice() {
             const invoiceText = `FOJIX CLOUD ENTERPRISE INVOICE\nDate: ${new Date().toLocaleDateString()}\n-------------------------------------\nEC2 Compute: $24.50\nS3 Storage: $4.20\nGlobal CDN: $8.00\n-------------------------------------\nTOTAL: $36.70 USD\nStatus: PAID`;
@@ -734,18 +905,42 @@
             const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
             a.download = `fojix-db-dump-${Date.now()}.sql`; a.click();
             logToTerminal('Database dump triggered and file generated.', 'success');
+            logAudit('Generated Live DB Backup Dump');
         }
 
         function testWebhook() {
             const url = document.getElementById('webhookUrl').value;
             if(!url) return alert('Enter webhook URL!');
             alert('Webhook URL saved and alert test signal sent!');
-            logAudit('Configured Discord/Slack Webhook notification');
+            logAudit('Configured Webhook notification URL');
         }
 
         function generate2FAKey() {
             const secret = 'FOJIX-' + Math.random().toString(36).substring(2, 10).toUpperCase();
             document.getElementById('2faKeyContainer').innerHTML = `Secret Key: <strong>${secret}</strong> (Add to Authenticator App)`;
+            logAudit('Generated new 2FA Secret Key');
+        }
+
+        function updateScalingPolicy() {
+            const cpu = document.getElementById('autoScaleCpu').value;
+            alert(`Auto-scaling policy updated for CPU > ${cpu}% threshold!`);
+            logAudit(`Updated Auto-scaling threshold to ${cpu}%`);
+        }
+
+        function inviteTeamMember() {
+            const email = prompt('Enter team member email:');
+            if(email) {
+                alert(`Invitation link generated and sent to ${email}`);
+                logAudit(`Invited team member: ${email}`);
+            }
+        }
+
+        function downloadVPNProfile() {
+            const vpnConf = `[Interface]\nPrivateKey = EXAMPLE_KEY\nAddress = 10.0.0.2/32\nDNS = 1.1.1.1\n\n[Peer]\nPublicKey = FOJIX_SERVER_KEY\nEndpoint = vpn.fojixcloud.com:51820\nAllowedIPs = 0.0.0.0/0`;
+            const blob = new Blob([vpnConf], { type: 'text/plain' });
+            const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+            a.download = `fojix-vpn.conf`; a.click();
+            logAudit('Downloaded WireGuard VPN Profile');
         }
 
         // Core Loaders
@@ -765,10 +960,20 @@
 
         // Backup/Restore
         function exportCloudBackup() {
-            const backupData = { audit: JSON.parse(localStorage.getItem('fojix_audit') || '[]'), theme: localStorage.getItem('fojix_theme') || 'theme-aws' };
-            const blob = new Blob([JSON.stringify(backupData)], { type: 'application/json' });
+            const backupData = {
+                projects: JSON.parse(localStorage.getItem('fojix_projects') || '[]'),
+                secrets: JSON.parse(localStorage.getItem('fojix_secrets') || '[]'),
+                ssl: JSON.parse(localStorage.getItem('fojix_ssl') || '[]'),
+                dns: JSON.parse(localStorage.getItem('fojix_dns') || '[]'),
+                vault: JSON.parse(localStorage.getItem('fojix_vault') || '[]'),
+                s3: JSON.parse(localStorage.getItem('fojix_s3') || '[]'),
+                audit: JSON.parse(localStorage.getItem('fojix_audit') || '[]'),
+                theme: localStorage.getItem('fojix_theme') || 'theme-aws'
+            };
+            const blob = new Blob([JSON.stringify(backupData, null, 2)], { type: 'application/json' });
             const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
-            a.download = `fojix-backup.json`; a.click();
+            a.download = `fojix-cloud-backup-${Date.now()}.json`; a.click();
+            logAudit('Exported System Backup JSON');
         }
 
         function importCloudBackup(e) {
@@ -776,22 +981,42 @@
             if(!file) return;
             const reader = new FileReader();
             reader.onload = function(evt) {
-                alert('Backup loaded successfully!');
+                try {
+                    const data = JSON.parse(evt.target.result);
+                    if(data.projects) localStorage.setItem('fojix_projects', JSON.stringify(data.projects));
+                    if(data.secrets) localStorage.setItem('fojix_secrets', JSON.stringify(data.secrets));
+                    if(data.ssl) localStorage.setItem('fojix_ssl', JSON.stringify(data.ssl));
+                    if(data.dns) localStorage.setItem('fojix_dns', JSON.stringify(data.dns));
+                    if(data.vault) localStorage.setItem('fojix_vault', JSON.stringify(data.vault));
+                    if(data.s3) localStorage.setItem('fojix_s3', JSON.stringify(data.s3));
+                    if(data.audit) localStorage.setItem('fojix_audit', JSON.stringify(data.audit));
+                    if(data.theme) changeTheme(data.theme);
+
+                    alert('Backup restored successfully!');
+                    location.reload();
+                } catch(err) {
+                    alert('Invalid JSON file format!');
+                }
             };
             reader.readAsText(file);
         }
 
-        function downloadVPNProfile() { alert('VPN Profile configuration downloaded!'); }
-        function provisionSSLCert() { alert('SSL Provisioned!'); }
-        function addDNSRecord() { alert('DNS Record added!'); }
-        function saveToVault() { alert('Saved to Vault!'); }
-        function submitDeployment() { alert('Project Deployed!'); closeDeployModal(); }
-
         window.onload = function() {
             initChart();
+            loadProjects();
             renderK8sPods();
             loadSecrets();
+            loadSSLCerts();
+            loadDNSRecords();
+            loadVaultItems();
+            loadS3Buckets();
             loadAuditTrail();
+
+            const savedTheme = localStorage.getItem('fojix_theme');
+            if(savedTheme) {
+                document.body.className = savedTheme;
+                document.getElementById('themeSelector').value = savedTheme;
+            }
         };
     </script>
 </body>

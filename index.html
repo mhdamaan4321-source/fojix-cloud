@@ -369,7 +369,10 @@
                     </div>
                     <div class="card">
                         <h3><i class="fa-solid fa-folder"></i> S3 Object Storage Buckets</h3>
-                        <button class="aws-btn" onclick="createS3Bucket()"><i class="fa-solid fa-plus"></i> Create New Bucket</button>
+                        <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+                            <input type="text" id="s3BucketInput" class="form-input" placeholder="Bucket Name (e.g. client-assets-bucket)" style="margin-bottom:0;">
+                            <button class="aws-btn" onclick="createS3Bucket()"><i class="fa-solid fa-plus"></i> Create Bucket</button>
+                        </div>
                         <div id="s3-bucket-list" style="margin-top: 15px;"></div>
                     </div>
                 </div>
@@ -390,7 +393,7 @@
                     <div class="card">
                         <h3><i class="fa-solid fa-lock"></i> SSL / TLS Certificate Manager</h3>
                         <div style="margin-top: 15px; display: flex; gap: 10px;">
-                            <input type="text" id="sslDomainInput" class="form-input" placeholder="Domain (e.g., app.fojixcloud.com)" style="flex: 1;">
+                            <input type="text" id="sslDomainInput" class="form-input" placeholder="Domain (e.g., app.fojixcloud.com)" style="flex: 1; margin: 0;">
                             <button class="aws-btn" onclick="provisionSSLCert()" style="height: 40px;"><i class="fa-solid fa-certificate"></i> Provision SSL</button>
                         </div>
                         <div id="ssl-list-container" style="margin-top: 20px;"></div>
@@ -494,7 +497,7 @@
                     </div>
                 </div>
 
-                <!-- UPDATED VPN GATEWAY SECTION WITH INTERACTIVE CONTROL -->
+                <!-- VPN GATEWAY SECTION -->
                 <div id="vpn-section" class="content-section" style="display: none;">
                     <div class="card">
                         <h3><i class="fa-solid fa-shield-halved"></i> WireGuard / Tailscale Encrypted VPN Gateway</h3>
@@ -510,7 +513,7 @@
                             </div>
                         </div>
 
-                        <!-- Action Buttons (Connect/Disconnect & Config Export) -->
+                        <!-- Action Buttons -->
                         <div style="display: flex; gap: 10px; flex-wrap: wrap;">
                             <button class="aws-btn" id="vpn-connect-btn" onclick="toggleVPN(true)" disabled><i class="fa-solid fa-plug"></i> Connect VPN</button>
                             <button class="aws-btn aws-btn-danger" id="vpn-disconnect-btn" onclick="toggleVPN(false)"><i class="fa-solid fa-power-off"></i> Disconnect</button>
@@ -660,6 +663,14 @@
             loadSecrets();
             loadUsersList();
             renderAuditTrail();
+            loadRegistryImages();
+            loadFirewallRules();
+            loadS3Buckets();
+            loadSSLCerts();
+            loadDNSRecords();
+            loadCronJobs();
+            loadVaultItems();
+            loadIncidents();
             triggerCopilotWelcome(auth);
         }
 
@@ -716,7 +727,7 @@
             }, 500);
         }
 
-        /* LIVE VPN TOGGLE LOGIC & BASE64 KEY GENERATOR */
+        /* VPN HANDLERS */
         function generateBase64Key() {
             const charset = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
             let res = "";
@@ -757,9 +768,7 @@
         function downloadVPNProfile() {
             const validPrivKey = generateBase64Key();
             const validPubKey = generateBase64Key();
-            
             const vpnConfig = `[Interface]\nPrivateKey = ${validPrivKey}\nAddress = 10.8.0.2/24\nDNS = 1.1.1.1\n\n[Peer]\nPublicKey = ${validPubKey}\nEndpoint = vpn.fojixcloud.com:51820\nAllowedIPs = 0.0.0.0/0`;
-            
             const blob = new Blob([vpnConfig], { type: 'text/plain' });
             const a = document.createElement('a'); 
             a.href = URL.createObjectURL(blob);
@@ -768,7 +777,242 @@
             logAudit("Downloaded valid WireGuard (.conf) configuration file");
         }
 
-        /* FEATURE HANDLERS & SSH EXECUTORS */
+        /* CONTAINER REGISTRY HANDLERS */
+        function pushContainerImage() {
+            const repo = document.getElementById('repoName').value.trim();
+            const tag = document.getElementById('repoTag').value.trim();
+            if(!repo || !tag) return alert('Enter repo name and tag!');
+            let registry = JSON.parse(localStorage.getItem('fojix_registry') || '[]');
+            registry.push({ id: Date.now(), repo, tag, date: new Date().toLocaleDateString() });
+            localStorage.setItem('fojix_registry', JSON.stringify(registry));
+            document.getElementById('repoName').value = '';
+            document.getElementById('repoTag').value = '';
+            loadRegistryImages();
+            logAudit(`Pushed Container Image: ${repo}:${tag}`);
+        }
+
+        function loadRegistryImages() {
+            const container = document.getElementById('registry-list-container');
+            if(!container) return;
+            let registry = JSON.parse(localStorage.getItem('fojix_registry') || '[]');
+            container.innerHTML = registry.length === 0 ? '<p style="color:var(--text-secondary); font-size:13px;">No container images pushed.</p>' :
+            registry.map(r => `
+                <div style="background:var(--bg-main); padding:10px 15px; border-radius:6px; border:1px solid var(--border-color); margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;">
+                    <div>
+                        <strong style="color:var(--accent-color); font-size:13px;">${r.repo}:${r.tag}</strong>
+                        <div style="font-size:11px; color:var(--text-secondary);">Pushed on: ${r.date}</div>
+                    </div>
+                    <span class="badge badge-success">Ready</span>
+                </div>
+            `).join('');
+        }
+
+        /* FIREWALL HANDLERS */
+        function addFirewallRule() {
+            const ip = document.getElementById('fwIp').value.trim();
+            const action = document.getElementById('fwAction').value;
+            const port = document.getElementById('fwPort').value.trim();
+            if(!ip || !port) return alert('Enter IP and Port!');
+            let fw = JSON.parse(localStorage.getItem('fojix_fw') || '[]');
+            fw.push({ id: Date.now(), ip, action, port });
+            localStorage.setItem('fojix_fw', JSON.stringify(fw));
+            document.getElementById('fwIp').value = '';
+            document.getElementById('fwPort').value = '';
+            loadFirewallRules();
+            logAudit(`WAF Rule Added: ${action} ${ip}:${port}`);
+        }
+
+        function loadFirewallRules() {
+            const container = document.getElementById('firewall-list-container');
+            if(!container) return;
+            let fw = JSON.parse(localStorage.getItem('fojix_fw') || '[]');
+            container.innerHTML = fw.length === 0 ? '<p style="color:var(--text-secondary); font-size:13px;">No active WAF firewall rules.</p>' :
+            fw.map(f => `
+                <div style="background:var(--bg-main); padding:10px 15px; border-radius:6px; border:1px solid var(--border-color); margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;">
+                    <div>
+                        <strong style="color:var(--text-primary); font-size:13px;">${f.ip}:${f.port}</strong>
+                    </div>
+                    <span class="badge ${f.action === 'BLOCK' ? 'badge-danger' : 'badge-success'}">${f.action}</span>
+                </div>
+            `).join('');
+        }
+
+        /* S3 BUCKET HANDLERS */
+        function createS3Bucket() {
+            const input = document.getElementById('s3BucketInput');
+            const name = input ? input.value.trim() : prompt("Enter bucket name:");
+            if(!name) return alert('Bucket name required!');
+            let buckets = JSON.parse(localStorage.getItem('fojix_s3') || '[]');
+            buckets.push({ id: Date.now(), name, region: 'Asia-South (Colombo)', files: 0 });
+            localStorage.setItem('fojix_s3', JSON.stringify(buckets));
+            if(input) input.value = '';
+            loadS3Buckets();
+            logAudit(`Created S3 Bucket: ${name}`);
+        }
+
+        function loadS3Buckets() {
+            const container = document.getElementById('s3-bucket-list');
+            if(!container) return;
+            let buckets = JSON.parse(localStorage.getItem('fojix_s3') || '[]');
+            container.innerHTML = buckets.length === 0 ? '<p style="color:var(--text-secondary); font-size:13px;">No S3 buckets created.</p>' :
+            buckets.map(b => `
+                <div style="background:var(--bg-main); padding:10px 15px; border-radius:6px; border:1px solid var(--border-color); margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;">
+                    <div>
+                        <strong style="color:var(--accent-color); font-size:13px;"><i class="fa-solid fa-folder"></i> s3://${b.name}</strong>
+                        <div style="font-size:11px; color:var(--text-secondary);">${b.region}</div>
+                    </div>
+                    <span class="badge badge-success">Active</span>
+                </div>
+            `).join('');
+        }
+
+        /* SSL CERTIFICATE HANDLERS */
+        function provisionSSLCert() {
+            const domain = document.getElementById('sslDomainInput').value.trim();
+            if(!domain) return alert('Enter domain name!');
+            let ssl = JSON.parse(localStorage.getItem('fojix_ssl') || '[]');
+            ssl.push({ id: Date.now(), domain, status: 'Active (Let\'s Encrypt)', expiry: '90 Days' });
+            localStorage.setItem('fojix_ssl', JSON.stringify(ssl));
+            document.getElementById('sslDomainInput').value = '';
+            loadSSLCerts();
+            logAudit(`Provisioned SSL Certificate for ${domain}`);
+        }
+
+        function loadSSLCerts() {
+            const container = document.getElementById('ssl-list-container');
+            if(!container) return;
+            let ssl = JSON.parse(localStorage.getItem('fojix_ssl') || '[]');
+            container.innerHTML = ssl.length === 0 ? '<p style="color:var(--text-secondary); font-size:13px;">No SSL certificates provisioned.</p>' :
+            ssl.map(s => `
+                <div style="background:var(--bg-main); padding:10px 15px; border-radius:6px; border:1px solid var(--border-color); margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;">
+                    <div>
+                        <strong style="color:var(--text-primary); font-size:13px;"><i class="fa-solid fa-lock" style="color:#22c55e;"></i> ${s.domain}</strong>
+                        <div style="font-size:11px; color:var(--text-secondary);">Expires in: ${s.expiry}</div>
+                    </div>
+                    <span class="badge badge-success">${s.status}</span>
+                </div>
+            `).join('');
+        }
+
+        /* DNS HANDLERS */
+        function addDNSRecord() {
+            const name = document.getElementById('dnsName').value.trim();
+            const type = document.getElementById('dnsType').value;
+            const val = document.getElementById('dnsValue').value.trim();
+            if(!name || !val) return alert('Enter record name and value!');
+            let dns = JSON.parse(localStorage.getItem('fojix_dns') || '[]');
+            dns.push({ id: Date.now(), name, type, val });
+            localStorage.setItem('fojix_dns', JSON.stringify(dns));
+            document.getElementById('dnsName').value = '';
+            document.getElementById('dnsValue').value = '';
+            loadDNSRecords();
+            logAudit(`Added DNS Record: ${type} ${name} -> ${val}`);
+        }
+
+        function loadDNSRecords() {
+            const container = document.getElementById('dns-list-container');
+            if(!container) return;
+            let dns = JSON.parse(localStorage.getItem('fojix_dns') || '[]');
+            container.innerHTML = dns.length === 0 ? '<p style="color:var(--text-secondary); font-size:13px;">No DNS records configured.</p>' :
+            dns.map(d => `
+                <div style="background:var(--bg-main); padding:10px 15px; border-radius:6px; border:1px solid var(--border-color); margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;">
+                    <div>
+                        <strong style="color:var(--accent-color); font-size:13px;">${d.name}</strong> [${d.type}]
+                        <div style="font-size:11px; color:var(--text-secondary);">Target: ${d.val}</div>
+                    </div>
+                    <span class="badge badge-success">Synced</span>
+                </div>
+            `).join('');
+        }
+
+        /* CRON JOB HANDLERS */
+        function addCronJob() {
+            const name = document.getElementById('cronName').value.trim();
+            const schedule = document.getElementById('cronSchedule').value.trim();
+            if(!name || !schedule) return alert('Enter task name and schedule!');
+            let cron = JSON.parse(localStorage.getItem('fojix_cron') || '[]');
+            cron.push({ id: Date.now(), name, schedule, status: 'Active' });
+            localStorage.setItem('fojix_cron', JSON.stringify(cron));
+            document.getElementById('cronName').value = '';
+            document.getElementById('cronSchedule').value = '';
+            loadCronJobs();
+            logAudit(`Scheduled Cron Job: ${name} (${schedule})`);
+        }
+
+        function loadCronJobs() {
+            const container = document.getElementById('cron-list-container');
+            if(!container) return;
+            let cron = JSON.parse(localStorage.getItem('fojix_cron') || '[]');
+            container.innerHTML = cron.length === 0 ? '<p style="color:var(--text-secondary); font-size:13px;">No scheduled cron jobs.</p>' :
+            cron.map(c => `
+                <div style="background:var(--bg-main); padding:10px 15px; border-radius:6px; border:1px solid var(--border-color); margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;">
+                    <div>
+                        <strong style="color:var(--text-primary); font-size:13px;">${c.name}</strong>
+                        <div style="font-size:11px; color:var(--text-secondary);">Schedule: <code>${c.schedule}</code></div>
+                    </div>
+                    <span class="badge badge-success">${c.status}</span>
+                </div>
+            `).join('');
+        }
+
+        /* AUTO SCALING & BILLING & VAULT & INCIDENTS */
+        function updateScalingPolicy() {
+            const threshold = document.getElementById('autoScaleCpu').value;
+            logAudit(`Updated Auto-scaling CPU Threshold to ${threshold}%`);
+            alert(`Auto-Scaling threshold updated to ${threshold}%`);
+        }
+
+        function saveToVault() {
+            const title = document.getElementById('vaultItemName').value.trim();
+            const data = document.getElementById('vaultItemData').value.trim();
+            if(!title || !data) return alert('Enter title and data!');
+            let vault = JSON.parse(localStorage.getItem('fojix_vault') || '[]');
+            vault.push({ id: Date.now(), title, data });
+            localStorage.setItem('fojix_vault', JSON.stringify(vault));
+            document.getElementById('vaultItemName').value = '';
+            document.getElementById('vaultItemData').value = '';
+            loadVaultItems();
+            logAudit(`Saved item to Vault: ${title}`);
+        }
+
+        function loadVaultItems() {
+            const container = document.getElementById('vault-list-container');
+            if(!container) return;
+            let vault = JSON.parse(localStorage.getItem('fojix_vault') || '[]');
+            container.innerHTML = vault.length === 0 ? '<p style="color:var(--text-secondary); font-size:13px;">Vault is empty.</p>' :
+            vault.map(v => `
+                <div style="background:var(--bg-main); padding:10px 15px; border-radius:6px; border:1px solid var(--border-color); margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;">
+                    <div>
+                        <strong style="color:var(--accent-color); font-size:13px;"><i class="fa-solid fa-lock"></i> ${v.title}</strong>
+                    </div>
+                    <button onclick="alert('Vault Content:\\n${v.data.replace(/'/g, "\\'")}')" class="aws-btn" style="padding:4px 8px; font-size:11px;">Decrypt & View</button>
+                </div>
+            `).join('');
+        }
+
+        function downloadPDFInvoice() {
+            const text = "FOJIX CLOUD INVOICE\n-------------------\nMonthly Usage: \$36.70\nStatus: Paid\nDate: " + new Date().toLocaleDateString();
+            const blob = new Blob([text], { type: 'text/plain' });
+            const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+            a.download = `fojix-statement-${Date.now()}.txt`; a.click();
+            logAudit("Downloaded Billing Statement");
+        }
+
+        function loadIncidents() {
+            const container = document.getElementById('incidents-list-container');
+            if(!container) return;
+            container.innerHTML = `
+                <div style="background:var(--bg-main); padding:12px; border-radius:6px; border:1px solid var(--border-color); margin-bottom:8px;">
+                    <div style="display:flex; justify-content:space-between;">
+                        <strong style="color:var(--text-primary); font-size:13px;">Database Maintenance (Scheduled)</strong>
+                        <span class="badge badge-warning">Resolved</span>
+                    </div>
+                    <div style="font-size:11px; color:var(--text-secondary); margin-top:4px;">Completed successfully on Asia-South edge cluster.</div>
+                </div>
+            `;
+        }
+
+        /* QUICK SSH & MISC */
         function runQuickSSH(cmd, msg) {
             alert(`Executing SSH command: ${cmd}\n${msg}`);
             logAudit(`Ran SSH Command: ${cmd}`);

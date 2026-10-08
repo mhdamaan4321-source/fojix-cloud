@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Fojix Cloud - Enterprise Console</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- FontAwesome CDN for Professional Cloud Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+    <div class="sidebar">
+        <h2><i class="fa-solid fa-cloud" style="color: #ffcc00;"></i> Fojix Cloud</h2>
+        <ul style="list-style: none; padding: 0; margin-top: 30px;">
+            <li style="margin: 20px 0;"><a href="#" style="color: #ffcc00; text-decoration: none;"><i class="fa-solid fa-house-laptop"></i> Console Home</a></li>
+            <li style="margin: 20px 0;"><a href="#" style="color: #fff; text-decoration: none;"><i class="fa-solid fa-server"></i> EC2 (Servers)</a></li>
+            <li style="margin: 20px 0;"><a href="#" style="color: #fff; text-decoration: none;"><i class="fa-solid fa-database"></i> S3 (Storage)</a></li>
+            <li style="margin: 20px 0;"><a href="#" style="color: #fff; text-decoration: none;"><i class="fa-solid fa-globe"></i> DNS & Edge</a></li>
+            <li style="margin: 20px 0;"><a href="#" style="color: #fff; text-decoration: none;"><i class="fa-solid fa-users-gear"></i> IAM (Team Access)</a></li>
+        </ul>
+    </div>
+
+    <div class="main-content">
+        <h1><i class="fa-solid fa-gauge-high" style="color: #ffcc00;"></i> Fojix Cloud Management Console</h1>
+        <p>Enterprise infrastructure, client deployments, and edge network control center.</p>
+
+        <!-- Quick Status Metrics Bar -->
+        <div class="metrics-grid">
+            <div class="metric-card">
+                <i class="fa-solid fa-server"></i>
+                <div>
+                    <h4>Active Servers</h4>
+                    <h2>2 Nodes</h2>
+                </div>
+            </div>
+            <div class="metric-card">
+                <i class="fa-solid fa-globe"></i>
+                <div>
+                    <h4>Client Sites</h4>
+                    <h2>Active / Live</h2>
+                </div>
+            </div>
+            <div class="metric-card">
+                <i class="fa-solid fa-shield-halved"></i>
+                <div>
+                    <h4>Cloudflare SSL</h4>
+                    <h2 style="color: #00ff88;">Protected</h2>
+                </div>
+            </div>
+        </div>
+
+        <!-- Client Projects & Deployments Section -->
+        <div class="card">
+            <h3><i class="fa-solid fa-rocket" style="color: #ffcc00;"></i> Client Deployments & Edge Hosting</h3>
+            <p>Manage and monitor all active client web applications and backend nodes.</p>
+            
+            <div class="client-row">
+                <span><i class="fa-solid fa-circle-dot" style="color: #00ff88; font-size: 10px;"></i> Zendo.lk Marketplace (PHP/JS Backend)</span>
+                <a href="https://zendo.lk" target="_blank" class="visit-btn">Visit Live <i class="fa-solid fa-arrow-up-right-from-square"></i></a>
+            </div>
+            <div class="client-row">
+                <span><i class="fa-solid fa-circle-dot" style="color: #00ff88; font-size: 10px;"></i> Kartify E-Commerce Store (Frontend Node)</span>
+                <a href="#" class="visit-btn">Manage <i class="fa-solid fa-gear"></i></a>
+            </div>
+
+            <button class="aws-btn" onclick="openDeployModal()"><i class="fa-solid fa-plus"></i> Deploy New Client Project</button>
+        </div>
+
+        <!-- AWS EC2 Style (Virtual Servers) -->
+        <div class="card">
+            <h3><i class="fa-solid fa-server" style="color: #ffcc00;"></i> Fojix EC2 (Virtual Node Instances)</h3>
+            <p>Running Instances: <span style="color: #ffcc00; font-weight: bold;">2 Active Nodes</span></p>
+            <p><i class="fa-solid fa-microchip"></i> AS-Bakery-Server.node (Running - Free Tier)</p>
+            <p><i class="fa-solid fa-microchip"></i> Zendo-Store-API.node (Running - Free Tier)</p>
+            <button class="aws-btn" onclick="alert('Provisioning new cloud compute instance...')"><i class="fa-solid fa-bolt"></i> Launch Instance</button>
+        </div>
+
+        <!-- AWS S3 Style (Storage Buckets) -->
+        <div class="card">
+            <h3><i class="fa-solid fa-database" style="color: #ffcc00;"></i> Fojix S3 (Object Storage & CDN)</h3>
+            <p>Total Storage Used: <span style="color: #ffcc00; font-weight: bold;">165 MB / 10 GB</span></p>
+            <div class="progress-bar"><div class="progress-fill"></div></div>
+            <p style="margin-top: 10px;"><i class="fa-solid fa-bucket"></i> bucket-fojix-media (Public / Static CDN)</p>
+        </div>
+    </div>
+
+    <!-- Script for Interactive Modal simulation -->
+    <script>
+        function openDeployModal() {
+            let clientName = prompt("Enter New Client Project Name (e.g., Client-Shop-Web):");
+            if(clientName) {
+                alert("Success! Project '" + clientName + "' added to deployment queue & syncing with GitHub.");
+            }
+        }
+    </script>
+
+</body>
+</html>

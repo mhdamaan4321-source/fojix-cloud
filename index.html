@@ -6,12 +6,54 @@
     <title>Fojix Cloud Management Console</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Theme Variables */
+        :root {
+            --bg-main: #0b1329;
+            --bg-sidebar: #070d1d;
+            --bg-card: #0f1a36;
+            --accent-color: #ffcc00;
+            --text-primary: #ffffff;
+            --text-secondary: #94a3b8;
+            --border-color: rgba(255, 204, 0, 0.2);
+        }
+
+        body.theme-matrix {
+            --bg-main: #020f07;
+            --bg-sidebar: #010804;
+            --bg-card: #051f0e;
+            --accent-color: #22c55e;
+            --text-primary: #e2e8f0;
+            --text-secondary: #86efac;
+            --border-color: rgba(34, 197, 94, 0.3);
+        }
+
+        body.theme-cyberpunk {
+            --bg-main: #120524;
+            --bg-sidebar: #0b0314;
+            --bg-card: #1f0a38;
+            --accent-color: #ec4899;
+            --text-primary: #fff;
+            --text-secondary: #f472b6;
+            --border-color: rgba(236, 72, 153, 0.3);
+        }
+
+        body {
+            background-color: var(--bg-main);
+            color: var(--text-primary);
+            transition: background 0.3s ease;
+        }
+
+        .sidebar { background-color: var(--bg-sidebar) !important; border-right: 1px solid var(--border-color); }
+        .card, .metric-card { background-color: var(--bg-card) !important; border: 1px solid var(--border-color) !important; }
+        .aws-btn { background-color: var(--accent-color) !important; color: #000 !important; font-weight: bold; }
+    </style>
 </head>
-<body>
+<body class="theme-aws">
 
     <!-- Sidebar Navigation -->
     <div class="sidebar">
-        <h2><i class="fa-solid fa-cloud"></i> Fojix Cloud</h2>
+        <h2><i class="fa-solid fa-cloud" style="color: var(--accent-color);"></i> Fojix Cloud</h2>
         <ul>
             <li><a href="#" class="nav-link active" data-target="home-section"><i class="fa-solid fa-house"></i> Console Home</a></li>
             <li><a href="#" class="nav-link" data-target="ec2-section"><i class="fa-solid fa-server"></i> EC2 (Servers)</a></li>
@@ -26,39 +68,49 @@
 
     <!-- Main Content Area -->
     <div class="main-content">
-        <header>
-            <h1 id="page-title">Fojix Cloud Management Console</h1>
-            <p id="page-subtitle">Enterprise infrastructure, secure VPN gateways, and edge network control center.</p>
+        <header style="display: flex; justify-content: space-between; align-items: center;">
+            <div>
+                <h1 id="page-title">Fojix Cloud Management Console</h1>
+                <p id="page-subtitle">Enterprise infrastructure, secure VPN gateways, and edge network control center.</p>
+            </div>
+            <!-- Theme Switcher Dropdown -->
+            <div>
+                <select id="themeSelector" onchange="changeTheme(this.value)" style="padding: 8px 12px; background: var(--bg-card); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: 6px; cursor: pointer; font-size: 13px;">
+                    <option value="theme-aws">⚡ AWS Dark (Default)</option>
+                    <option value="theme-matrix">🟢 Matrix Green</option>
+                    <option value="theme-cyberpunk">💖 Cyberpunk Neon</option>
+                </select>
+            </div>
         </header>
 
         <!-- TOP METRICS GRID (Visible on Home) -->
         <div id="metrics-container" class="metrics-grid">
             <div class="metric-card">
-                <i class="fa-solid fa-server"></i>
+                <i class="fa-solid fa-server" style="color: var(--accent-color);"></i>
                 <div>
                     <h4>Active Servers</h4>
                     <h2>2 Nodes</h2>
                 </div>
             </div>
             <div class="metric-card">
-                <i class="fa-solid fa-vault"></i>
+                <i class="fa-solid fa-vault" style="color: var(--accent-color);"></i>
                 <div>
                     <h4>Client Vault</h4>
                     <h2>Local Active</h2>
                 </div>
             </div>
             <div class="metric-card">
-                <i class="fa-solid fa-shield-halved"></i>
+                <i class="fa-solid fa-shield-halved" style="color: var(--accent-color);"></i>
                 <div>
                     <h4>Fojix VPN Gateway</h4>
                     <h2>Online & Secure</h2>
                 </div>
             </div>
             <div class="metric-card">
-                <i class="fa-solid fa-lock"></i>
+                <i class="fa-solid fa-microchip" style="color: var(--accent-color);"></i>
                 <div>
-                    <h4>Cloudflare SSL</h4>
-                    <h2>Protected</h2>
+                    <h4>Live CPU / RAM Load</h4>
+                    <h2 id="metric-load" style="font-size: 16px; margin-top: 4px;">CPU: 32% | RAM: 58%</h2>
                 </div>
             </div>
         </div>
@@ -80,7 +132,7 @@
                 
                 <!-- Dynamic Projects Container -->
                 <div id="project-list-container" style="margin-top: 20px;">
-                    <!-- Persistent deployed projects appear here with delete option -->
+                    <!-- Deployed projects appear here -->
                 </div>
             </div>
         </div>
@@ -88,9 +140,32 @@
         <!-- 2. EC2 Servers Section -->
         <div id="ec2-section" class="content-section" style="display: none;">
             <div class="card">
-                <h3><i class="fa-solid fa-server"></i> Virtual Node Instances (EC2)</h3>
-                <p>Deploy and scale cloud virtual servers with custom resources, CPU management, and high-performance routing.</p>
-                <button class="aws-btn" onclick="alert('Launching new EC2 compute instance node...')"><i class="fa-solid fa-plus"></i> Launch New Instance</button>
+                <h3><i class="fa-solid fa-server"></i> Virtual Node Instances (EC2) & Live Performance</h3>
+                <p>Real-time telemetry and resource scaling for your cloud instances.</p>
+                
+                <div style="margin-top: 20px;">
+                    <div style="margin-bottom: 15px;">
+                        <div style="display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 6px;">
+                            <span>Node 01 CPU Utilization (Region: LK-CEN)</span>
+                            <span id="ec2-cpu-val">34%</span>
+                        </div>
+                        <div style="background: rgba(255,255,255,0.05); border-radius: 4px; height: 10px; overflow: hidden;">
+                            <div id="ec2-cpu-bar" style="width: 34%; background: var(--accent-color); height: 100%; transition: width 0.5s ease;"></div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <div style="display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 6px;">
+                            <span>Node 01 RAM Memory Allocation (8GB Pool)</span>
+                            <span id="ec2-ram-val">4.6 GB (58%)</span>
+                        </div>
+                        <div style="background: rgba(255,255,255,0.05); border-radius: 4px; height: 10px; overflow: hidden;">
+                            <div id="ec2-ram-bar" style="width: 58%; background: var(--accent-color); height: 100%; transition: width 0.5s ease;"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="aws-btn" style="margin-top: 20px;" onclick="alert('Launching new EC2 compute instance node...')"><i class="fa-solid fa-plus"></i> Launch New Instance</button>
             </div>
         </div>
 
@@ -110,16 +185,14 @@
                 <p>Store encrypted team notes, client API keys, and configuration files directly inside your browser storage securely.</p>
                 
                 <div style="margin-top: 15px;">
-                    <input type="text" id="vaultItemName" placeholder="Item Name (e.g., Client DB Credentials)" style="width: 100%; padding: 10px; background: #050b14; border: 1px solid rgba(147, 197, 253, 0.3); border-radius: 6px; color: #fff; margin-bottom: 10px; box-sizing: border-box;">
-                    <textarea id="vaultItemData" placeholder="Enter secure data or text notes here..." style="width: 100%; height: 80px; padding: 10px; background: #050b14; border: 1px solid rgba(147, 197, 253, 0.3); border-radius: 6px; color: #fff; box-sizing: border-box;"></textarea>
+                    <input type="text" id="vaultItemName" placeholder="Item Name (e.g., Client DB Credentials)" style="width: 100%; padding: 10px; background: var(--bg-main); border: 1px solid var(--border-color); border-radius: 6px; color: var(--text-primary); margin-bottom: 10px; box-sizing: border-box;">
+                    <textarea id="vaultItemData" placeholder="Enter secure data or text notes here..." style="width: 100%; height: 80px; padding: 10px; background: var(--bg-main); border: 1px solid var(--border-color); border-radius: 6px; color: var(--text-primary); box-sizing: border-box;"></textarea>
                     <button class="aws-btn" onclick="saveToVault()"><i class="fa-solid fa-save"></i> Save to Browser Vault</button>
                 </div>
 
                 <div style="margin-top: 25px;">
-                    <h4 style="color: #ffcc00; font-size: 14px; margin-bottom: 10px;">Saved Vault Items:</h4>
-                    <div id="vault-list-container">
-                        <!-- Local storage items will load here -->
-                    </div>
+                    <h4 style="color: var(--accent-color); font-size: 14px; margin-bottom: 10px;">Saved Vault Items:</h4>
+                    <div id="vault-list-container"></div>
                 </div>
             </div>
         </div>
@@ -130,10 +203,10 @@
                 <h3><i class="fa-solid fa-terminal"></i> Fojix Edge CLI & Deployment Logs</h3>
                 <p>Real-time system diagnostics, build output logs, and edge network execution stream.</p>
                 
-                <div style="background: #03070d; border: 1px solid rgba(255, 204, 0, 0.3); border-radius: 6px; padding: 15px; margin-top: 15px; font-family: monospace; height: 260px; overflow-y: auto;" id="terminal-logs-box">
+                <div style="background: #03070d; border: 1px solid var(--border-color); border-radius: 6px; padding: 15px; margin-top: 15px; font-family: monospace; height: 260px; overflow-y: auto;" id="terminal-logs-box">
                     <div style="color: #94a3b8;">[Fojix-CLI] Initializing secure connection to edge core...</div>
                     <div style="color: #22c55e;">[SUCCESS] Connected to Fojix Cloud Region: Asia-South (LK)</div>
-                    <div style="color: #93c5fd;">[INFO] Ready for client deployments and pipeline execution. Type commands or trigger deployment from hub.</div>
+                    <div style="color: var(--text-secondary);">[INFO] Ready for client deployments and pipeline execution.</div>
                 </div>
                 
                 <button class="aws-btn" style="margin-top: 15px;" onclick="clearTerminalLogs()"><i class="fa-solid fa-trash"></i> Clear Logs</button>
@@ -155,19 +228,6 @@
                 <h3><i class="fa-solid fa-shield-halved"></i> Fojix Zero-Trust VPN Gateway</h3>
                 <p>Configure WireGuard / Tailscale encrypted endpoints for team members and secure microservices communication.</p>
                 <button class="aws-btn" onclick="downloadVPNProfile()"><i class="fa-solid fa-download"></i> Download VPN Client Profile (.conf)</button>
-                
-                <div style="margin-top: 20px;">
-                    <label style="color: #ffcc00; font-size: 13px; font-weight: bold;">Active WireGuard Profile Preview:</label>
-                    <pre id="vpn-config-preview" style="background: #03070d; border: 1px solid rgba(147, 197, 253, 0.3); border-radius: 6px; padding: 12px; color: #22c55e; font-family: monospace; font-size: 12px; margin-top: 6px; overflow-x: auto;">[Interface]
-PrivateKey = a9z7Xy2qLp8R1vK4mN3w...
-Address = 10.8.0.2/32
-DNS = 1.1.1.1, 8.8.8.8
-
-[Peer]
-PublicKey = fojix_edge_gateway_node_lk_01
-Endpoint = vpn.fojixcloud.com:51820
-AllowedIPs = 0.0.0.0/0</pre>
-                </div>
             </div>
         </div>
 
@@ -208,7 +268,7 @@ AllowedIPs = 0.0.0.0/0</pre>
         </div>
     </div>
 
-    <!-- JavaScript for Interactivity, Modals, LocalStorage, Terminal, VPN & Termination -->
+    <!-- JavaScript for Interactivity, Theme Switcher, Live Telemetry & LocalStorage -->
     <script>
         const navLinks = document.querySelectorAll('.nav-link');
         const sections = document.querySelectorAll('.content-section');
@@ -254,26 +314,44 @@ AllowedIPs = 0.0.0.0/0</pre>
             });
         });
 
-        // Modal Functions
-        function openDeployModal() {
-            document.getElementById('deployModal').style.display = 'flex';
+        // Theme Switcher Function
+        function changeTheme(themeName) {
+            document.body.className = themeName;
+            localStorage.setItem('fojix_theme', themeName);
         }
 
-        function closeDeployModal() {
-            document.getElementById('deployModal').style.display = 'none';
-        }
+        // Live CPU & RAM Telemetry Simulator
+        setInterval(() => {
+            const cpu = Math.floor(Math.random() * 25) + 25; // 25% to 50%
+            const ram = Math.floor(Math.random() * 15) + 50; // 50% to 65%
+
+            const loadEl = document.getElementById('metric-load');
+            if(loadEl) loadEl.textContent = `CPU: ${cpu}% | RAM: ${ram}%`;
+
+            const cpuBar = document.getElementById('ec2-cpu-bar');
+            const cpuVal = document.getElementById('ec2-cpu-val');
+            if(cpuBar && cpuVal) {
+                cpuBar.style.width = cpu + '%';
+                cpuVal.textContent = cpu + '%';
+            }
+
+            const ramBar = document.getElementById('ec2-ram-bar');
+            const ramVal = document.getElementById('ec2-ram-val');
+            if(ramBar && ramVal) {
+                const ramGB = (ram * 0.08).toFixed(1);
+                ramBar.style.width = ram + '%';
+                ramVal.textContent = `${ramGB} GB (${ram}%)`;
+            }
+        }, 3000);
+
+        // Modal Functions
+        function openDeployModal() { document.getElementById('deployModal').style.display = 'flex'; }
+        function closeDeployModal() { document.getElementById('deployModal').style.display = 'none'; }
 
         function logToTerminal(message, type = 'info') {
             const terminalBox = document.getElementById('terminal-logs-box');
             if(!terminalBox) return;
-
-            const colorMap = {
-                'info': '#93c5fd',
-                'success': '#22c55e',
-                'warning': '#ffcc00',
-                'error': '#ef4444'
-            };
-
+            const colorMap = { 'info': '#93c5fd', 'success': '#22c55e', 'warning': '#ffcc00', 'error': '#ef4444' };
             const logEntry = document.createElement('div');
             logEntry.style.color = colorMap[type] || '#ffffff';
             logEntry.style.marginTop = '4px';
@@ -284,48 +362,36 @@ AllowedIPs = 0.0.0.0/0</pre>
 
         function clearTerminalLogs() {
             const terminalBox = document.getElementById('terminal-logs-box');
-            if(terminalBox) {
-                terminalBox.innerHTML = '<div style="color: #94a3b8;">[Fojix-CLI] Terminal logs cleared. Ready for operations.</div>';
-            }
+            if(terminalBox) terminalBox.innerHTML = '<div style="color: #94a3b8;">[Fojix-CLI] Terminal logs cleared. Ready for operations.</div>';
         }
 
-        // Persistent Project Deployment & Termination Functions
+        // Persistent Deployments
         function submitDeployment() {
             const name = document.getElementById('projName').value;
             const env = document.getElementById('projEnv').value;
             const domain = document.getElementById('projDomain').value || 'fojixcloud.com';
 
-            if(!name) {
-                alert('Please enter a project name.');
-                return;
-            }
+            if(!name) { alert('Please enter a project name.'); return; }
 
             let projects = JSON.parse(localStorage.getItem('fojix_projects') || '[]');
             projects.push({ id: Date.now(), name, env, domain, date: new Date().toLocaleDateString() });
             localStorage.setItem('fojix_projects', JSON.stringify(projects));
 
             logToTerminal(`Initiating build pipeline for project: "${name}" (${env})`, 'info');
-            setTimeout(() => logToTerminal(`Cloning repository files to edge node container...`, 'info'), 600);
-            setTimeout(() => logToTerminal(`Installing runtime dependencies for ${env}...`, 'warning'), 1200);
-            setTimeout(() => logToTerminal(`SSL certificate successfully provisioned for ${domain}`, 'success'), 1800);
-            setTimeout(() => logToTerminal(`Project "${name}" deployed live successfully at https://${domain}`, 'success'), 2400);
+            setTimeout(() => logToTerminal(`SSL certificate successfully provisioned for ${domain}`, 'success'), 1500);
+            setTimeout(() => logToTerminal(`Project "${name}" deployed live successfully at https://${domain}`, 'success'), 2200);
 
             loadProjects();
             closeDeployModal();
-            
             document.getElementById('projName').value = '';
             document.getElementById('projDomain').value = '';
-            
-            alert('Deployment initiated! Check the "Live Terminal" tab to watch real-time build logs.');
+            alert('Deployment initiated successfully!');
         }
 
         function terminateProject(id) {
             if(!confirm('Are you sure you want to terminate and delete this deployed project?')) return;
-
             let projects = JSON.parse(localStorage.getItem('fojix_projects') || '[]');
-            const updatedProjects = projects.filter(p => p.id !== id);
-            localStorage.setItem('fojix_projects', JSON.stringify(updatedProjects));
-
+            localStorage.setItem('fojix_projects', JSON.stringify(projects.filter(p => p.id !== id)));
             logToTerminal(`Project ID [${id}] terminated and removed from edge nodes.`, 'warning');
             loadProjects();
         }
@@ -333,26 +399,24 @@ AllowedIPs = 0.0.0.0/0</pre>
         function loadProjects() {
             const container = document.getElementById('project-list-container');
             if(!container) return;
-
             let projects = JSON.parse(localStorage.getItem('fojix_projects') || '[]');
             container.innerHTML = '';
 
             if(projects.length === 0) {
-                container.innerHTML = '<p style="color: #94a3b8; font-size: 13px;">No active client projects currently deployed. Team members can initialize or deploy projects anytime.</p>';
+                container.innerHTML = '<p style="color: var(--text-secondary); font-size: 13px;">No active client projects currently deployed.</p>';
                 return;
             }
 
             projects.forEach((proj) => {
                 const projectCard = document.createElement('div');
-                projectCard.style.cssText = "background: #050b14; padding: 12px 15px; border-radius: 6px; margin: 10px 0; border: 1px solid rgba(255, 204, 0, 0.2); display: flex; justify-content: space-between; align-items: center;";
-                
+                projectCard.style.cssText = "background: var(--bg-main); padding: 12px 15px; border-radius: 6px; margin: 10px 0; border: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center;";
                 projectCard.innerHTML = `
                     <div>
-                        <div style="color: #ffffff; font-weight: bold; font-size: 14px;"><i class="fa-solid fa-circle" style="color: #22c55e; font-size: 10px; margin-right: 6px;"></i> ${proj.name} (${proj.env})</div>
-                        <div style="color: #93c5fd; font-size: 12px; margin-top: 2px;">Domain: ${proj.domain}</div>
+                        <div style="color: var(--text-primary); font-weight: bold; font-size: 14px;"><i class="fa-solid fa-circle" style="color: var(--accent-color); font-size: 10px; margin-right: 6px;"></i> ${proj.name} (${proj.env})</div>
+                        <div style="color: var(--text-secondary); font-size: 12px; margin-top: 2px;">Domain: ${proj.domain}</div>
                     </div>
                     <div style="display: flex; align-items: center; gap: 10px;">
-                        <span style="background: rgba(255, 204, 0, 0.1); color: #ffcc00; padding: 4px 10px; border-radius: 4px; font-size: 12px; font-weight: bold;">Active</span>
+                        <span style="background: rgba(255, 204, 0, 0.1); color: var(--accent-color); padding: 4px 10px; border-radius: 4px; font-size: 12px; font-weight: bold;">Active</span>
                         <button onclick="terminateProject(${proj.id})" style="background: rgba(239, 68, 68, 0.15); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.4); padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 12px;"><i class="fa-solid fa-trash"></i> Terminate</button>
                     </div>
                 `;
@@ -360,80 +424,48 @@ AllowedIPs = 0.0.0.0/0</pre>
             });
         }
 
-        // VPN Profile Download Generator
         function downloadVPNProfile() {
-            const configContent = `[Interface]
-PrivateKey = a9z7Xy2qLp8R1vK4mN3w...
-Address = 10.8.0.2/32
-DNS = 1.1.1.1, 8.8.8.8
-
-[Peer]
-PublicKey = fojix_edge_gateway_node_lk_01
-Endpoint = vpn.fojixcloud.com:51820
-AllowedIPs = 0.0.0.0/0`;
-
-            const blob = new Blob([configContent], { type: 'text/plain' });
+            const config = `[Interface]\nPrivateKey = a9z7Xy2qLp8R1vK... \nAddress = 10.8.0.2/32\n[Peer]\nEndpoint = vpn.fojixcloud.com:51820`;
+            const blob = new Blob([config], { type: 'text/plain' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
-            a.href = url;
-            a.download = 'fojix-vpn-node.conf';
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-
-            logToTerminal('Zero-Trust VPN profile configuration downloaded for client node.', 'success');
-            alert('VPN configuration profile (.conf) downloaded successfully!');
+            a.href = url; a.download = 'fojix-vpn-node.conf';
+            a.click(); URL.revokeObjectURL(url);
+            logToTerminal('Zero-Trust VPN profile configuration downloaded.', 'success');
+            alert('VPN profile downloaded successfully!');
         }
 
-        // Vault LocalStorage Functions
         function saveToVault() {
             const name = document.getElementById('vaultItemName').value;
             const data = document.getElementById('vaultItemData').value;
-
-            if(!name || !data) {
-                alert('Please fill in both name and vault data.');
-                return;
-            }
-
-            let vaultItems = JSON.parse(localStorage.getItem('fojix_vault') || '[]');
-            vaultItems.push({ name, data, date: new Date().toLocaleDateString() });
-            localStorage.setItem('fojix_vault', JSON.stringify(vaultItems));
-
+            if(!name || !data) { alert('Please fill in both fields.'); return; }
+            let items = JSON.parse(localStorage.getItem('fojix_vault') || '[]');
+            items.push({ name, data, date: new Date().toLocaleDateString() });
+            localStorage.setItem('fojix_vault', JSON.stringify(items));
             document.getElementById('vaultItemName').value = '';
             document.getElementById('vaultItemData').value = '';
             loadVaultItems();
-            logToTerminal(`New item "${name}" securely stored in browser vault.`, 'success');
-            alert('Item securely saved to browser local vault!');
+            logToTerminal(`Item "${name}" stored in vault.`, 'success');
         }
 
         function loadVaultItems() {
             const container = document.getElementById('vault-list-container');
             if(!container) return;
-            
-            let vaultItems = JSON.parse(localStorage.getItem('fojix_vault') || '[]');
+            let items = JSON.parse(localStorage.getItem('fojix_vault') || '[]');
             container.innerHTML = '';
-
-            if(vaultItems.length === 0) {
-                container.innerHTML = '<p style="color: #94a3b8; font-size: 13px;">No items saved in vault yet.</p>';
-                return;
-            }
-
-            vaultItems.forEach((item) => {
+            if(items.length === 0) { container.innerHTML = '<p style="color: var(--text-secondary); font-size: 13px;">No items saved in vault yet.</p>'; return; }
+            items.forEach((item) => {
                 const card = document.createElement('div');
-                card.style.cssText = "background: #050b14; padding: 12px 15px; border-radius: 6px; margin: 8px 0; border: 1px solid rgba(147, 197, 253, 0.2);";
-                card.innerHTML = `
-                    <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <strong style="color: #ffcc00; font-size: 13px;">${item.name}</strong>
-                        <span style="color: #94a3b8; font-size: 11px;">${item.date}</span>
-                    </div>
-                    <p style="color: #e2e8f0; font-size: 13px; margin: 6px 0 0 0; word-break: break-all;">${item.data}</p>
-                `;
+                card.style.cssText = "background: var(--bg-main); padding: 12px; border-radius: 6px; margin: 8px 0; border: 1px solid var(--border-color);";
+                card.innerHTML = `<strong style="color: var(--accent-color); font-size: 13px;">${item.name}</strong><p style="color: var(--text-primary); font-size: 13px; margin: 4px 0 0 0;">${item.data}</p>`;
                 container.appendChild(card);
             });
         }
 
         window.onload = function() {
+            const savedTheme = localStorage.getItem('fojix_theme') || 'theme-aws';
+            document.body.className = savedTheme;
+            document.getElementById('themeSelector').value = savedTheme;
             loadProjects();
             loadVaultItems();
             logToTerminal('Fojix Cloud Management Console fully booted and operational.', 'success');

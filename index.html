@@ -80,7 +80,7 @@
                 
                 <!-- Dynamic Projects Container -->
                 <div id="project-list-container" style="margin-top: 20px;">
-                    <!-- Persistent deployed projects appear here -->
+                    <!-- Persistent deployed projects appear here with delete option -->
                 </div>
             </div>
         </div>
@@ -154,7 +154,20 @@
             <div class="card">
                 <h3><i class="fa-solid fa-shield-halved"></i> Fojix Zero-Trust VPN Gateway</h3>
                 <p>Configure WireGuard / Tailscale encrypted endpoints for team members and secure microservices communication.</p>
-                <button class="aws-btn" onclick="alert('VPN Gateway configuration profile generated successfully!')"><i class="fa-solid fa-download"></i> Download VPN Client Profile</button>
+                <button class="aws-btn" onclick="downloadVPNProfile()"><i class="fa-solid fa-download"></i> Download VPN Client Profile (.conf)</button>
+                
+                <div style="margin-top: 20px;">
+                    <label style="color: #ffcc00; font-size: 13px; font-weight: bold;">Active WireGuard Profile Preview:</label>
+                    <pre id="vpn-config-preview" style="background: #03070d; border: 1px solid rgba(147, 197, 253, 0.3); border-radius: 6px; padding: 12px; color: #22c55e; font-family: monospace; font-size: 12px; margin-top: 6px; overflow-x: auto;">[Interface]
+PrivateKey = a9z7Xy2qLp8R1vK4mN3w...
+Address = 10.8.0.2/32
+DNS = 1.1.1.1, 8.8.8.8
+
+[Peer]
+PublicKey = fojix_edge_gateway_node_lk_01
+Endpoint = vpn.fojixcloud.com:51820
+AllowedIPs = 0.0.0.0/0</pre>
+                </div>
             </div>
         </div>
 
@@ -195,7 +208,7 @@
         </div>
     </div>
 
-    <!-- JavaScript for Interactivity, Modals, LocalStorage Vault & Live Terminal -->
+    <!-- JavaScript for Interactivity, Modals, LocalStorage, Terminal, VPN & Termination -->
     <script>
         const navLinks = document.querySelectorAll('.nav-link');
         const sections = document.querySelectorAll('.content-section');
@@ -276,7 +289,7 @@
             }
         }
 
-        // Persistent Project Deployment Functions
+        // Persistent Project Deployment & Termination Functions
         function submitDeployment() {
             const name = document.getElementById('projName').value;
             const env = document.getElementById('projEnv').value;
@@ -287,12 +300,10 @@
                 return;
             }
 
-            // Save to localStorage
             let projects = JSON.parse(localStorage.getItem('fojix_projects') || '[]');
-            projects.push({ name, env, domain, date: new Date().toLocaleDateString() });
+            projects.push({ id: Date.now(), name, env, domain, date: new Date().toLocaleDateString() });
             localStorage.setItem('fojix_projects', JSON.stringify(projects));
 
-            // Log deployment steps to terminal
             logToTerminal(`Initiating build pipeline for project: "${name}" (${env})`, 'info');
             setTimeout(() => logToTerminal(`Cloning repository files to edge node container...`, 'info'), 600);
             setTimeout(() => logToTerminal(`Installing runtime dependencies for ${env}...`, 'warning'), 1200);
@@ -306,6 +317,17 @@
             document.getElementById('projDomain').value = '';
             
             alert('Deployment initiated! Check the "Live Terminal" tab to watch real-time build logs.');
+        }
+
+        function terminateProject(id) {
+            if(!confirm('Are you sure you want to terminate and delete this deployed project?')) return;
+
+            let projects = JSON.parse(localStorage.getItem('fojix_projects') || '[]');
+            const updatedProjects = projects.filter(p => p.id !== id);
+            localStorage.setItem('fojix_projects', JSON.stringify(updatedProjects));
+
+            logToTerminal(`Project ID [${id}] terminated and removed from edge nodes.`, 'warning');
+            loadProjects();
         }
 
         function loadProjects() {
@@ -329,10 +351,39 @@
                         <div style="color: #ffffff; font-weight: bold; font-size: 14px;"><i class="fa-solid fa-circle" style="color: #22c55e; font-size: 10px; margin-right: 6px;"></i> ${proj.name} (${proj.env})</div>
                         <div style="color: #93c5fd; font-size: 12px; margin-top: 2px;">Domain: ${proj.domain}</div>
                     </div>
-                    <span style="background: rgba(255, 204, 0, 0.1); color: #ffcc00; padding: 4px 10px; border-radius: 4px; font-size: 12px; font-weight: bold;">Active</span>
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <span style="background: rgba(255, 204, 0, 0.1); color: #ffcc00; padding: 4px 10px; border-radius: 4px; font-size: 12px; font-weight: bold;">Active</span>
+                        <button onclick="terminateProject(${proj.id})" style="background: rgba(239, 68, 68, 0.15); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.4); padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 12px;"><i class="fa-solid fa-trash"></i> Terminate</button>
+                    </div>
                 `;
                 container.appendChild(projectCard);
             });
+        }
+
+        // VPN Profile Download Generator
+        function downloadVPNProfile() {
+            const configContent = `[Interface]
+PrivateKey = a9z7Xy2qLp8R1vK4mN3w...
+Address = 10.8.0.2/32
+DNS = 1.1.1.1, 8.8.8.8
+
+[Peer]
+PublicKey = fojix_edge_gateway_node_lk_01
+Endpoint = vpn.fojixcloud.com:51820
+AllowedIPs = 0.0.0.0/0`;
+
+            const blob = new Blob([configContent], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'fojix-vpn-node.conf';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+
+            logToTerminal('Zero-Trust VPN profile configuration downloaded for client node.', 'success');
+            alert('VPN configuration profile (.conf) downloaded successfully!');
         }
 
         // Vault LocalStorage Functions

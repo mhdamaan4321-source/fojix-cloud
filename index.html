@@ -74,12 +74,10 @@
                 <p id="page-subtitle">Enterprise infrastructure, secure VPN gateways, and edge network control center.</p>
             </div>
             
-            <div style="display: flex; align-items: center; gap: 10px;">
-                <!-- Backup & Restore Buttons -->
+            <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
                 <button class="aws-btn" onclick="exportCloudBackup()" title="Download JSON Backup" style="padding: 8px 12px; font-size: 12px; border-radius: 6px; cursor: pointer;"><i class="fa-solid fa-download"></i> Backup</button>
                 <label class="aws-btn" title="Restore JSON Backup" style="padding: 8px 12px; font-size: 12px; border-radius: 6px; cursor: pointer; display: inline-block; margin-bottom: 0;"><i class="fa-solid fa-upload"></i> Restore <input type="file" id="restoreFile" accept=".json" onchange="importCloudBackup(event)" style="display: none;"></label>
 
-                <!-- Theme Switcher Dropdown -->
                 <select id="themeSelector" onchange="changeTheme(this.value)" style="padding: 8px 12px; background: var(--bg-card); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: 6px; cursor: pointer; font-size: 13px;">
                     <option value="theme-aws">⚡ AWS Dark</option>
                     <option value="theme-matrix">🟢 Matrix Green</option>
@@ -87,6 +85,15 @@
                 </select>
             </div>
         </header>
+
+        <!-- GLOBAL UPTIME STATUS BANNER -->
+        <div onclick="openUptimeModal()" style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 6px; padding: 10px 15px; margin: 15px 0; display: flex; justify-content: space-between; align-items: center; cursor: pointer; font-size: 13px;" title="Click to view regional health">
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <i class="fa-solid fa-circle" style="color: #22c55e; font-size: 10px;"></i>
+                <span style="font-weight: bold; color: var(--text-primary);">System Status: All Global Edge Nodes Operational (99.99% Uptime)</span>
+            </div>
+            <span style="color: var(--accent-color); font-size: 12px;"><i class="fa-solid fa-arrow-up-right-from-square"></i> View Regions</span>
+        </div>
 
         <!-- TOP METRICS GRID (Visible on Home) -->
         <div id="metrics-container" class="metrics-grid">
@@ -135,12 +142,11 @@
                 <p>Deploy client web apps, PHP backend nodes, and static frontends instantly to the Fojix edge network.</p>
                 <button class="aws-btn" onclick="openDeployModal()"><i class="fa-solid fa-plus"></i> Deploy New Client Project</button>
                 
-                <!-- Dynamic Projects Container -->
                 <div id="project-list-container" style="margin-top: 20px;"></div>
             </div>
         </div>
 
-        <!-- 2. EC2 Servers Section -->
+        <!-- 2. EC2 Servers Section (With Quick SSH Runners) -->
         <div id="ec2-section" class="content-section" style="display: none;">
             <div class="card">
                 <h3><i class="fa-solid fa-server"></i> Virtual Node Instances (EC2) & Live Performance</h3>
@@ -165,6 +171,17 @@
                         <div style="background: rgba(255,255,255,0.05); border-radius: 4px; height: 10px; overflow: hidden;">
                             <div id="ec2-ram-bar" style="width: 58%; background: var(--accent-color); height: 100%; transition: width 0.5s ease;"></div>
                         </div>
+                    </div>
+                </div>
+
+                <!-- QUICK SSH COMMAND RUNNERS -->
+                <div style="margin-top: 25px;">
+                    <h4 style="color: var(--accent-color); font-size: 14px; margin-bottom: 10px;"><i class="fa-solid fa-terminal"></i> Quick Server SSH Action Runners:</h4>
+                    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                        <button class="aws-btn" onclick="runQuickSSH('sudo systemctl restart nginx', 'Restarting Nginx web server on Node 01...')"><i class="fa-solid fa-rotate"></i> Restart Nginx</button>
+                        <button class="aws-btn" onclick="runQuickSSH('docker ps -a', 'Fetching active Docker container instances...')"><i class="fa-brands fa-docker"></i> Docker Status</button>
+                        <button class="aws-btn" onclick="runQuickSSH('htop', 'Launching htop process monitor stream...')"><i class="fa-solid fa-chart-line"></i> Run htop</button>
+                        <button class="aws-btn" onclick="runQuickSSH('df -h', 'Checking disk space storage allocation...')"><i class="fa-solid fa-hard-drive"></i> Disk Usage (df -h)</button>
                     </div>
                 </div>
 
@@ -286,7 +303,36 @@
         </div>
     </div>
 
-    <!-- JavaScript for Interactivity, Theme Switcher, DNS, Backup/Restore & Telemetry -->
+    <!-- REGIONAL UPTIME STATUS MODAL -->
+    <div id="uptimeModal" class="modal-overlay" style="display: none;">
+        <div class="modal-box" style="max-width: 500px;">
+            <div class="modal-header">
+                <h3><i class="fa-solid fa-globe"></i> Global Edge Infrastructure Health</h3>
+                <button class="close-btn" onclick="closeUptimeModal()">&times;</button>
+            </div>
+            <div class="modal-body" style="font-size: 13px;">
+                <div style="display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--border-color);">
+                    <span>Asia-South (Colombo, LK)</span>
+                    <strong style="color: #22c55e;"><i class="fa-solid fa-circle" style="font-size: 8px;"></i> 99.99% Operational</strong>
+                </div>
+                <div style="display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--border-color);">
+                    <span>US-East (N. Virginia, US)</span>
+                    <strong style="color: #22c55e;"><i class="fa-solid fa-circle" style="font-size: 8px;"></i> 100% Operational</strong>
+                </div>
+                <div style="display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--border-color);">
+                    <span>EU-Central (Frankfurt, DE)</span>
+                    <strong style="color: #22c55e;"><i class="fa-solid fa-circle" style="font-size: 8px;"></i> 99.98% Operational</strong>
+                </div>
+                <div style="display: flex; justify-content: space-between; padding: 10px 0;">
+                    <span>Global CDN Edge Routing</span>
+                    <strong style="color: #22c55e;"><i class="fa-solid fa-circle" style="font-size: 8px;"></i> Protected & Active</strong>
+                </div>
+                <button class="aws-btn" style="width: 100%; margin-top: 20px;" onclick="closeUptimeModal()">Close Status Center</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript for Interactivity, Theme, SSH Runner, Uptime & Backups -->
     <script>
         const navLinks = document.querySelectorAll('.nav-link');
         const sections = document.querySelectorAll('.content-section');
@@ -338,6 +384,10 @@
             localStorage.setItem('fojix_theme', themeName);
         }
 
+        // Uptime Modal Functions
+        function openUptimeModal() { document.getElementById('uptimeModal').style.display = 'flex'; }
+        function closeUptimeModal() { document.getElementById('uptimeModal').style.display = 'none'; }
+
         // Live CPU & RAM Telemetry
         setInterval(() => {
             const cpu = Math.floor(Math.random() * 25) + 25;
@@ -362,6 +412,26 @@
             }
         }, 3000);
 
+        // Quick SSH Command Runner
+        function runQuickSSH(command, description) {
+            switchTab('terminal-section');
+            logToTerminal(`[SSH-NODE-01] Executing command: ${command}`, 'warning');
+            setTimeout(() => {
+                logToTerminal(description, 'info');
+            }, 600);
+            setTimeout(() => {
+                if(command === 'sudo systemctl restart nginx') {
+                    logToTerminal('[SUCCESS] Nginx service restarted successfully. HTTP/2 routing online.', 'success');
+                } else if(command === 'docker ps -a') {
+                    logToTerminal('CONTAINER ID   IMAGE                 STATUS\n4a8f9c12b102   fojix/edge-node:v2    Up 4 days\n8c2e1f99a381   mysql:8.0-alpine      Up 4 days', 'success');
+                } else if(command === 'htop') {
+                    logToTerminal('Tasks: 42, 2 threads; 2 active. CPU: 34.2% usr, RAM: 4.6G/8.0G used.', 'success');
+                } else if(command === 'df -h') {
+                    logToTerminal('Filesystem      Size  Used Avail Use% Mounted on\n/dev/nvme0n1p1   50G   14G   36G  28% /', 'success');
+                }
+            }, 1200);
+        }
+
         // Modal Functions
         function openDeployModal() { document.getElementById('deployModal').style.display = 'flex'; }
         function closeDeployModal() { document.getElementById('deployModal').style.display = 'none'; }
@@ -373,6 +443,7 @@
             const logEntry = document.createElement('div');
             logEntry.style.color = colorMap[type] || '#ffffff';
             logEntry.style.marginTop = '4px';
+            logEntry.style.whiteSpace = 'pre-line';
             logEntry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
             terminalBox.appendChild(logEntry);
             terminalBox.scrollTop = terminalBox.scrollHeight;
@@ -521,7 +592,7 @@
             });
         }
 
-        // Cloud JSON Backup & Restore
+        // Backup & Restore
         function exportCloudBackup() {
             const backupData = {
                 projects: JSON.parse(localStorage.getItem('fojix_projects') || '[]'),
@@ -530,7 +601,6 @@
                 theme: localStorage.getItem('fojix_theme') || 'theme-aws',
                 exportDate: new Date().toISOString()
             };
-
             const blob = new Blob([JSON.stringify(backupData, null, 2)], { type: 'application/json' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
@@ -544,7 +614,6 @@
         function importCloudBackup(event) {
             const file = event.target.files[0];
             if(!file) return;
-
             const reader = new FileReader();
             reader.onload = function(e) {
                 try {
@@ -557,15 +626,11 @@
                         document.body.className = data.theme;
                         document.getElementById('themeSelector').value = data.theme;
                     }
-
-                    loadProjects();
-                    loadVaultItems();
-                    loadDNSRecords();
+                    loadProjects(); loadVaultItems(); loadDNSRecords();
                     logToTerminal('Cloud backup restored successfully from JSON file.', 'success');
                     alert('Cloud configuration restored successfully!');
                 } catch(err) {
                     alert('Invalid backup JSON file.');
-                    logToTerminal('Failed to import backup file: Invalid format.', 'error');
                 }
             };
             reader.readAsText(file);

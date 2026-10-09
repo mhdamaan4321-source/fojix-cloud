@@ -8,6 +8,12 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Chart.js for Live Visualizations -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- FIREBASE SDKs (v9 Compat) -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+
     <style>
         :root {
             --bg-main: #0b1329;
@@ -104,13 +110,8 @@
         .aws-btn:hover { opacity: 0.9; }
         .aws-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
-        .aws-btn-danger {
-            background-color: #ef4444 !important; color: #fff !important;
-        }
-
-        .aws-btn-sm {
-            padding: 4px 8px; font-size: 11px;
-        }
+        .aws-btn-danger { background-color: #ef4444 !important; color: #fff !important; }
+        .aws-btn-sm { padding: 4px 8px; font-size: 11px; }
 
         .form-input {
             width: 100%; padding: 10px; background: var(--bg-main);
@@ -188,8 +189,8 @@
     <!-- LOGIN SCREEN -->
     <div id="login-screen">
         <div class="login-box">
-            <h2 style="margin-top:0; color: var(--accent-color);"><i class="fa-solid fa-cloud"></i> Fojix Login</h2>
-            <p style="font-size:12px; color:var(--text-secondary);">Enter credentials to access dashboard</p>
+            <h2 style="margin-top:0; color: var(--accent-color);"><i class="fa-solid fa-cloud"></i> Fojix Cloud DB</h2>
+            <p style="font-size:12px; color:var(--text-secondary);">Firebase Realtime Authenticated Console</p>
             <input type="text" id="loginUser" class="form-input" placeholder="Username / Email">
             <input type="password" id="loginPass" class="form-input" placeholder="Password">
             <button class="aws-btn" style="width: 100%; margin-top: 10px;" onclick="handleLogin()">Login to Console</button>
@@ -231,7 +232,7 @@
                 <header style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; margin-bottom: 20px;">
                     <div>
                         <h1 id="page-title">Fojix Management Console</h1>
-                        <p id="page-subtitle" style="color: var(--text-secondary); font-size: 13px;">Logged in as: <strong id="active-user-role" style="color:var(--accent-color);">Admin</strong></p>
+                        <p id="page-subtitle" style="color: var(--text-secondary); font-size: 13px;">Logged in as: <strong id="active-user-role" style="color:var(--accent-color);">Admin</strong> <span class="badge badge-success" style="margin-left:8px;"><i class="fa-solid fa-bolt"></i> Firebase Live Sync</span></p>
                     </div>
                     
                     <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
@@ -242,7 +243,6 @@
                         </select>
 
                         <button class="aws-btn" onclick="exportCloudBackup()"><i class="fa-solid fa-download"></i> Backup</button>
-                        <label class="aws-btn" style="cursor: pointer; margin: 0;"><i class="fa-solid fa-upload"></i> Restore <input type="file" id="restoreFile" accept=".json" onchange="importCloudBackup(event)" style="display: none;"></label>
 
                         <select id="themeSelector" onchange="changeTheme(this.value)" style="padding: 8px 12px; background: var(--bg-card); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: 6px; cursor: pointer; font-size: 13px;">
                             <option value="theme-aws">AWS Dark</option>
@@ -258,9 +258,9 @@
                 <div onclick="openUptimeModal()" style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 6px; padding: 10px 15px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; font-size: 13px;">
                     <div style="display: flex; align-items: center; gap: 8px;">
                         <i class="fa-solid fa-circle-check" style="color: #22c55e;"></i>
-                        <span style="font-weight: bold; color: var(--text-primary);" id="banner-status">System Status: All Edge Nodes Operational (99.99% Uptime)</span>
+                        <span style="font-weight: bold; color: var(--text-primary);" id="banner-status">System Status: Firebase Firestore Realtime Database Operational</span>
                     </div>
-                    <span style="color: var(--accent-color); font-size: 12px;"><i class="fa-solid fa-arrow-up-right-from-square"></i> View Regions</span>
+                    <span style="color: var(--accent-color); font-size: 12px;"><i class="fa-solid fa-arrow-up-right-from-square"></i> View Health</span>
                 </div>
 
                 <!-- METRICS GRID -->
@@ -530,7 +530,7 @@
                 <div id="iam-section" class="content-section" style="display: none;">
                     <div class="card">
                         <h3><i class="fa-solid fa-user-plus"></i> Dynamic User Management (IAM)</h3>
-                        <p style="color: var(--text-secondary); font-size: 13px;">Create new accounts dynamically stored in localStorage for immediate access.</p>
+                        <p style="color: var(--text-secondary); font-size: 13px;">Create new accounts synced across all team members in Firebase Cloud DB.</p>
                         
                         <div style="display: grid; grid-template-columns: 1fr 1fr 1fr auto; gap: 10px; margin-top: 15px;">
                             <input type="text" id="newUsername" class="form-input" placeholder="Username / Email">
@@ -610,22 +610,37 @@
     </div>
 
     <script>
+        // FIREBASE INITIALIZATION WITH YOUR KEYS
+        const firebaseConfig = {
+            apiKey: "AIzaSyA3xupgO_IYBfBADdOcpXh254OpwCEWtGg",
+            authDomain: "fojix-cloud.firebaseapp.com",
+            projectId: "fojix-cloud",
+            storageBucket: "fojix-cloud.firebasestorage.app",
+            messagingSenderId: "848259967200",
+            appId: "1:848259967200:web:fa0105c95d8e2f8e5f0885",
+            measurementId: "G-K1G6Q4GGSE"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
         const defaultAccounts = [
             { user: "myfojix@fojix.com", pass: "fojix001", role: "Admin" },
             { user: "use001", pass: "use@001", role: "Client" }
         ];
 
-        function getUsers() {
-            let localUsers = JSON.parse(localStorage.getItem('fojix_users') || '[]');
-            return [...defaultAccounts, ...localUsers];
-        }
-
-        function handleLogin() {
+        async function handleLogin() {
             const u = document.getElementById('loginUser').value.trim();
             const p = document.getElementById('loginPass').value.trim();
-            const accounts = getUsers();
 
-            const match = accounts.find(a => a.user === u && a.pass === p);
+            let match = defaultAccounts.find(a => a.user === u && a.pass === p);
+
+            if(!match) {
+                try {
+                    const snapshot = await db.collection('users').where('user', '==', u).where('pass', '==', p).get();
+                    if(!snapshot.empty) match = snapshot.docs[0].data();
+                } catch(e) { console.error("Login DB check error:", e); }
+            }
 
             if(match) {
                 localStorage.setItem('fojix_auth', JSON.stringify(match));
@@ -662,23 +677,69 @@
             }
 
             initChart();
-            loadProjects();
-            renderK8sPods();
-            loadSecrets();
-            loadUsersList();
-            renderAuditTrail();
-            loadRegistryImages();
-            loadFirewallRules();
-            loadS3Buckets();
-            loadSSLCerts();
-            loadDNSRecords();
-            loadCronJobs();
-            loadVaultItems();
-            loadIncidents();
-            loadVPNState();
+            listenRealtimeData();
             triggerCopilotWelcome(auth);
         }
 
+        /* REALTIME FIRESTORE LISTENERS FOR MULTI-USER SYNC */
+        function listenRealtimeData() {
+            db.collection('projects').onSnapshot(snap => {
+                const projects = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                renderProjects(projects);
+            });
+
+            db.collection('registry').onSnapshot(snap => {
+                const registry = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                renderRegistryImages(registry);
+            });
+
+            db.collection('firewall').onSnapshot(snap => {
+                const fw = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                renderFirewallRules(fw);
+            });
+
+            db.collection('s3_buckets').onSnapshot(snap => {
+                const buckets = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                renderS3Buckets(buckets);
+            });
+
+            db.collection('secrets').onSnapshot(snap => {
+                const secrets = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                renderSecrets(secrets);
+            });
+
+            db.collection('ssl').onSnapshot(snap => {
+                const ssl = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                renderSSLCerts(ssl);
+            });
+
+            db.collection('dns').onSnapshot(snap => {
+                const dns = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                renderDNSRecords(dns);
+            });
+
+            db.collection('cron').onSnapshot(snap => {
+                const cron = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                renderCronJobs(cron);
+            });
+
+            db.collection('vault').onSnapshot(snap => {
+                const vault = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                renderVaultItems(vault);
+            });
+
+            db.collection('users').onSnapshot(snap => {
+                const users = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                renderUsersList(users);
+            });
+
+            db.collection('audit_trail').orderBy('time', 'desc').limit(20).onSnapshot(snap => {
+                const audit = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                renderAuditTrail(audit);
+            });
+        }
+
+        /* COPILOT WIDGET */
         function toggleCopilot() {
             const win = document.getElementById('copilotWindow');
             win.style.display = win.style.display === 'flex' ? 'none' : 'flex';
@@ -689,7 +750,7 @@
             body.innerHTML = `
                 <div class="chat-msg bot">
                     Dattebayo! 👋 Welcome <strong>${auth.user}</strong> to <strong>Fojix Cloud Console</strong>!<br><br>
-                    I am your Copilot assistant. Ask me anything about Fojix Cloud deployment, S3 storage, K8s pods, or VPN configs!
+                    Connected to Firebase Cloud DB. Ask me anything about Fojix Cloud!
                 </div>
             `;
         }
@@ -702,130 +763,69 @@
             if(!txt) return;
 
             const body = document.getElementById('chatBody');
-            
             const uMsg = document.createElement('div');
             uMsg.className = 'chat-msg user';
             uMsg.textContent = txt;
             body.appendChild(uMsg);
-
             input.value = '';
 
             setTimeout(() => {
                 const bMsg = document.createElement('div');
                 bMsg.className = 'chat-msg bot';
-                
                 const q = txt.toLowerCase();
-                if(q.includes('s3') || q.includes('storage')) {
-                    bMsg.textContent = "Fojix S3 provides high-speed, secure object storage for static files & automated DB dumps!";
-                } else if(q.includes('ec2') || q.includes('server') || q.includes('node')) {
-                    bMsg.textContent = "You can monitor live CPU/RAM charts in the 'EC2 & Metrics' tab, or execute remote SSH commands!";
-                } else if(q.includes('deploy') || q.includes('project')) {
-                    bMsg.textContent = "Click 'Deploy New Client Project' on the home tab to launch PHP, Node.js, or HTML static sites.";
-                } else if(q.includes('vpn')) {
-                    bMsg.textContent = "Go to the VPN Gateway tab to toggle live connection or download valid WireGuard configuration profile.";
-                } else {
-                    bMsg.textContent = "Believe it! I am synced with Fojix Cloud. Try asking about S3 storage, K8s pods, or deployments.";
-                }
+                if(q.includes('s3')) bMsg.textContent = "Fojix S3 provides high-speed, secure object storage for static files & automated DB dumps!";
+                else if(q.includes('vpn')) bMsg.textContent = "Go to the VPN Gateway tab to toggle live connection or download WireGuard profile.";
+                else bMsg.textContent = "Believe it! I am synced live via Firebase Firestore. Try asking about S3, K8s, or deployments.";
                 
                 body.appendChild(bMsg);
                 body.scrollTop = body.scrollHeight;
             }, 500);
         }
 
-        /* VPN HANDLERS */
-        function generateBase64Key() {
-            const charset = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
-            let res = "";
-            for (let i = 0; i < 43; i++) {
-                res += charset.charAt(Math.floor(Math.random() * charset.length));
-            }
-            return res + "=";
+        /* ACTION FUNCTIONS WRITTEN TO FIRESTORE */
+        function submitDeployment() {
+            const name = document.getElementById('projName').value;
+            const env = document.getElementById('projEnv').value;
+            const domain = document.getElementById('projDomain').value;
+            if(!name || !domain) return alert('Fill all fields!');
+
+            db.collection('projects').add({ name, env, domain, createdAt: new Date() });
+            closeDeployModal();
+            logAudit(`Deployed project: ${name}`);
         }
 
-        function loadVPNState() {
-            const vpnState = localStorage.getItem('fojix_vpn_active');
-            const isConnected = vpnState === null ? true : vpnState === 'true';
-            updateVPNUI(isConnected);
+        function deleteProject(id) {
+            db.collection('projects').doc(id).delete();
+            logAudit(`Deleted Project Deployment`);
         }
 
-        function updateVPNUI(isConnected) {
-            const statusText = document.getElementById('vpn-status-text');
-            const statusBadge = document.getElementById('vpn-badge');
-            const btnConnect = document.getElementById('vpn-connect-btn');
-            const btnDisconnect = document.getElementById('vpn-disconnect-btn');
-            const metricVpnStatus = document.getElementById('metric-vpn-status');
-
-            if (isConnected) {
-                if(statusText) statusText.textContent = "ACTIVE";
-                if(statusBadge) {
-                    statusBadge.textContent = "Connected";
-                    statusBadge.className = "badge badge-success";
-                }
-                if(btnConnect) btnConnect.disabled = true;
-                if(btnDisconnect) btnDisconnect.disabled = false;
-                if(metricVpnStatus) metricVpnStatus.textContent = "Online & Secure";
-            } else {
-                if(statusText) statusText.textContent = "DISCONNECTED";
-                if(statusBadge) {
-                    statusBadge.textContent = "Offline";
-                    statusBadge.className = "badge badge-danger";
-                }
-                if(btnConnect) btnConnect.disabled = false;
-                if(btnDisconnect) btnDisconnect.disabled = true;
-                if(metricVpnStatus) metricVpnStatus.textContent = "Disconnected";
-            }
+        function renderProjects(projects) {
+            const container = document.getElementById('project-list-container');
+            if(!container) return;
+            container.innerHTML = projects.length === 0 ? '<p style="color:var(--text-secondary); font-size:13px;">No projects deployed yet.</p>' : '';
+            projects.forEach(p => {
+                const card = document.createElement('div');
+                card.style.cssText = "background:var(--bg-main); padding:12px; border-radius:6px; border:1px solid var(--border-color); margin-bottom:10px; display:flex; justify-content:space-between; align-items:center;";
+                card.innerHTML = `<div><strong style="color:var(--accent-color); font-size:14px;">${p.name}</strong><div style="font-size:12px; color:var(--text-secondary);">${p.env} | <a href="https://${p.domain}" target="_blank" style="color:#22c55e;">${p.domain}</a></div></div><div style="display:flex; gap:8px; align-items:center;"><span class="badge badge-success">Active</span><button onclick="deleteProject('${p.id}')" class="aws-btn aws-btn-danger aws-btn-sm"><i class="fa-solid fa-trash"></i></button></div>`;
+                container.appendChild(card);
+            });
         }
 
-        function toggleVPN(connect) {
-            localStorage.setItem('fojix_vpn_active', connect ? 'true' : 'false');
-            updateVPNUI(connect);
-            if (connect) {
-                logAudit("VPN Tunnel Connected");
-                alert("VPN Tunnel successfully connected!");
-            } else {
-                logAudit("VPN Tunnel Disconnected");
-                alert("VPN Tunnel disconnected.");
-            }
-        }
-
-        function downloadVPNProfile() {
-            const validPrivKey = generateBase64Key();
-            const validPubKey = generateBase64Key();
-            const vpnConfig = `[Interface]\nPrivateKey = ${validPrivKey}\nAddress = 10.8.0.2/24\nDNS = 1.1.1.1\n\n[Peer]\nPublicKey = ${validPubKey}\nEndpoint = vpn.fojixcloud.com:51820\nAllowedIPs = 0.0.0.0/0`;
-            const blob = new Blob([vpnConfig], { type: 'text/plain' });
-            const a = document.createElement('a'); 
-            a.href = URL.createObjectURL(blob);
-            a.download = `fojix-vpn-wireguard.conf`; 
-            a.click();
-            logAudit("Downloaded valid WireGuard (.conf) configuration file");
-        }
-
-        /* CONTAINER REGISTRY HANDLERS */
         function pushContainerImage() {
             const repo = document.getElementById('repoName').value.trim();
             const tag = document.getElementById('repoTag').value.trim();
             if(!repo || !tag) return alert('Enter repo name and tag!');
-            let registry = JSON.parse(localStorage.getItem('fojix_registry') || '[]');
-            registry.push({ id: Date.now(), repo, tag, date: new Date().toLocaleDateString() });
-            localStorage.setItem('fojix_registry', JSON.stringify(registry));
+            db.collection('registry').add({ repo, tag, date: new Date().toLocaleDateString() });
             document.getElementById('repoName').value = '';
             document.getElementById('repoTag').value = '';
-            loadRegistryImages();
             logAudit(`Pushed Container Image: ${repo}:${tag}`);
         }
 
-        function deleteRegistryImage(id) {
-            let registry = JSON.parse(localStorage.getItem('fojix_registry') || '[]');
-            registry = registry.filter(r => r.id !== id);
-            localStorage.setItem('fojix_registry', JSON.stringify(registry));
-            loadRegistryImages();
-            logAudit(`Deleted Container Image`);
-        }
+        function deleteRegistryImage(id) { db.collection('registry').doc(id).delete(); }
 
-        function loadRegistryImages() {
+        function renderRegistryImages(registry) {
             const container = document.getElementById('registry-list-container');
             if(!container) return;
-            let registry = JSON.parse(localStorage.getItem('fojix_registry') || '[]');
             container.innerHTML = registry.length === 0 ? '<p style="color:var(--text-secondary); font-size:13px;">No container images pushed.</p>' :
             registry.map(r => `
                 <div style="background:var(--bg-main); padding:10px 15px; border-radius:6px; border:1px solid var(--border-color); margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;">
@@ -835,331 +835,259 @@
                     </div>
                     <div style="display:flex; gap:8px; align-items:center;">
                         <span class="badge badge-success">Ready</span>
-                        <button onclick="deleteRegistryImage(${r.id})" class="aws-btn aws-btn-danger aws-btn-sm"><i class="fa-solid fa-trash"></i></button>
+                        <button onclick="deleteRegistryImage('${r.id}')" class="aws-btn aws-btn-danger aws-btn-sm"><i class="fa-solid fa-trash"></i></button>
                     </div>
                 </div>
             `).join('');
         }
 
-        /* FIREWALL HANDLERS */
         function addFirewallRule() {
             const ip = document.getElementById('fwIp').value.trim();
             const action = document.getElementById('fwAction').value;
             const port = document.getElementById('fwPort').value.trim();
             if(!ip || !port) return alert('Enter IP and Port!');
-            let fw = JSON.parse(localStorage.getItem('fojix_fw') || '[]');
-            fw.push({ id: Date.now(), ip, action, port });
-            localStorage.setItem('fojix_fw', JSON.stringify(fw));
+            db.collection('firewall').add({ ip, action, port });
             document.getElementById('fwIp').value = '';
             document.getElementById('fwPort').value = '';
-            loadFirewallRules();
             logAudit(`WAF Rule Added: ${action} ${ip}:${port}`);
         }
 
-        function deleteFirewallRule(id) {
-            let fw = JSON.parse(localStorage.getItem('fojix_fw') || '[]');
-            fw = fw.filter(f => f.id !== id);
-            localStorage.setItem('fojix_fw', JSON.stringify(fw));
-            loadFirewallRules();
-            logAudit(`Removed WAF Firewall Rule`);
-        }
+        function deleteFirewallRule(id) { db.collection('firewall').doc(id).delete(); }
 
-        function loadFirewallRules() {
+        function renderFirewallRules(fw) {
             const container = document.getElementById('firewall-list-container');
             if(!container) return;
-            let fw = JSON.parse(localStorage.getItem('fojix_fw') || '[]');
             container.innerHTML = fw.length === 0 ? '<p style="color:var(--text-secondary); font-size:13px;">No active WAF firewall rules.</p>' :
             fw.map(f => `
                 <div style="background:var(--bg-main); padding:10px 15px; border-radius:6px; border:1px solid var(--border-color); margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;">
-                    <div>
-                        <strong style="color:var(--text-primary); font-size:13px;">${f.ip}:${f.port}</strong>
-                    </div>
+                    <div><strong style="color:var(--text-primary); font-size:13px;">${f.ip}:${f.port}</strong></div>
                     <div style="display:flex; gap:8px; align-items:center;">
                         <span class="badge ${f.action === 'BLOCK' ? 'badge-danger' : 'badge-success'}">${f.action}</span>
-                        <button onclick="deleteFirewallRule(${f.id})" class="aws-btn aws-btn-danger aws-btn-sm"><i class="fa-solid fa-trash"></i></button>
+                        <button onclick="deleteFirewallRule('${f.id}')" class="aws-btn aws-btn-danger aws-btn-sm"><i class="fa-solid fa-trash"></i></button>
                     </div>
                 </div>
             `).join('');
         }
 
-        /* S3 BUCKET HANDLERS */
         function createS3Bucket() {
             const input = document.getElementById('s3BucketInput');
             const name = input ? input.value.trim() : prompt("Enter bucket name:");
             if(!name) return alert('Bucket name required!');
-            let buckets = JSON.parse(localStorage.getItem('fojix_s3') || '[]');
-            buckets.push({ id: Date.now(), name, region: 'Asia-South (Colombo)', files: 0 });
-            localStorage.setItem('fojix_s3', JSON.stringify(buckets));
+            db.collection('s3_buckets').add({ name, region: 'Asia-South (Colombo)' });
             if(input) input.value = '';
-            loadS3Buckets();
             logAudit(`Created S3 Bucket: ${name}`);
         }
 
-        function deleteS3Bucket(id) {
-            let buckets = JSON.parse(localStorage.getItem('fojix_s3') || '[]');
-            buckets = buckets.filter(b => b.id !== id);
-            localStorage.setItem('fojix_s3', JSON.stringify(buckets));
-            loadS3Buckets();
-            logAudit(`Deleted S3 Bucket`);
-        }
+        function deleteS3Bucket(id) { db.collection('s3_buckets').doc(id).delete(); }
 
-        function loadS3Buckets() {
+        function renderS3Buckets(buckets) {
             const container = document.getElementById('s3-bucket-list');
             if(!container) return;
-            let buckets = JSON.parse(localStorage.getItem('fojix_s3') || '[]');
             container.innerHTML = buckets.length === 0 ? '<p style="color:var(--text-secondary); font-size:13px;">No S3 buckets created.</p>' :
             buckets.map(b => `
                 <div style="background:var(--bg-main); padding:10px 15px; border-radius:6px; border:1px solid var(--border-color); margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;">
-                    <div>
-                        <strong style="color:var(--accent-color); font-size:13px;"><i class="fa-solid fa-folder"></i> s3://${b.name}</strong>
-                        <div style="font-size:11px; color:var(--text-secondary);">${b.region}</div>
-                    </div>
-                    <div style="display:flex; gap:8px; align-items:center;">
-                        <span class="badge badge-success">Active</span>
-                        <button onclick="deleteS3Bucket(${b.id})" class="aws-btn aws-btn-danger aws-btn-sm"><i class="fa-solid fa-trash"></i></button>
-                    </div>
+                    <div><strong style="color:var(--accent-color); font-size:13px;"><i class="fa-solid fa-folder"></i> s3://${b.name}</strong><div style="font-size:11px; color:var(--text-secondary);">${b.region}</div></div>
+                    <div style="display:flex; gap:8px; align-items:center;"><span class="badge badge-success">Active</span><button onclick="deleteS3Bucket('${b.id}')" class="aws-btn aws-btn-danger aws-btn-sm"><i class="fa-solid fa-trash"></i></button></div>
                 </div>
             `).join('');
         }
 
-        /* SSL CERTIFICATE HANDLERS */
+        function saveSecret() {
+            const name = document.getElementById('secretKeyName').value;
+            const val = document.getElementById('secretVal').value;
+            if(!name || !val) return alert('Enter key and secret!');
+            db.collection('secrets').add({ name, val });
+            document.getElementById('secretKeyName').value = '';
+            document.getElementById('secretVal').value = '';
+            logAudit(`Saved secret key: ${name}`);
+        }
+
+        function deleteSecret(id) { db.collection('secrets').doc(id).delete(); }
+
+        function renderSecrets(secrets) {
+            const container = document.getElementById('secret-list-container');
+            if(!container) return;
+            container.innerHTML = secrets.map(s => `<div style="background:var(--bg-main); padding:10px; border-radius:6px; border:1px solid var(--border-color); margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;"><div><strong style="color:var(--accent-color); font-size:13px;">${s.name}</strong><div style="font-size:12px; color:var(--text-secondary);">••••••••••••••••</div></div><div style="display:flex; gap:6px;"><button onclick="alert('Secret: ${s.val}')" class="aws-btn aws-btn-sm">Reveal</button><button onclick="deleteSecret('${s.id}')" class="aws-btn aws-btn-danger aws-btn-sm"><i class="fa-solid fa-trash"></i></button></div></div>`).join('');
+        }
+
         function provisionSSLCert() {
             const domain = document.getElementById('sslDomainInput').value.trim();
             if(!domain) return alert('Enter domain name!');
-            let ssl = JSON.parse(localStorage.getItem('fojix_ssl') || '[]');
-            ssl.push({ id: Date.now(), domain, status: 'Active (Let\'s Encrypt)', expiry: '90 Days' });
-            localStorage.setItem('fojix_ssl', JSON.stringify(ssl));
+            db.collection('ssl').add({ domain, status: 'Active (Let\'s Encrypt)', expiry: '90 Days' });
             document.getElementById('sslDomainInput').value = '';
-            loadSSLCerts();
             logAudit(`Provisioned SSL Certificate for ${domain}`);
         }
 
-        function deleteSSLCert(id) {
-            let ssl = JSON.parse(localStorage.getItem('fojix_ssl') || '[]');
-            ssl = ssl.filter(s => s.id !== id);
-            localStorage.setItem('fojix_ssl', JSON.stringify(ssl));
-            loadSSLCerts();
-            logAudit(`Revoked SSL Certificate`);
-        }
+        function deleteSSLCert(id) { db.collection('ssl').doc(id).delete(); }
 
-        function loadSSLCerts() {
+        function renderSSLCerts(ssl) {
             const container = document.getElementById('ssl-list-container');
             if(!container) return;
-            let ssl = JSON.parse(localStorage.getItem('fojix_ssl') || '[]');
             container.innerHTML = ssl.length === 0 ? '<p style="color:var(--text-secondary); font-size:13px;">No SSL certificates provisioned.</p>' :
             ssl.map(s => `
                 <div style="background:var(--bg-main); padding:10px 15px; border-radius:6px; border:1px solid var(--border-color); margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;">
-                    <div>
-                        <strong style="color:var(--text-primary); font-size:13px;"><i class="fa-solid fa-lock" style="color:#22c55e;"></i> ${s.domain}</strong>
-                        <div style="font-size:11px; color:var(--text-secondary);">Expires in: ${s.expiry}</div>
-                    </div>
-                    <div style="display:flex; gap:8px; align-items:center;">
-                        <span class="badge badge-success">${s.status}</span>
-                        <button onclick="deleteSSLCert(${s.id})" class="aws-btn aws-btn-danger aws-btn-sm"><i class="fa-solid fa-trash"></i></button>
-                    </div>
+                    <div><strong style="color:var(--text-primary); font-size:13px;"><i class="fa-solid fa-lock" style="color:#22c55e;"></i> ${s.domain}</strong><div style="font-size:11px; color:var(--text-secondary);">Expires in: ${s.expiry}</div></div>
+                    <div style="display:flex; gap:8px; align-items:center;"><span class="badge badge-success">${s.status}</span><button onclick="deleteSSLCert('${s.id}')" class="aws-btn aws-btn-danger aws-btn-sm"><i class="fa-solid fa-trash"></i></button></div>
                 </div>
             `).join('');
         }
 
-        /* DNS HANDLERS */
         function addDNSRecord() {
             const name = document.getElementById('dnsName').value.trim();
             const type = document.getElementById('dnsType').value;
             const val = document.getElementById('dnsValue').value.trim();
             if(!name || !val) return alert('Enter record name and value!');
-            let dns = JSON.parse(localStorage.getItem('fojix_dns') || '[]');
-            dns.push({ id: Date.now(), name, type, val });
-            localStorage.setItem('fojix_dns', JSON.stringify(dns));
+            db.collection('dns').add({ name, type, val });
             document.getElementById('dnsName').value = '';
             document.getElementById('dnsValue').value = '';
-            loadDNSRecords();
             logAudit(`Added DNS Record: ${type} ${name} -> ${val}`);
         }
 
-        function deleteDNSRecord(id) {
-            let dns = JSON.parse(localStorage.getItem('fojix_dns') || '[]');
-            dns = dns.filter(d => d.id !== id);
-            localStorage.setItem('fojix_dns', JSON.stringify(dns));
-            loadDNSRecords();
-            logAudit(`Deleted DNS Record`);
-        }
+        function deleteDNSRecord(id) { db.collection('dns').doc(id).delete(); }
 
-        function loadDNSRecords() {
+        function renderDNSRecords(dns) {
             const container = document.getElementById('dns-list-container');
             if(!container) return;
-            let dns = JSON.parse(localStorage.getItem('fojix_dns') || '[]');
             container.innerHTML = dns.length === 0 ? '<p style="color:var(--text-secondary); font-size:13px;">No DNS records configured.</p>' :
             dns.map(d => `
                 <div style="background:var(--bg-main); padding:10px 15px; border-radius:6px; border:1px solid var(--border-color); margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;">
-                    <div>
-                        <strong style="color:var(--accent-color); font-size:13px;">${d.name}</strong> [${d.type}]
-                        <div style="font-size:11px; color:var(--text-secondary);">Target: ${d.val}</div>
-                    </div>
-                    <div style="display:flex; gap:8px; align-items:center;">
-                        <span class="badge badge-success">Synced</span>
-                        <button onclick="deleteDNSRecord(${d.id})" class="aws-btn aws-btn-danger aws-btn-sm"><i class="fa-solid fa-trash"></i></button>
-                    </div>
+                    <div><strong style="color:var(--accent-color); font-size:13px;">${d.name}</strong> [${d.type}]<div style="font-size:11px; color:var(--text-secondary);">Target: ${d.val}</div></div>
+                    <div style="display:flex; gap:8px; align-items:center;"><span class="badge badge-success">Synced</span><button onclick="deleteDNSRecord('${d.id}')" class="aws-btn aws-btn-danger aws-btn-sm"><i class="fa-solid fa-trash"></i></button></div>
                 </div>
             `).join('');
         }
 
-        /* CRON JOB HANDLERS */
         function addCronJob() {
             const name = document.getElementById('cronName').value.trim();
             const schedule = document.getElementById('cronSchedule').value.trim();
             if(!name || !schedule) return alert('Enter task name and schedule!');
-            let cron = JSON.parse(localStorage.getItem('fojix_cron') || '[]');
-            cron.push({ id: Date.now(), name, schedule, status: 'Active' });
-            localStorage.setItem('fojix_cron', JSON.stringify(cron));
+            db.collection('cron').add({ name, schedule, status: 'Active' });
             document.getElementById('cronName').value = '';
             document.getElementById('cronSchedule').value = '';
-            loadCronJobs();
             logAudit(`Scheduled Cron Job: ${name} (${schedule})`);
         }
 
-        function runCronJobNow(name) {
-            alert(`Executing scheduled task immediately: ${name}`);
-            logAudit(`Manually triggered Cron Job: ${name}`);
-        }
+        function deleteCronJob(id) { db.collection('cron').doc(id).delete(); }
 
-        function deleteCronJob(id) {
-            let cron = JSON.parse(localStorage.getItem('fojix_cron') || '[]');
-            cron = cron.filter(c => c.id !== id);
-            localStorage.setItem('fojix_cron', JSON.stringify(cron));
-            loadCronJobs();
-            logAudit(`Deleted Cron Job`);
-        }
-
-        function loadCronJobs() {
+        function renderCronJobs(cron) {
             const container = document.getElementById('cron-list-container');
             if(!container) return;
-            let cron = JSON.parse(localStorage.getItem('fojix_cron') || '[]');
             container.innerHTML = cron.length === 0 ? '<p style="color:var(--text-secondary); font-size:13px;">No scheduled cron jobs.</p>' :
             cron.map(c => `
                 <div style="background:var(--bg-main); padding:10px 15px; border-radius:6px; border:1px solid var(--border-color); margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;">
-                    <div>
-                        <strong style="color:var(--text-primary); font-size:13px;">${c.name}</strong>
-                        <div style="font-size:11px; color:var(--text-secondary);">Schedule: <code>${c.schedule}</code></div>
-                    </div>
-                    <div style="display:flex; gap:6px; align-items:center;">
-                        <span class="badge badge-success">${c.status}</span>
-                        <button onclick="runCronJobNow('${c.name}')" class="aws-btn aws-btn-sm"><i class="fa-solid fa-play"></i> Run</button>
-                        <button onclick="deleteCronJob(${c.id})" class="aws-btn aws-btn-danger aws-btn-sm"><i class="fa-solid fa-trash"></i></button>
-                    </div>
+                    <div><strong style="color:var(--text-primary); font-size:13px;">${c.name}</strong><div style="font-size:11px; color:var(--text-secondary);">Schedule: <code>${c.schedule}</code></div></div>
+                    <div style="display:flex; gap:6px; align-items:center;"><span class="badge badge-success">${c.status}</span><button onclick="deleteCronJob('${c.id}')" class="aws-btn aws-btn-danger aws-btn-sm"><i class="fa-solid fa-trash"></i></button></div>
                 </div>
             `).join('');
-        }
-
-        /* AUTO SCALING & BILLING & VAULT & INCIDENTS */
-        function updateScalingPolicy() {
-            const threshold = document.getElementById('autoScaleCpu').value;
-            logAudit(`Updated Auto-scaling CPU Threshold to ${threshold}%`);
-            alert(`Auto-Scaling threshold updated to ${threshold}%`);
         }
 
         function saveToVault() {
             const title = document.getElementById('vaultItemName').value.trim();
             const data = document.getElementById('vaultItemData').value.trim();
             if(!title || !data) return alert('Enter title and data!');
-            let vault = JSON.parse(localStorage.getItem('fojix_vault') || '[]');
-            vault.push({ id: Date.now(), title, data });
-            localStorage.setItem('fojix_vault', JSON.stringify(vault));
+            db.collection('vault').add({ title, data });
             document.getElementById('vaultItemName').value = '';
             document.getElementById('vaultItemData').value = '';
-            loadVaultItems();
             logAudit(`Saved item to Vault: ${title}`);
         }
 
-        function deleteVaultItem(id) {
-            let vault = JSON.parse(localStorage.getItem('fojix_vault') || '[]');
-            vault = vault.filter(v => v.id !== id);
-            localStorage.setItem('fojix_vault', JSON.stringify(vault));
-            loadVaultItems();
-            logAudit(`Deleted item from Vault`);
-        }
+        function deleteVaultItem(id) { db.collection('vault').doc(id).delete(); }
 
-        function loadVaultItems() {
+        function renderVaultItems(vault) {
             const container = document.getElementById('vault-list-container');
             if(!container) return;
-            let vault = JSON.parse(localStorage.getItem('fojix_vault') || '[]');
             container.innerHTML = vault.length === 0 ? '<p style="color:var(--text-secondary); font-size:13px;">Vault is empty.</p>' :
             vault.map(v => `
                 <div style="background:var(--bg-main); padding:10px 15px; border-radius:6px; border:1px solid var(--border-color); margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;">
-                    <div>
-                        <strong style="color:var(--accent-color); font-size:13px;"><i class="fa-solid fa-lock"></i> ${v.title}</strong>
-                    </div>
-                    <div style="display:flex; gap:6px;">
-                        <button onclick="alert('Vault Content:\\n${v.data.replace(/'/g, "\\'")}')" class="aws-btn aws-btn-sm">Decrypt & View</button>
-                        <button onclick="deleteVaultItem(${v.id})" class="aws-btn aws-btn-danger aws-btn-sm"><i class="fa-solid fa-trash"></i></button>
-                    </div>
+                    <div><strong style="color:var(--accent-color); font-size:13px;"><i class="fa-solid fa-lock"></i> ${v.title}</strong></div>
+                    <div style="display:flex; gap:6px;"><button onclick="alert('Vault Content:\\n${v.data.replace(/'/g, "\\'")}')" class="aws-btn aws-btn-sm">Decrypt & View</button><button onclick="deleteVaultItem('${v.id}')" class="aws-btn aws-btn-danger aws-btn-sm"><i class="fa-solid fa-trash"></i></button></div>
                 </div>
             `).join('');
         }
 
-        function downloadPDFInvoice() {
-            const text = "FOJIX CLOUD INVOICE\n-------------------\nMonthly Usage: \$36.70\nStatus: Paid\nDate: " + new Date().toLocaleDateString();
-            const blob = new Blob([text], { type: 'text/plain' });
-            const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
-            a.download = `fojix-statement-${Date.now()}.txt`; a.click();
-            logAudit("Downloaded Billing Statement");
+        function addNewUser() {
+            const user = document.getElementById('newUsername').value.trim();
+            const pass = document.getElementById('newPassword').value.trim();
+            const role = document.getElementById('newRole').value;
+            if(!user || !pass) return alert('Enter username and password!');
+            db.collection('users').add({ user, pass, role });
+            document.getElementById('newUsername').value = '';
+            document.getElementById('newPassword').value = '';
+            logAudit(`Created new ${role} user: ${user}`);
         }
 
-        function loadIncidents() {
-            const container = document.getElementById('incidents-list-container');
+        function renderUsersList(localUsers) {
+            const container = document.getElementById('users-list-container');
             if(!container) return;
-            container.innerHTML = `
-                <div style="background:var(--bg-main); padding:12px; border-radius:6px; border:1px solid var(--border-color); margin-bottom:8px;">
-                    <div style="display:flex; justify-content:space-between;">
-                        <strong style="color:var(--text-primary); font-size:13px;">Database Maintenance (Scheduled)</strong>
-                        <span class="badge badge-warning">Resolved</span>
-                    </div>
-                    <div style="font-size:11px; color:var(--text-secondary); margin-top:4px;">Completed successfully on Asia-South edge cluster.</div>
+            const users = [...defaultAccounts, ...localUsers];
+            container.innerHTML = users.map(u => `
+                <div style="background:var(--bg-main); padding:10px; border-radius:6px; border:1px solid var(--border-color); margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;">
+                    <div><strong style="color:var(--accent-color); font-size:13px;">${u.user}</strong><div style="font-size:11px; color:var(--text-secondary);">Role: ${u.role}</div></div>
+                    <span class="badge ${u.role === 'Admin' ? 'badge-warning' : 'badge-success'}">${u.role}</span>
                 </div>
-            `;
+            `).join('');
         }
 
-        /* QUICK SSH & MISC */
-        function runQuickSSH(cmd, msg) {
-            alert(`Executing SSH command: ${cmd}\n${msg}`);
-            logAudit(`Ran SSH Command: ${cmd}`);
+        function logAudit(action) {
+            db.collection('audit_trail').add({ time: new Date().toLocaleString(), action });
         }
 
-        function generateDBBackup() {
-            const sqlDump = `-- Fojix Cloud SQL Dump\n-- Created: ${new Date().toISOString()}\n\nCREATE TABLE IF NOT EXISTS users (id INT PRIMARY KEY, name VARCHAR(100));`;
-            const blob = new Blob([sqlDump], { type: 'text/sql' });
+        function renderAuditTrail(audit) {
+            const container = document.getElementById('audit-trail-container');
+            if(!container) return;
+            container.innerHTML = audit.map(a => `
+                <div style="background:var(--bg-main); padding:8px 12px; border-radius:4px; border-left:3px solid var(--accent-color); margin-bottom:6px; font-size:12px;">
+                    <span style="color:var(--text-secondary); font-size:10px;">${a.time}</span>
+                    <div style="color:var(--text-primary); font-weight:500;">${a.action}</div>
+                </div>
+            `).join('');
+        }
+
+        /* VPN HANDLERS */
+        function toggleVPN(connect) {
+            const statusText = document.getElementById('vpn-status-text');
+            const statusBadge = document.getElementById('vpn-badge');
+            const btnConnect = document.getElementById('vpn-connect-btn');
+            const btnDisconnect = document.getElementById('vpn-disconnect-btn');
+
+            if (connect) {
+                if(statusText) statusText.textContent = "ACTIVE";
+                if(statusBadge) { statusBadge.textContent = "Connected"; statusBadge.className = "badge badge-success"; }
+                if(btnConnect) btnConnect.disabled = true;
+                if(btnDisconnect) btnDisconnect.disabled = false;
+                logAudit("VPN Tunnel Connected");
+                alert("VPN Tunnel successfully connected!");
+            } else {
+                if(statusText) statusText.textContent = "DISCONNECTED";
+                if(statusBadge) { statusBadge.textContent = "Offline"; statusBadge.className = "badge badge-danger"; }
+                if(btnConnect) btnConnect.disabled = false;
+                if(btnDisconnect) btnDisconnect.disabled = true;
+                logAudit("VPN Tunnel Disconnected");
+                alert("VPN Tunnel disconnected.");
+            }
+        }
+
+        function downloadVPNProfile() {
+            const vpnConfig = `[Interface]\nPrivateKey = SAMPLE_KEY=\nAddress = 10.8.0.2/24\nDNS = 1.1.1.1\n\n[Peer]\nPublicKey = SAMPLE_PEER_KEY=\nEndpoint = vpn.fojixcloud.com:51820\nAllowedIPs = 0.0.0.0/0`;
+            const blob = new Blob([vpnConfig], { type: 'text/plain' });
             const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
-            a.download = `db-backup-${Date.now()}.sql`; a.click();
-            logAudit("Generated Database SQL Dump");
+            a.download = `fojix-vpn-wireguard.conf`; a.click();
+            logAudit("Downloaded WireGuard (.conf) configuration file");
         }
 
-        function testWebhook() {
-            const url = document.getElementById('webhookUrl').value.trim();
-            if(!url) return alert("Please enter a valid webhook URL!");
-            alert(`Webhook URL saved and pinged successfully!`);
-            logAudit(`Saved Webhook Endpoint: ${url}`);
-        }
+        function runQuickSSH(cmd, msg) { alert(`Executing SSH command: ${cmd}\n${msg}`); logAudit(`Ran SSH Command: ${cmd}`); }
+        function generateDBBackup() { alert("DB Backup generated"); logAudit("Generated DB Backup"); }
+        function testWebhook() { alert("Webhook URL saved!"); logAudit("Saved Webhook URL"); }
 
         function executeTerminalCmd() {
             const input = document.getElementById('terminalInput');
             const cmd = input.value.trim();
             if(!cmd) return;
-            
             const logsBox = document.getElementById('terminal-logs-box');
             const line = document.createElement('div');
             line.style.color = '#22c55e';
             line.textContent = `fojix-user@cloud:~$ ${cmd}`;
             logsBox.appendChild(line);
-
-            const resp = document.createElement('div');
-            resp.style.color = '#94a3b8';
-            if(cmd === 'help') resp.textContent = 'Available commands: help, status, uptime, clear, reboot';
-            else if(cmd === 'status') resp.textContent = 'All edge services operational (99.99% Uptime).';
-            else if(cmd === 'uptime') resp.textContent = 'System Uptime: 48 days, 12 hours, 30 mins.';
-            else if(cmd === 'clear') { logsBox.innerHTML = ''; input.value = ''; return; }
-            else resp.textContent = `Command executed: ${cmd}`;
-
-            logsBox.appendChild(resp);
-            logsBox.scrollTop = logsBox.scrollHeight;
             input.value = '';
             logAudit(`Terminal Executed: ${cmd}`);
         }
@@ -1169,21 +1097,6 @@
         const navLinks = document.querySelectorAll('.nav-link');
         const sections = document.querySelectorAll('.content-section');
         const metricsContainer = document.getElementById('metrics-container');
-
-        const translations = {
-            en: { nav_home: "Console Home", nav_ec2: "EC2 & Metrics", nav_s3: "S3 Storage & DB", banner: "System Status: All Edge Nodes Operational (99.99% Uptime)" },
-            ta: { nav_home: "கான்சோல் முகப்பு", nav_ec2: "சர்வர் & அளவீடுகள்", nav_s3: "S3 சேமிப்பகம் & DB", banner: "அமைப்பின் நிலை: அனைத்து முனையங்களும் இயங்குகின்றன (99.99%)" },
-            si: { nav_home: "ප්‍රධාන පුවරුව", nav_ec2: "සේවාදායක සහ මිනුම්", nav_s3: "S3 ගබඩාව සහ DB", banner: "පද්ධති තත්ත්වය: සියලුම පද්ධති ක්‍රියාත්මකයි (99.99%)" }
-        };
-
-        function changeLanguage(lang) {
-            const dict = translations[lang] || translations.en;
-            document.querySelectorAll('[data-i18n]').forEach(el => {
-                const key = el.getAttribute('data-i18n');
-                if(dict[key]) el.textContent = dict[key];
-            });
-            document.getElementById('banner-status').textContent = dict.banner;
-        }
 
         function switchTab(targetId) {
             navLinks.forEach(link => {
@@ -1195,18 +1108,10 @@
         }
 
         navLinks.forEach(link => {
-            link.addEventListener('click', (e) => {
-                e.preventDefault();
-                switchTab(link.getAttribute('data-target'));
-            });
+            link.addEventListener('click', (e) => { e.preventDefault(); switchTab(link.getAttribute('data-target')); });
         });
 
-        function changeTheme(themeName) {
-            document.body.className = themeName;
-            localStorage.setItem('fojix_theme', themeName);
-            logAudit(`Theme changed to ${themeName}`);
-        }
-
+        function changeTheme(themeName) { document.body.className = themeName; }
         function openUptimeModal() { document.getElementById('uptimeModal').style.display = 'flex'; }
         function closeUptimeModal() { document.getElementById('uptimeModal').style.display = 'none'; }
         function openDeployModal() { document.getElementById('deployModal').style.display = 'flex'; }
@@ -1228,192 +1133,7 @@
             });
         }
 
-        setInterval(() => {
-            const cpu = Math.floor(Math.random() * 25) + 25;
-            const ram = Math.floor(Math.random() * 15) + 50;
-
-            const loadEl = document.getElementById('metric-load');
-            if(loadEl) loadEl.textContent = `CPU: ${cpu}% | RAM: ${ram}%`;
-
-            if(telemetryChart) {
-                telemetryChart.data.datasets[0].data.shift();
-                telemetryChart.data.datasets[0].data.push(cpu);
-                telemetryChart.data.datasets[1].data.shift();
-                telemetryChart.data.datasets[1].data.push(ram);
-                telemetryChart.update();
-            }
-        }, 3000);
-
-        function loadProjects() {
-            const container = document.getElementById('project-list-container');
-            if(!container) return;
-            let projects = JSON.parse(localStorage.getItem('fojix_projects') || '[]');
-            container.innerHTML = projects.length === 0 ? '<p style="color:var(--text-secondary); font-size:13px;">No projects deployed yet.</p>' : '';
-            projects.forEach((p, idx) => {
-                const card = document.createElement('div');
-                card.style.cssText = "background:var(--bg-main); padding:12px; border-radius:6px; border:1px solid var(--border-color); margin-bottom:10px; display:flex; justify-content:space-between; align-items:center;";
-                card.innerHTML = `<div><strong style="color:var(--accent-color); font-size:14px;">${p.name}</strong><div style="font-size:12px; color:var(--text-secondary);">${p.env} | <a href="https://${p.domain}" target="_blank" style="color:#22c55e;">${p.domain}</a></div></div><div style="display:flex; gap:8px; align-items:center;"><span class="badge badge-success">Active</span><button onclick="deleteProject(${idx})" class="aws-btn aws-btn-danger aws-btn-sm"><i class="fa-solid fa-trash"></i></button></div>`;
-                container.appendChild(card);
-            });
-        }
-
-        function deleteProject(idx) {
-            let projects = JSON.parse(localStorage.getItem('fojix_projects') || '[]');
-            projects.splice(idx, 1);
-            localStorage.setItem('fojix_projects', JSON.stringify(projects));
-            loadProjects();
-            logAudit(`Deleted Project Deployment`);
-        }
-
-        function submitDeployment() {
-            const name = document.getElementById('projName').value;
-            const env = document.getElementById('projEnv').value;
-            const domain = document.getElementById('projDomain').value;
-            if(!name || !domain) return alert('Fill all fields!');
-
-            let projects = JSON.parse(localStorage.getItem('fojix_projects') || '[]');
-            projects.push({ name, env, domain });
-            localStorage.setItem('fojix_projects', JSON.stringify(projects));
-            
-            closeDeployModal();
-            loadProjects();
-            logAudit(`Deployed project: ${name}`);
-        }
-
-        let pods = [{ name: 'auth-service-pod', status: 'Running', restarts: 0 }, { name: 'frontend-edge-pod', status: 'Running', restarts: 0 }];
-        function renderK8sPods() {
-            const container = document.getElementById('k8s-pod-list');
-            if(!container) return;
-            container.innerHTML = '';
-            pods.forEach((pod) => {
-                const card = document.createElement('div');
-                card.style.cssText = "background: var(--bg-main); padding: 12px; border-radius: 6px; border: 1px solid var(--border-color);";
-                card.innerHTML = `<div style="font-weight:bold; font-size:13px; color:var(--accent-color);">${pod.name}</div><div style="margin-top:6px; font-size:12px;">Status: <span class="badge badge-success">${pod.status}</span></div>`;
-                container.appendChild(card);
-            });
-            document.getElementById('metric-pod-count').textContent = `${pods.length} Active`;
-        }
-
-        function addK8sPod() {
-            const podName = `microservice-pod-${Math.floor(Math.random() * 899 + 100)}`;
-            pods.push({ name: podName, status: 'Running', restarts: 0 });
-            renderK8sPods();
-            logAudit(`Created K8s Pod: ${podName}`);
-        }
-
-        function addNewUser() {
-            const user = document.getElementById('newUsername').value.trim();
-            const pass = document.getElementById('newPassword').value.trim();
-            const role = document.getElementById('newRole').value;
-
-            if(!user || !pass) return alert('Enter username and password!');
-
-            let localUsers = JSON.parse(localStorage.getItem('fojix_users') || '[]');
-            localUsers.push({ user, pass, role });
-            localStorage.setItem('fojix_users', JSON.stringify(localUsers));
-
-            document.getElementById('newUsername').value = '';
-            document.getElementById('newPassword').value = '';
-            
-            loadUsersList();
-            logAudit(`Created new ${role} user: ${user}`);
-            alert(`User ${user} added successfully!`);
-        }
-
-        function loadUsersList() {
-            const container = document.getElementById('users-list-container');
-            if(!container) return;
-            const users = getUsers();
-            container.innerHTML = users.map(u => `
-                <div style="background:var(--bg-main); padding:10px; border-radius:6px; border:1px solid var(--border-color); margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;">
-                    <div>
-                        <strong style="color:var(--accent-color); font-size:13px;">${u.user}</strong>
-                        <div style="font-size:11px; color:var(--text-secondary);">Role: ${u.role}</div>
-                    </div>
-                    <span class="badge ${u.role === 'Admin' ? 'badge-warning' : 'badge-success'}">${u.role}</span>
-                </div>
-            `).join('');
-        }
-
-        function saveSecret() {
-            const name = document.getElementById('secretKeyName').value;
-            const val = document.getElementById('secretVal').value;
-            if(!name || !val) return alert('Enter key and secret!');
-            let secrets = JSON.parse(localStorage.getItem('fojix_secrets') || '[]');
-            secrets.push({ id: Date.now(), name, val });
-            localStorage.setItem('fojix_secrets', JSON.stringify(secrets));
-            document.getElementById('secretKeyName').value = '';
-            document.getElementById('secretVal').value = '';
-            loadSecrets();
-            logAudit(`Saved secret key: ${name}`);
-        }
-
-        function deleteSecret(id) {
-            let secrets = JSON.parse(localStorage.getItem('fojix_secrets') || '[]');
-            secrets = secrets.filter(s => s.id !== id);
-            localStorage.setItem('fojix_secrets', JSON.stringify(secrets));
-            loadSecrets();
-            logAudit(`Deleted Secret Key`);
-        }
-
-        function loadSecrets() {
-            const container = document.getElementById('secret-list-container');
-            if(!container) return;
-            let secrets = JSON.parse(localStorage.getItem('fojix_secrets') || '[]');
-            container.innerHTML = secrets.map(s => `<div style="background:var(--bg-main); padding:10px; border-radius:6px; border:1px solid var(--border-color); margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;"><div><strong style="color:var(--accent-color); font-size:13px;">${s.name}</strong><div style="font-size:12px; color:var(--text-secondary);">••••••••••••••••</div></div><div style="display:flex; gap:6px;"><button onclick="alert('Secret: ${s.val}')" class="aws-btn aws-btn-sm">Reveal</button><button onclick="deleteSecret(${s.id})" class="aws-btn aws-btn-danger aws-btn-sm"><i class="fa-solid fa-trash"></i></button></div></div>`).join('');
-        }
-
-        function logAudit(action) {
-            let audit = JSON.parse(localStorage.getItem('fojix_audit') || '[]');
-            audit.unshift({ time: new Date().toLocaleString(), action });
-            localStorage.setItem('fojix_audit', JSON.stringify(audit));
-            renderAuditTrail();
-        }
-
-        function renderAuditTrail() {
-            const container = document.getElementById('audit-trail-container');
-            if(!container) return;
-            let audit = JSON.parse(localStorage.getItem('fojix_audit') || '[]');
-            container.innerHTML = audit.map(a => `
-                <div style="background:var(--bg-main); padding:8px 12px; border-radius:4px; border-left:3px solid var(--accent-color); margin-bottom:6px; font-size:12px;">
-                    <span style="color:var(--text-secondary); font-size:10px;">${a.time}</span>
-                    <div style="color:var(--text-primary); font-weight:500;">${a.action}</div>
-                </div>
-            `).join('');
-        }
-
-        function exportCloudBackup() {
-            const blob = new Blob([JSON.stringify(localStorage, null, 2)], { type: 'application/json' });
-            const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
-            a.download = `fojix-backup-${Date.now()}.json`; a.click();
-            logAudit("Exported Cloud Console Backup JSON");
-        }
-
-        function importCloudBackup(e) {
-            const file = e.target.files[0];
-            if(!file) return;
-            const reader = new FileReader();
-            reader.onload = function(evt) {
-                try {
-                    const data = JSON.parse(evt.target.result);
-                    Object.keys(data).forEach(k => localStorage.setItem(k, data[k]));
-                    alert('Restored successfully!');
-                    location.reload();
-                } catch(err) {
-                    alert('Invalid JSON Backup file!');
-                }
-            };
-            reader.readAsText(file);
-        }
-
-        window.onload = function() {
-            initApp();
-            const savedTheme = localStorage.getItem('fojix_theme');
-            if(savedTheme) {
-                document.body.className = savedTheme;
-                document.getElementById('themeSelector').value = savedTheme;
-            }
-        };
+        window.onload = function() { initApp(); };
     </script>
 </body>
 </html>

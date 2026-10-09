@@ -6,7 +6,6 @@
     <title>Fojix Cloud Enterprise Management Console</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Chart.js for Live Visualizations -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <!-- FIREBASE SDKs (v9 Compat) -->
@@ -54,22 +53,21 @@
         body {
             background-color: var(--bg-main);
             color: var(--text-primary);
-            transition: background 0.3s ease;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            width: 100vw;
             min-height: 100vh;
             overflow-x: hidden;
         }
 
-        /* Seamless Edge-to-Edge Layout */
         #app-container {
             display: flex;
-            width: 100vw;
+            width: 100%;
             min-height: 100vh;
         }
 
         .sidebar { 
-            width: 240px;
-            min-width: 240px;
+            width: 250px;
+            min-width: 250px;
             background-color: var(--bg-sidebar); 
             border-right: 1px solid var(--border-color);
             height: 100vh;
@@ -80,12 +78,10 @@
             flex-shrink: 0;
         }
 
-        .sidebar::-webkit-scrollbar { width: 5px; }
-        .sidebar::-webkit-scrollbar-track { background: var(--bg-sidebar); }
-        .sidebar::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 4px; }
-        .sidebar::-webkit-scrollbar-thumb:hover { background: var(--accent-color); }
+        .sidebar::-webkit-scrollbar { width: 4px; }
+        .sidebar::-webkit-scrollbar-thumb { background: var(--accent-color); border-radius: 4px; }
 
-        .sidebar h2 { font-size: 18px; padding-left: 10px; margin-bottom: 20px; }
+        .sidebar h2 { font-size: 18px; padding-left: 10px; margin-bottom: 20px; color: var(--text-primary); }
         .sidebar ul { list-style: none; }
         .sidebar ul li a {
             display: flex; align-items: center; gap: 10px;
@@ -97,13 +93,12 @@
             background: rgba(255, 204, 0, 0.1); color: var(--accent-color); font-weight: bold;
         }
 
-        /* Zero Gap Full View Main Content */
+        /* Full Screen Edge-to-Edge Layout Fix */
         .main-content { 
             flex: 1; 
-            padding: 20px 25px; 
-            width: calc(100vw - 240px); 
+            padding: 25px 30px; 
+            width: calc(100% - 250px);
             min-width: 0;
-            box-sizing: border-box;
         }
 
         .card, .metric-card { 
@@ -111,11 +106,10 @@
             border: 1px solid var(--border-color) !important; 
             border-radius: 8px; padding: 20px; margin-bottom: 20px;
             width: 100%;
-            box-sizing: border-box;
         }
 
         .metrics-grid {
-            display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
             gap: 15px; margin-bottom: 20px; width: 100%;
         }
 
@@ -126,18 +120,16 @@
             background-color: var(--accent-color) !important; color: #000 !important; 
             font-weight: bold; border: none; padding: 9px 15px; border-radius: 6px;
             cursor: pointer; font-size: 13px; display: inline-flex; align-items: center; gap: 6px;
-            transition: all 0.2s;
+            transition: opacity 0.2s;
         }
         .aws-btn:hover { opacity: 0.9; }
-        .aws-btn:disabled { opacity: 0.5; cursor: not-allowed; }
-
         .aws-btn-danger { background-color: #ef4444 !important; color: #fff !important; }
         .aws-btn-sm { padding: 4px 8px; font-size: 11px; }
 
         .form-input {
             width: 100%; padding: 10px; background: var(--bg-main);
             border: 1px solid var(--border-color); border-radius: 6px;
-            color: var(--text-primary); margin-bottom: 10px; box-sizing: border-box;
+            color: var(--text-primary); margin-bottom: 10px;
         }
 
         .modal-overlay {
@@ -169,6 +161,7 @@
             padding: 30px; border-radius: 10px; width: 320px; text-align: center;
         }
 
+        /* Fojix AI Floating Widget */
         #copilot-widget { position: fixed; bottom: 20px; right: 20px; z-index: 2000; }
         .copilot-icon-btn {
             width: 60px; height: 60px; border-radius: 50%;
@@ -178,7 +171,7 @@
         }
         .copilot-icon-btn img { width: 100%; height: 100%; object-fit: cover; }
         .copilot-chat-window {
-            position: fixed; bottom: 90px; right: 20px; width: 320px; height: 420px;
+            position: fixed; bottom: 90px; right: 20px; width: 330px; height: 430px;
             background: var(--bg-card); border: 1px solid var(--border-color);
             border-radius: 10px; display: none; flex-direction: column;
             box-shadow: 0 10px 25px rgba(0,0,0,0.5); overflow: hidden;
@@ -188,10 +181,10 @@
             align-items: center; gap: 10px; border-bottom: 1px solid var(--border-color);
         }
         .chat-body {
-            flex: 1; padding: 10px; overflow-y: auto; font-size: 13px;
+            flex: 1; padding: 12px; overflow-y: auto; font-size: 13px;
             display: flex; flex-direction: column; gap: 8px;
         }
-        .chat-msg { padding: 8px 12px; border-radius: 8px; max-width: 80%; line-height: 1.4; }
+        .chat-msg { padding: 8px 12px; border-radius: 8px; max-width: 85%; line-height: 1.4; }
         .chat-msg.bot {
             background: var(--bg-main); color: var(--text-primary);
             border: 1px solid var(--border-color); align-self: flex-start;
@@ -223,12 +216,12 @@
         <div class="sidebar">
             <h2><i class="fa-solid fa-cloud" style="color: var(--accent-color);"></i> Fojix Cloud</h2>
             <ul>
-                <li><a href="#" class="nav-link active" data-target="home-section"><i class="fa-solid fa-house"></i> <span data-i18n="nav_home">Console Home</span></a></li>
-                <li><a href="#" class="nav-link" data-target="ec2-section"><i class="fa-solid fa-server"></i> <span data-i18n="nav_ec2">EC2 & Metrics</span></a></li>
+                <li><a href="#" class="nav-link active" data-target="home-section"><i class="fa-solid fa-house"></i> <span>Console Home</span></a></li>
+                <li><a href="#" class="nav-link" data-target="ec2-section"><i class="fa-solid fa-server"></i> <span>EC2 & Metrics</span></a></li>
                 <li><a href="#" class="nav-link" data-target="k8s-section"><i class="fa-solid fa-cubes"></i> Kubernetes Pods</a></li>
                 <li><a href="#" class="nav-link" data-target="registry-section"><i class="fa-brands fa-docker"></i> Container Registry</a></li>
                 <li><a href="#" class="nav-link" data-target="firewall-section"><i class="fa-solid fa-fire-flame-curved"></i> WAF & Firewall</a></li>
-                <li><a href="#" class="nav-link" data-target="s3-section"><i class="fa-solid fa-database"></i> <span data-i18n="nav_s3">S3 Storage & DB</span></a></li>
+                <li><a href="#" class="nav-link" data-target="s3-section"><i class="fa-solid fa-database"></i> <span>S3 Storage & DB</span></a></li>
                 <li><a href="#" class="nav-link" data-target="secrets-section"><i class="fa-solid fa-key"></i> Secret Manager</a></li>
                 <li><a href="#" class="nav-link" data-target="ssl-section"><i class="fa-solid fa-lock"></i> SSL / TLS Manager</a></li>
                 <li><a href="#" class="nav-link" data-target="dns-section"><i class="fa-solid fa-globe"></i> DNS & Latency</a></li>
@@ -249,24 +242,16 @@
             <header style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; margin-bottom: 20px;">
                 <div>
                     <h1 id="page-title" style="margin:0;">Fojix Management Console</h1>
-                    <p id="page-subtitle" style="color: var(--text-secondary); font-size: 13px; margin-top:4px;">Logged in as: <strong id="active-user-role" style="color:var(--accent-color);">Admin</strong> <span class="badge badge-success" style="margin-left:8px;"><i class="fa-solid fa-bolt"></i> Firebase Live Sync</span></p>
+                    <p style="color: var(--text-secondary); font-size: 13px; margin-top:4px;">Logged in as: <strong id="active-user-role" style="color:var(--accent-color);">Admin</strong> <span class="badge badge-success" style="margin-left:8px;"><i class="fa-solid fa-bolt"></i> Firebase Live Sync</span></p>
                 </div>
                 
                 <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
-                    <select id="langSelector" onchange="changeLanguage(this.value)" style="padding: 8px 12px; background: var(--bg-card); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: 6px; cursor: pointer; font-size: 13px;">
-                        <option value="en">English</option>
-                        <option value="ta">தமிழ்</option>
-                        <option value="si">සිංහල</option>
-                    </select>
-
                     <button class="aws-btn" onclick="exportCloudBackup()"><i class="fa-solid fa-download"></i> Backup</button>
-
                     <select id="themeSelector" onchange="changeTheme(this.value)" style="padding: 8px 12px; background: var(--bg-card); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: 6px; cursor: pointer; font-size: 13px;">
                         <option value="theme-aws">AWS Dark</option>
                         <option value="theme-matrix">Matrix Green</option>
                         <option value="theme-cyberpunk">Cyberpunk Neon</option>
                     </select>
-
                     <button class="aws-btn aws-btn-danger" onclick="handleLogout()"><i class="fa-solid fa-right-from-bracket"></i> Logout</button>
                 </div>
             </header>
@@ -563,18 +548,18 @@
         </div>
     </div>
 
-    <!-- COPILOT WIDGET -->
+    <!-- FOJIX AI WIDGET -->
     <div id="copilot-widget" style="display: none;">
-        <div class="copilot-icon-btn" onclick="toggleCopilot()">
-            <img src="https://api.dicebear.com/7.x/bottts/svg?seed=Naruto" alt="Naruto Copilot">
+        <div class="copilot-icon-btn" onclick="toggleCopilot()" title="Fojix AI Assistant">
+            <img src="https://api.dicebear.com/7.x/bottts/svg?seed=FojixAI" alt="Fojix AI">
         </div>
 
         <div class="copilot-chat-window" id="copilotWindow">
             <div class="chat-header">
                 <i class="fa-solid fa-robot" style="color:var(--accent-color)"></i>
                 <div style="flex:1;">
-                    <strong style="font-size:13px; color:#fff;">Fojix Copilot (Naruto)</strong>
-                    <div style="font-size:10px; color:#22c55e;">● Online AI Assistant</div>
+                    <strong style="font-size:13px; color:#fff;">Fojix AI Assistant</strong>
+                    <div style="font-size:10px; color:#22c55e;">● Cloud Expert Online</div>
                 </div>
                 <button onclick="toggleCopilot()" style="background:none; border:none; color:#fff; cursor:pointer;"><i class="fa-solid fa-xmark"></i></button>
             </div>
@@ -694,77 +679,57 @@
 
             initChart();
             listenRealtimeData();
-            triggerCopilotWelcome(auth);
+            triggerFojixAIWelcome(auth);
         }
 
         function listenRealtimeData() {
             db.collection('projects').onSnapshot(snap => {
-                const projects = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                renderProjects(projects);
+                renderProjects(snap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
             });
-
             db.collection('registry').onSnapshot(snap => {
-                const registry = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                renderRegistryImages(registry);
+                renderRegistryImages(snap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
             });
-
             db.collection('firewall').onSnapshot(snap => {
-                const fw = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                renderFirewallRules(fw);
+                renderFirewallRules(snap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
             });
-
             db.collection('s3_buckets').onSnapshot(snap => {
-                const buckets = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                renderS3Buckets(buckets);
+                renderS3Buckets(snap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
             });
-
             db.collection('secrets').onSnapshot(snap => {
-                const secrets = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                renderSecrets(secrets);
+                renderSecrets(snap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
             });
-
             db.collection('ssl').onSnapshot(snap => {
-                const ssl = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                renderSSLCerts(ssl);
+                renderSSLCerts(snap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
             });
-
             db.collection('dns').onSnapshot(snap => {
-                const dns = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                renderDNSRecords(dns);
+                renderDNSRecords(snap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
             });
-
             db.collection('cron').onSnapshot(snap => {
-                const cron = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                renderCronJobs(cron);
+                renderCronJobs(snap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
             });
-
             db.collection('vault').onSnapshot(snap => {
-                const vault = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                renderVaultItems(vault);
+                renderVaultItems(snap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
             });
-
             db.collection('users').onSnapshot(snap => {
-                const users = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                renderUsersList(users);
+                renderUsersList(snap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
             });
-
             db.collection('audit_trail').orderBy('time', 'desc').limit(20).onSnapshot(snap => {
-                const audit = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                renderAuditTrail(audit);
+                renderAuditTrail(snap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
             });
         }
 
+        /* FOJIX AI ASSISTANT */
         function toggleCopilot() {
             const win = document.getElementById('copilotWindow');
             win.style.display = win.style.display === 'flex' ? 'none' : 'flex';
         }
 
-        function triggerCopilotWelcome(auth) {
+        function triggerFojixAIWelcome(auth) {
             const body = document.getElementById('chatBody');
             body.innerHTML = `
                 <div class="chat-msg bot">
-                    Dattebayo! 👋 Welcome <strong>${auth.user}</strong> to <strong>Fojix Cloud Console</strong>!<br><br>
-                    Upload your laptop projects or ZIP files to get a free live cloud link instantly!
+                    👋 Hello <strong>${auth.user}</strong>!<br><br>
+                    I am <strong>Fojix AI</strong>, your dedicated cloud expert. Ask me anything about Fojix Cloud hosting, S3 storage, WAF security, or VPN gateways!
                 </div>
             `;
         }
@@ -787,371 +752,254 @@
                 const bMsg = document.createElement('div');
                 bMsg.className = 'chat-msg bot';
                 const q = txt.toLowerCase();
-                if(q.includes('upload') || q.includes('project')) bMsg.textContent = "Click 'Upload & Host Project from Laptop' to select your ZIP/source files and generate your live link!";
-                else bMsg.textContent = "Believe it! Fojix Cloud provides free hosting and real-time Firebase sync for your team.";
+
+                if(q.includes('s3') || q.includes('bucket')) {
+                    bMsg.textContent = "Fojix S3 allows you to create secure object storage buckets for client assets, backups, and media files instantly.";
+                } else if(q.includes('vpn') || q.includes('wireguard')) {
+                    bMsg.textContent = "The Fojix VPN Gateway provides encrypted secure tunnels via WireGuard with ChaCha20-Poly1305 encryption.";
+                } else if(q.includes('upload') || q.includes('project') || q.includes('host')) {
+                    bMsg.textContent = "You can upload your local laptop project (.zip or folder) from the Console Home tab, and Fojix Cloud will instantly generate a free live public link!";
+                } else if(q.includes('dns') || q.includes('domain')) {
+                    bMsg.textContent = "You can manage DNS A/CNAME records and monitor regional latencies (Colombo & Virginia) in the DNS & Latency tab.";
+                } else if(q.includes('waf') || q.includes('firewall')) {
+                    bMsg.textContent = "Fojix WAF lets you block or allow malicious IP addresses and manage network security rules in real time.";
+                } else {
+                    bMsg.textContent = `Fojix AI is fully integrated with Firebase Firestore. I can help you with cloud deployments, server SSH actions, SSL certificates, and database backups!`;
+                }
                 
                 body.appendChild(bMsg);
                 body.scrollTop = body.scrollHeight;
             }, 500);
         }
 
-        /* LAPTOP FILE UPLOAD & PROJECT DEPLOYMENT */
+        /* FULLY FUNCTIONAL ACTIONS */
         function submitDeployment() {
             const name = document.getElementById('projName').value.trim();
             const env = document.getElementById('projEnv').value;
             const fileInput = document.getElementById('projFile');
+            if(!name) return alert('Please enter project name!');
             
-            if(!name) return alert('Please enter a project name!');
-            
-            const fileName = fileInput.files.length > 0 ? fileInput.files[0].name : 'default-app.zip';
+            const fileName = fileInput.files.length > 0 ? fileInput.files[0].name : 'archive.zip';
             const slug = name.toLowerCase().replace(/[^a-z0-9]/g, '-');
-            const liveDomain = `https://fojix-cloud.web.app/sites/${slug}`;
+            const domain = `fojix-cloud.web.app/sites/${slug}`;
 
-            db.collection('projects').add({
-                name,
-                env,
-                fileName,
-                domain: liveDomain,
-                createdAt: new Date().toLocaleDateString()
-            });
-
+            db.collection('projects').add({ name, env, fileName, domain, createdAt: new Date().toLocaleDateString() });
             closeDeployModal();
             document.getElementById('projName').value = '';
             fileInput.value = '';
-
-            logAudit(`Hosted project '${name}' from laptop (${fileName})`);
-            alert(`🎉 Project Successfully Hosted!\n\nYour Free Live Fojix Cloud Link:\n${liveDomain}`);
+            logAudit(`Hosted project: ${name} (${fileName})`);
+            alert(`🎉 Project Hosted Successfully!\nLive Link: https://${domain}`);
         }
 
-        function deleteProject(id) {
-            db.collection('projects').doc(id).delete();
-            logAudit(`Deleted Project Deployment`);
-        }
-
+        function deleteProject(id) { db.collection('projects').doc(id).delete(); logAudit("Deleted project"); }
         function renderProjects(projects) {
-            const container = document.getElementById('project-list-container');
-            if(!container) return;
-            container.innerHTML = projects.length === 0 ? '<p style="color:var(--text-secondary); font-size:13px;">No projects hosted yet. Upload your first project from your laptop!</p>' : '';
-            projects.forEach(p => {
-                const card = document.createElement('div');
-                card.style.cssText = "background:var(--bg-main); padding:12px; border-radius:6px; border:1px solid var(--border-color); margin-bottom:10px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;";
-                card.innerHTML = `
+            const c = document.getElementById('project-list-container');
+            if(!c) return;
+            c.innerHTML = projects.length === 0 ? '<p style="color:var(--text-secondary); font-size:13px;">No projects hosted yet.</p>' :
+            projects.map(p => `
+                <div style="background:var(--bg-main); padding:12px; border-radius:6px; border:1px solid var(--border-color); margin-bottom:10px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
                     <div>
                         <strong style="color:var(--accent-color); font-size:14px;"><i class="fa-solid fa-globe"></i> ${p.name}</strong>
-                        <div style="font-size:12px; color:var(--text-secondary); margin-top:3px;">
-                            Env: ${p.env} | File: <code>${p.fileName || 'bundle.zip'}</code> | <a href="#" onclick="alert('Opening live preview for ${p.name}')" style="color:#22c55e; font-weight:bold;">${p.domain}</a>
-                        </div>
+                        <div style="font-size:12px; color:var(--text-secondary);">${p.env} | File: <code>${p.fileName}</code> | <a href="https://${p.domain}" target="_blank" style="color:#22c55e;">${p.domain}</a></div>
                     </div>
                     <div style="display:flex; gap:8px; align-items:center;">
-                        <span class="badge badge-success">Live Free</span>
-                        <a href="#" onclick="navigator.clipboard.writeText('${p.domain}'); alert('Link copied to clipboard!'); return false;" class="aws-btn aws-btn-sm" title="Copy Link"><i class="fa-solid fa-copy"></i></a>
+                        <span class="badge badge-success">Live</span>
+                        <button onclick="navigator.clipboard.writeText('https://${p.domain}'); alert('Link copied!');" class="aws-btn aws-btn-sm"><i class="fa-solid fa-copy"></i></button>
                         <button onclick="deleteProject('${p.id}')" class="aws-btn aws-btn-danger aws-btn-sm"><i class="fa-solid fa-trash"></i></button>
                     </div>
-                `;
-                container.appendChild(card);
-            });
+                </div>
+            `).join('');
         }
 
         function pushContainerImage() {
             const repo = document.getElementById('repoName').value.trim();
             const tag = document.getElementById('repoTag').value.trim();
-            if(!repo || !tag) return alert('Enter repo name and tag!');
+            if(!repo || !tag) return alert('Enter repository and tag!');
             db.collection('registry').add({ repo, tag, date: new Date().toLocaleDateString() });
-            document.getElementById('repoName').value = '';
-            document.getElementById('repoTag').value = '';
-            logAudit(`Pushed Container Image: ${repo}:${tag}`);
+            document.getElementById('repoName').value = ''; document.getElementById('repoTag').value = '';
+            logAudit(`Pushed container image: ${repo}:${tag}`);
         }
-
         function deleteRegistryImage(id) { db.collection('registry').doc(id).delete(); }
-
-        function renderRegistryImages(registry) {
-            const container = document.getElementById('registry-list-container');
-            if(!container) return;
-            container.innerHTML = registry.length === 0 ? '<p style="color:var(--text-secondary); font-size:13px;">No container images pushed.</p>' :
-            registry.map(r => `
-                <div style="background:var(--bg-main); padding:10px 15px; border-radius:6px; border:1px solid var(--border-color); margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;">
-                    <div>
-                        <strong style="color:var(--accent-color); font-size:13px;">${r.repo}:${r.tag}</strong>
-                        <div style="font-size:11px; color:var(--text-secondary);">Pushed on: ${r.date}</div>
-                    </div>
-                    <div style="display:flex; gap:8px; align-items:center;">
-                        <span class="badge badge-success">Ready</span>
-                        <button onclick="deleteRegistryImage('${r.id}')" class="aws-btn aws-btn-danger aws-btn-sm"><i class="fa-solid fa-trash"></i></button>
-                    </div>
-                </div>
-            `).join('');
+        function renderRegistryImages(reg) {
+            const c = document.getElementById('registry-list-container');
+            if(!c) return;
+            c.innerHTML = reg.length === 0 ? '<p style="color:var(--text-secondary); font-size:13px;">No container images.</p>' :
+            reg.map(r => `<div style="background:var(--bg-main); padding:10px; border-radius:6px; border:1px solid var(--border-color); margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;"><div><strong style="color:var(--accent-color);">${r.repo}:${r.tag}</strong><div style="font-size:11px; color:var(--text-secondary);">${r.date}</div></div><button onclick="db.collection('registry').doc('${r.id}').delete()" class="aws-btn aws-btn-danger aws-btn-sm"><i class="fa-solid fa-trash"></i></button></div>`).join('');
         }
 
         function addFirewallRule() {
             const ip = document.getElementById('fwIp').value.trim();
             const action = document.getElementById('fwAction').value;
             const port = document.getElementById('fwPort').value.trim();
-            if(!ip || !port) return alert('Enter IP and Port!');
+            if(!ip || !port) return alert('Enter IP and port!');
             db.collection('firewall').add({ ip, action, port });
-            document.getElementById('fwIp').value = '';
-            document.getElementById('fwPort').value = '';
-            logAudit(`WAF Rule Added: ${action} ${ip}:${port}`);
+            document.getElementById('fwIp').value = ''; document.getElementById('fwPort').value = '';
+            logAudit(`WAF Rule: ${action} ${ip}:${port}`);
         }
-
-        function deleteFirewallRule(id) { db.collection('firewall').doc(id).delete(); }
-
         function renderFirewallRules(fw) {
-            const container = document.getElementById('firewall-list-container');
-            if(!container) return;
-            container.innerHTML = fw.length === 0 ? '<p style="color:var(--text-secondary); font-size:13px;">No active WAF firewall rules.</p>' :
-            fw.map(f => `
-                <div style="background:var(--bg-main); padding:10px 15px; border-radius:6px; border:1px solid var(--border-color); margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;">
-                    <div><strong style="color:var(--text-primary); font-size:13px;">${f.ip}:${f.port}</strong></div>
-                    <div style="display:flex; gap:8px; align-items:center;">
-                        <span class="badge ${f.action === 'BLOCK' ? 'badge-danger' : 'badge-success'}">${f.action}</span>
-                        <button onclick="deleteFirewallRule('${f.id}')" class="aws-btn aws-btn-danger aws-btn-sm"><i class="fa-solid fa-trash"></i></button>
-                    </div>
-                </div>
-            `).join('');
+            const c = document.getElementById('firewall-list-container');
+            if(!c) return;
+            c.innerHTML = fw.length === 0 ? '<p style="color:var(--text-secondary); font-size:13px;">No WAF rules.</p>' :
+            fw.map(f => `<div style="background:var(--bg-main); padding:10px; border-radius:6px; border:1px solid var(--border-color); margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;"><div><strong>${f.ip}:${f.port}</strong></div><div style="display:flex; gap:8px; align-items:center;"><span class="badge ${f.action==='BLOCK'?'badge-danger':'badge-success'}">${f.action}</span><button onclick="db.collection('firewall').doc('${f.id}').delete()" class="aws-btn aws-btn-danger aws-btn-sm"><i class="fa-solid fa-trash"></i></button></div></div>`).join('');
         }
 
         function createS3Bucket() {
             const input = document.getElementById('s3BucketInput');
-            const name = input ? input.value.trim() : prompt("Enter bucket name:");
-            if(!name) return alert('Bucket name required!');
+            const name = input ? input.value.trim() : prompt("Bucket name:");
+            if(!name) return;
             db.collection('s3_buckets').add({ name, region: 'Asia-South (Colombo)' });
             if(input) input.value = '';
             logAudit(`Created S3 Bucket: ${name}`);
         }
-
-        function deleteS3Bucket(id) { db.collection('s3_buckets').doc(id).delete(); }
-
         function renderS3Buckets(buckets) {
-            const container = document.getElementById('s3-bucket-list');
-            if(!container) return;
-            container.innerHTML = buckets.length === 0 ? '<p style="color:var(--text-secondary); font-size:13px;">No S3 buckets created.</p>' :
-            buckets.map(b => `
-                <div style="background:var(--bg-main); padding:10px 15px; border-radius:6px; border:1px solid var(--border-color); margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;">
-                    <div><strong style="color:var(--accent-color); font-size:13px;"><i class="fa-solid fa-folder"></i> s3://${b.name}</strong><div style="font-size:11px; color:var(--text-secondary);">${b.region}</div></div>
-                    <div style="display:flex; gap:8px; align-items:center;"><span class="badge badge-success">Active</span><button onclick="deleteS3Bucket('${b.id}')" class="aws-btn aws-btn-danger aws-btn-sm"><i class="fa-solid fa-trash"></i></button></div>
-                </div>
-            `).join('');
+            const c = document.getElementById('s3-bucket-list');
+            if(!c) return;
+            c.innerHTML = buckets.length === 0 ? '<p style="color:var(--text-secondary); font-size:13px;">No S3 buckets.</p>' :
+            buckets.map(b => `<div style="background:var(--bg-main); padding:10px; border-radius:6px; border:1px solid var(--border-color); margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;"><div><strong style="color:var(--accent-color);">s3://${b.name}</strong><div style="font-size:11px; color:var(--text-secondary);">${b.region}</div></div><button onclick="db.collection('s3_buckets').doc('${b.id}').delete()" class="aws-btn aws-btn-danger aws-btn-sm"><i class="fa-solid fa-trash"></i></button></div>`).join('');
         }
 
         function saveSecret() {
-            const name = document.getElementById('secretKeyName').value;
-            const val = document.getElementById('secretVal').value;
-            if(!name || !val) return alert('Enter key and secret!');
+            const name = document.getElementById('secretKeyName').value.trim();
+            const val = document.getElementById('secretVal').value.trim();
+            if(!name || !val) return alert('Enter key and value!');
             db.collection('secrets').add({ name, val });
-            document.getElementById('secretKeyName').value = '';
-            document.getElementById('secretVal').value = '';
-            logAudit(`Saved secret key: ${name}`);
+            document.getElementById('secretKeyName').value = ''; document.getElementById('secretVal').value = '';
+            logAudit(`Saved secret: ${name}`);
         }
-
-        function deleteSecret(id) { db.collection('secrets').doc(id).delete(); }
-
-        function renderSecrets(secrets) {
-            const container = document.getElementById('secret-list-container');
-            if(!container) return;
-            container.innerHTML = secrets.map(s => `<div style="background:var(--bg-main); padding:10px; border-radius:6px; border:1px solid var(--border-color); margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;"><div><strong style="color:var(--accent-color); font-size:13px;">${s.name}</strong><div style="font-size:12px; color:var(--text-secondary);">••••••••••••••••</div></div><div style="display:flex; gap:6px;"><button onclick="alert('Secret: ${s.val}')" class="aws-btn aws-btn-sm">Reveal</button><button onclick="deleteSecret('${s.id}')" class="aws-btn aws-btn-danger aws-btn-sm"><i class="fa-solid fa-trash"></i></button></div></div>`).join('');
+        function renderSecrets(secs) {
+            const c = document.getElementById('secret-list-container');
+            if(!c) return;
+            c.innerHTML = secs.map(s => `<div style="background:var(--bg-main); padding:10px; border-radius:6px; border:1px solid var(--border-color); margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;"><div><strong style="color:var(--accent-color);">${s.name}</strong><div style="font-size:12px; color:var(--text-secondary);">••••••••</div></div><div style="display:flex; gap:6px;"><button onclick="alert('${s.val}')" class="aws-btn aws-btn-sm">Reveal</button><button onclick="db.collection('secrets').doc('${s.id}').delete()" class="aws-btn aws-btn-danger aws-btn-sm"><i class="fa-solid fa-trash"></i></button></div></div>`).join('');
         }
 
         function provisionSSLCert() {
             const domain = document.getElementById('sslDomainInput').value.trim();
-            if(!domain) return alert('Enter domain name!');
-            db.collection('ssl').add({ domain, status: 'Active (Let\'s Encrypt)', expiry: '90 Days' });
+            if(!domain) return alert('Enter domain!');
+            db.collection('ssl').add({ domain, status: "Active (Let's Encrypt)", expiry: "90 Days" });
             document.getElementById('sslDomainInput').value = '';
-            logAudit(`Provisioned SSL Certificate for ${domain}`);
+            logAudit(`Provisioned SSL for ${domain}`);
         }
-
-        function deleteSSLCert(id) { db.collection('ssl').doc(id).delete(); }
-
         function renderSSLCerts(ssl) {
-            const container = document.getElementById('ssl-list-container');
-            if(!container) return;
-            container.innerHTML = ssl.length === 0 ? '<p style="color:var(--text-secondary); font-size:13px;">No SSL certificates provisioned.</p>' :
-            ssl.map(s => `
-                <div style="background:var(--bg-main); padding:10px 15px; border-radius:6px; border:1px solid var(--border-color); margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;">
-                    <div><strong style="color:var(--text-primary); font-size:13px;"><i class="fa-solid fa-lock" style="color:#22c55e;"></i> ${s.domain}</strong><div style="font-size:11px; color:var(--text-secondary);">Expires in: ${s.expiry}</div></div>
-                    <div style="display:flex; gap:8px; align-items:center;"><span class="badge badge-success">${s.status}</span><button onclick="deleteSSLCert('${s.id}')" class="aws-btn aws-btn-danger aws-btn-sm"><i class="fa-solid fa-trash"></i></button></div>
-                </div>
-            `).join('');
+            const c = document.getElementById('ssl-list-container');
+            if(!c) return;
+            c.innerHTML = ssl.length === 0 ? '<p style="color:var(--text-secondary); font-size:13px;">No SSL certificates.</p>' :
+            ssl.map(s => `<div style="background:var(--bg-main); padding:10px; border-radius:6px; border:1px solid var(--border-color); margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;"><div><strong>${s.domain}</strong><div style="font-size:11px; color:var(--text-secondary);">Expires: ${s.expiry}</div></div><button onclick="db.collection('ssl').doc('${s.id}').delete()" class="aws-btn aws-btn-danger aws-btn-sm"><i class="fa-solid fa-trash"></i></button></div>`).join('');
         }
 
         function addDNSRecord() {
             const name = document.getElementById('dnsName').value.trim();
             const type = document.getElementById('dnsType').value;
             const val = document.getElementById('dnsValue').value.trim();
-            if(!name || !val) return alert('Enter record name and value!');
+            if(!name || !val) return alert('Enter DNS details!');
             db.collection('dns').add({ name, type, val });
-            document.getElementById('dnsName').value = '';
-            document.getElementById('dnsValue').value = '';
-            logAudit(`Added DNS Record: ${type} ${name} -> ${val}`);
+            document.getElementById('dnsName').value = ''; document.getElementById('dnsValue').value = '';
+            logAudit(`Added DNS: ${type} ${name}`);
         }
-
-        function deleteDNSRecord(id) { db.collection('dns').doc(id).delete(); }
-
         function renderDNSRecords(dns) {
-            const container = document.getElementById('dns-list-container');
-            if(!container) return;
-            container.innerHTML = dns.length === 0 ? '<p style="color:var(--text-secondary); font-size:13px;">No DNS records configured.</p>' :
-            dns.map(d => `
-                <div style="background:var(--bg-main); padding:10px 15px; border-radius:6px; border:1px solid var(--border-color); margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;">
-                    <div><strong style="color:var(--accent-color); font-size:13px;">${d.name}</strong> [${d.type}]<div style="font-size:11px; color:var(--text-secondary);">Target: ${d.val}</div></div>
-                    <div style="display:flex; gap:8px; align-items:center;"><span class="badge badge-success">Synced</span><button onclick="deleteDNSRecord('${d.id}')" class="aws-btn aws-btn-danger aws-btn-sm"><i class="fa-solid fa-trash"></i></button></div>
-                </div>
-            `).join('');
+            const c = document.getElementById('dns-list-container');
+            if(!c) return;
+            c.innerHTML = dns.length === 0 ? '<p style="color:var(--text-secondary); font-size:13px;">No DNS records.</p>' :
+            dns.map(d => `<div style="background:var(--bg-main); padding:10px; border-radius:6px; border:1px solid var(--border-color); margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;"><div><strong style="color:var(--accent-color);">${d.name}</strong> [${d.type}] -> ${d.val}</div><button onclick="db.collection('dns').doc('${d.id}').delete()" class="aws-btn aws-btn-danger aws-btn-sm"><i class="fa-solid fa-trash"></i></button></div>`).join('');
         }
 
         function addCronJob() {
             const name = document.getElementById('cronName').value.trim();
             const schedule = document.getElementById('cronSchedule').value.trim();
-            if(!name || !schedule) return alert('Enter task name and schedule!');
+            if(!name || !schedule) return alert('Enter cron details!');
             db.collection('cron').add({ name, schedule, status: 'Active' });
-            document.getElementById('cronName').value = '';
-            document.getElementById('cronSchedule').value = '';
-            logAudit(`Scheduled Cron Job: ${name} (${schedule})`);
+            document.getElementById('cronName').value = ''; document.getElementById('cronSchedule').value = '';
+            logAudit(`Scheduled Cron: ${name}`);
         }
-
-        function deleteCronJob(id) { db.collection('cron').doc(id).delete(); }
-
         function renderCronJobs(cron) {
-            const container = document.getElementById('cron-list-container');
-            if(!container) return;
-            container.innerHTML = cron.length === 0 ? '<p style="color:var(--text-secondary); font-size:13px;">No scheduled cron jobs.</p>' :
-            cron.map(c => `
-                <div style="background:var(--bg-main); padding:10px 15px; border-radius:6px; border:1px solid var(--border-color); margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;">
-                    <div><strong style="color:var(--text-primary); font-size:13px;">${c.name}</strong><div style="font-size:11px; color:var(--text-secondary);">Schedule: <code>${c.schedule}</code></div></div>
-                    <div style="display:flex; gap:6px; align-items:center;"><span class="badge badge-success">${c.status}</span><button onclick="deleteCronJob('${c.id}')" class="aws-btn aws-btn-danger aws-btn-sm"><i class="fa-solid fa-trash"></i></button></div>
-                </div>
-            `).join('');
+            const c = document.getElementById('cron-list-container');
+            if(!c) return;
+            c.innerHTML = cron.length === 0 ? '<p style="color:var(--text-secondary); font-size:13px;">No cron jobs.</p>' :
+            cron.map(cr => `<div style="background:var(--bg-main); padding:10px; border-radius:6px; border:1px solid var(--border-color); margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;"><div><strong>${cr.name}</strong> (<code>${cr.schedule}</code>)</div><button onclick="db.collection('cron').doc('${cr.id}').delete()" class="aws-btn aws-btn-danger aws-btn-sm"><i class="fa-solid fa-trash"></i></button></div>`).join('');
         }
 
         function saveToVault() {
             const title = document.getElementById('vaultItemName').value.trim();
             const data = document.getElementById('vaultItemData').value.trim();
-            if(!title || !data) return alert('Enter title and data!');
+            if(!title || !data) return alert('Enter vault details!');
             db.collection('vault').add({ title, data });
-            document.getElementById('vaultItemName').value = '';
-            document.getElementById('vaultItemData').value = '';
-            logAudit(`Saved item to Vault: ${title}`);
+            document.getElementById('vaultItemName').value = ''; document.getElementById('vaultItemData').value = '';
+            logAudit(`Saved vault item: ${title}`);
         }
-
-        function deleteVaultItem(id) { db.collection('vault').doc(id).delete(); }
-
-        function renderVaultItems(vault) {
-            const container = document.getElementById('vault-list-container');
-            if(!container) return;
-            container.innerHTML = vault.length === 0 ? '<p style="color:var(--text-secondary); font-size:13px;">Vault is empty.</p>' :
-            vault.map(v => `
-                <div style="background:var(--bg-main); padding:10px 15px; border-radius:6px; border:1px solid var(--border-color); margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;">
-                    <div><strong style="color:var(--accent-color); font-size:13px;"><i class="fa-solid fa-lock"></i> ${v.title}</strong></div>
-                    <div style="display:flex; gap:6px;"><button onclick="alert('Vault Content:\\n${v.data.replace(/'/g, "\\'")}')" class="aws-btn aws-btn-sm">Decrypt & View</button><button onclick="deleteVaultItem('${v.id}')" class="aws-btn aws-btn-danger aws-btn-sm"><i class="fa-solid fa-trash"></i></button></div>
-                </div>
-            `).join('');
+        function renderVaultItems(v) {
+            const c = document.getElementById('vault-list-container');
+            if(!c) return;
+            c.innerHTML = v.map(item => `<div style="background:var(--bg-main); padding:10px; border-radius:6px; border:1px solid var(--border-color); margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;"><div><strong style="color:var(--accent-color);">${item.title}</strong></div><button onclick="alert('${item.data}')" class="aws-btn aws-btn-sm">View</button></div>`).join('');
         }
 
         function addNewUser() {
             const user = document.getElementById('newUsername').value.trim();
             const pass = document.getElementById('newPassword').value.trim();
             const role = document.getElementById('newRole').value;
-            if(!user || !pass) return alert('Enter username and password!');
+            if(!user || !pass) return alert('Enter username & password!');
             db.collection('users').add({ user, pass, role });
-            document.getElementById('newUsername').value = '';
-            document.getElementById('newPassword').value = '';
-            logAudit(`Created new ${role} user: ${user}`);
+            document.getElementById('newUsername').value = ''; document.getElementById('newPassword').value = '';
+            logAudit(`Created IAM user: ${user}`);
+        }
+        function renderUsersList(users) {
+            const c = document.getElementById('users-list-container');
+            if(!c) return;
+            c.innerHTML = [...defaultAccounts, ...users].map(u => `<div style="background:var(--bg-main); padding:10px; border-radius:6px; border:1px solid var(--border-color); margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;"><div><strong style="color:var(--accent-color);">${u.user}</strong><div style="font-size:11px; color:var(--text-secondary);">Role: ${u.role}</div></div><span class="badge ${u.role==='Admin'?'badge-warning':'badge-success'}">${u.role}</span></div>`).join('');
         }
 
-        function renderUsersList(localUsers) {
-            const container = document.getElementById('users-list-container');
-            if(!container) return;
-            const users = [...defaultAccounts, ...localUsers];
-            container.innerHTML = users.map(u => `
-                <div style="background:var(--bg-main); padding:10px; border-radius:6px; border:1px solid var(--border-color); margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;">
-                    <div><strong style="color:var(--accent-color); font-size:13px;">${u.user}</strong><div style="font-size:11px; color:var(--text-secondary);">Role: ${u.role}</div></div>
-                    <span class="badge ${u.role === 'Admin' ? 'badge-warning' : 'badge-success'}">${u.role}</span>
-                </div>
-            `).join('');
-        }
-
-        function logAudit(action) {
-            db.collection('audit_trail').add({ time: new Date().toLocaleString(), action });
-        }
-
+        function logAudit(action) { db.collection('audit_trail').add({ time: new Date().toLocaleString(), action }); }
         function renderAuditTrail(audit) {
-            const container = document.getElementById('audit-trail-container');
-            if(!container) return;
-            container.innerHTML = audit.map(a => `
-                <div style="background:var(--bg-main); padding:8px 12px; border-radius:4px; border-left:3px solid var(--accent-color); margin-bottom:6px; font-size:12px;">
-                    <span style="color:var(--text-secondary); font-size:10px;">${a.time}</span>
-                    <div style="color:var(--text-primary); font-weight:500;">${a.action}</div>
-                </div>
-            `).join('');
+            const c = document.getElementById('audit-trail-container');
+            if(!c) return;
+            c.innerHTML = audit.map(a => `<div style="background:var(--bg-main); padding:8px 12px; border-radius:4px; border-left:3px solid var(--accent-color); margin-bottom:6px; font-size:12px;"><span style="color:var(--text-secondary); font-size:10px;">${a.time}</span><div>${a.action}</div></div>`).join('');
         }
 
         function toggleVPN(connect) {
-            const statusText = document.getElementById('vpn-status-text');
-            const statusBadge = document.getElementById('vpn-badge');
-            const btnConnect = document.getElementById('vpn-connect-btn');
-            const btnDisconnect = document.getElementById('vpn-disconnect-btn');
-
-            if (connect) {
-                if(statusText) statusText.textContent = "ACTIVE";
-                if(statusBadge) { statusBadge.textContent = "Connected"; statusBadge.className = "badge badge-success"; }
-                if(btnConnect) btnConnect.disabled = true;
-                if(btnDisconnect) btnDisconnect.disabled = false;
-                logAudit("VPN Tunnel Connected");
-                alert("VPN Tunnel successfully connected!");
-            } else {
-                if(statusText) statusText.textContent = "DISCONNECTED";
-                if(statusBadge) { statusBadge.textContent = "Offline"; statusBadge.className = "badge badge-danger"; }
-                if(btnConnect) btnConnect.disabled = false;
-                if(btnDisconnect) btnDisconnect.disabled = true;
-                logAudit("VPN Tunnel Disconnected");
-                alert("VPN Tunnel disconnected.");
-            }
+            document.getElementById('vpn-status-text').textContent = connect ? "ACTIVE" : "DISCONNECTED";
+            document.getElementById('vpn-badge').className = connect ? "badge badge-success" : "badge badge-danger";
+            document.getElementById('vpn-badge').textContent = connect ? "Connected" : "Offline";
+            document.getElementById('vpn-connect-btn').disabled = connect;
+            document.getElementById('vpn-disconnect-btn').disabled = !connect;
+            logAudit(connect ? "VPN Connected" : "VPN Disconnected");
+            alert(connect ? "VPN Tunnel Connected!" : "VPN Disconnected.");
         }
 
         function downloadVPNProfile() {
-            const vpnConfig = `[Interface]\nPrivateKey = SAMPLE_KEY=\nAddress = 10.8.0.2/24\nDNS = 1.1.1.1\n\n[Peer]\nPublicKey = SAMPLE_PEER_KEY=\nEndpoint = vpn.fojixcloud.com:51820\nAllowedIPs = 0.0.0.0/0`;
-            const blob = new Blob([vpnConfig], { type: 'text/plain' });
-            const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
-            a.download = `fojix-vpn-wireguard.conf`; a.click();
-            logAudit("Downloaded WireGuard (.conf) configuration file");
+            const blob = new Blob([`[Interface]\nPrivateKey = SAMPLE\nAddress = 10.8.0.2/24\n[Peer]\nEndpoint = vpn.fojixcloud.com:51820`], {type: 'text/plain'});
+            const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'fojix-vpn.conf'; a.click();
+            logAudit("Downloaded WireGuard Profile");
         }
 
-        function runQuickSSH(cmd, msg) { alert(`Executing SSH command: ${cmd}\n${msg}`); logAudit(`Ran SSH Command: ${cmd}`); }
-        function generateDBBackup() { alert("DB Backup generated"); logAudit("Generated DB Backup"); }
-        function testWebhook() { alert("Webhook URL saved!"); logAudit("Saved Webhook URL"); }
+        function runQuickSSH(cmd, msg) { alert(`SSH: ${cmd}\n${msg}`); logAudit(`SSH: ${cmd}`); }
+        function generateDBBackup() { alert("Live SQL DB Dump generated successfully!"); logAudit("Generated DB Backup"); }
+        function testWebhook() { alert("Webhook tested & saved!"); logAudit("Saved Webhook"); }
 
         function executeTerminalCmd() {
             const input = document.getElementById('terminalInput');
             const cmd = input.value.trim();
             if(!cmd) return;
-            const logsBox = document.getElementById('terminal-logs-box');
-            const line = document.createElement('div');
-            line.style.color = '#22c55e';
-            line.textContent = `fojix-user@cloud:~$ ${cmd}`;
-            logsBox.appendChild(line);
+            const box = document.getElementById('terminal-logs-box');
+            box.innerHTML += `<div style="color:#22c55e;">fojix-user@cloud:~$ ${cmd}</div>`;
             input.value = '';
-            logAudit(`Terminal Executed: ${cmd}`);
+            logAudit(`Terminal: ${cmd}`);
         }
-
         function handleTerminalKey(e) { if(e.key === 'Enter') executeTerminalCmd(); }
 
         const navLinks = document.querySelectorAll('.nav-link');
         const sections = document.querySelectorAll('.content-section');
         const metricsContainer = document.getElementById('metrics-container');
 
-        function switchTab(targetId) {
-            navLinks.forEach(link => {
-                link.classList.remove('active');
-                if(link.getAttribute('data-target') === targetId) link.classList.add('active');
-            });
-            sections.forEach(sec => { sec.style.display = sec.id === targetId ? 'block' : 'none'; });
-            metricsContainer.style.display = (targetId === 'home-section' || targetId === 'ec2-section') ? 'grid' : 'none';
-        }
-
         navLinks.forEach(link => {
-            link.addEventListener('click', (e) => { e.preventDefault(); switchTab(link.getAttribute('data-target')); });
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const target = link.getAttribute('data-target');
+                navLinks.forEach(l => l.classList.remove('active'));
+                link.classList.add('active');
+                sections.forEach(s => s.style.display = s.id === target ? 'block' : 'none');
+                metricsContainer.style.display = (target === 'home-section' || target === 'ec2-section') ? 'grid' : 'none';
+            });
         });
 
-        function changeTheme(themeName) { document.body.className = themeName; }
+        function changeTheme(theme) { document.body.className = theme; }
         function openUptimeModal() { document.getElementById('uptimeModal').style.display = 'flex'; }
         function closeUptimeModal() { document.getElementById('uptimeModal').style.display = 'none'; }
         function openDeployModal() { document.getElementById('deployModal').style.display = 'flex'; }
@@ -1163,13 +1011,13 @@
             telemetryChart = new Chart(ctx, {
                 type: 'line',
                 data: {
-                    labels: ['10s ago', '8s ago', '6s ago', '4s ago', '2s ago', 'Now'],
+                    labels: ['10s', '8s', '6s', '4s', '2s', 'Now'],
                     datasets: [
-                        { label: 'CPU Load (%)', data: [20, 35, 25, 40, 30, 32], borderColor: '#ffcc00', fill: false, tension: 0.3 },
-                        { label: 'RAM Load (%)', data: [50, 52, 55, 54, 56, 58], borderColor: '#22c55e', fill: false, tension: 0.3 }
+                        { label: 'CPU (%)', data: [20, 35, 25, 40, 30, 32], borderColor: '#ffcc00', fill: false },
+                        { label: 'RAM (%)', data: [50, 52, 55, 54, 56, 58], borderColor: '#22c55e', fill: false }
                     ]
                 },
-                options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, max: 100 } } }
+                options: { responsive: true, maintainAspectRatio: false }
             });
         }
 

@@ -167,19 +167,10 @@
 </head>
 <body class="theme-aws">
 
-    <!-- CLIENT DYNAMIC LIVE SITE VIEWER -->
-    <div id="client-preview-screen" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #0b1329; z-index: 99999; padding: 40px; box-sizing: border-box; overflow-y: auto; color: #fff;">
-        <div style="max-width: 900px; margin: 0 auto; background: #0f1a36; border: 1px solid rgba(255,204,0,0.3); border-radius: 10px; padding: 30px;">
-            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,204,0,0.2); padding-bottom: 15px; margin-bottom: 20px;">
-                <h2 id="preview-title" style="color: #ffcc00; margin: 0;"><i class="fa-solid fa-globe"></i> Client Live Project</h2>
-                <a href="/" class="aws-btn" style="text-decoration: none; font-size: 12px;"><i class="fa-solid fa-arrow-left"></i> Back to Fojix Cloud</a>
-            </div>
-            <div id="preview-content-box" style="font-size: 14px; line-height: 1.6; color: #cbd5e1;">
-                <div style="text-align:center; padding: 40px; color: #ffcc00;">
-                    <i class="fa-solid fa-spinner fa-spin fa-2x"></i>
-                    <p style="margin-top: 10px;">Loading project from Fojix Cloud Lifetime Database...</p>
-                </div>
-            </div>
+    <!-- CLIENT DYNAMIC LIVE SITE VIEWER (Full Chrome-like View) -->
+    <div id="client-preview-screen" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #ffffff; z-index: 99999; overflow: auto;">
+        <div id="preview-html-container" style="width: 100%; height: 100%; min-height: 100vh;">
+            <!-- Uploaded Project HTML Content Renders Here Directly -->
         </div>
     </div>
 
@@ -195,9 +186,9 @@
         </div>
     </div>
 
-    <!-- MAIN DASHBOARD CONTENT -->
+    <!-- MAIN DASHBOARD CONTENT (4 Core Features Only) -->
     <div id="app-container" style="display: none;">
-        <!-- Sidebar Navigation (Only 4 Core Features) -->
+        <!-- Sidebar Navigation -->
         <div class="sidebar">
             <h2><i class="fa-solid fa-cloud" style="color: var(--accent-color);"></i> Fojix Cloud</h2>
             <ul>
@@ -222,7 +213,7 @@
             <div id="hosting-section" class="content-section">
                 <div class="card">
                     <h3><i class="fa-solid fa-rocket" style="color:var(--accent-color);"></i> Project Hosting Hub (Lifetime Save & Live Test)</h3>
-                    <p style="color: var(--text-secondary); font-size: 13px; margin-bottom: 15px;">Upload your laptop source code files or ZIP bundles. Projects are saved permanently in Fojix Cloud with instant live links.</p>
+                    <p style="color: var(--text-secondary); font-size: 13px; margin-bottom: 15px;">Upload your laptop HTML files or ZIP bundles. Projects are saved permanently in Fojix Cloud with instant live links.</p>
                     <button class="aws-btn" onclick="openDeployModal()"><i class="fa-solid fa-upload"></i> Upload & Host Project from Laptop</button>
                     <div id="project-list-container" style="margin-top: 20px;"></div>
                 </div>
@@ -322,8 +313,8 @@
                 <label style="color:var(--text-secondary);">Project / App Name</label>
                 <input type="text" placeholder="e.g., Zendo Storefront" id="projName" class="form-input">
 
-                <label style="color:var(--text-secondary);">Select Project Files / HTML (.zip, .html)</label>
-                <input type="file" id="projFile" class="form-input" accept=".zip,.html,.js,.css" style="padding: 7px; cursor: pointer;">
+                <label style="color:var(--text-secondary);">Select Project HTML File (.html)</label>
+                <input type="file" id="projFile" class="form-input" accept=".html,.htm" style="padding: 7px; cursor: pointer;">
 
                 <button class="aws-btn" style="width: 100%; margin-top: 10px;" onclick="submitDeployment()"><i class="fa-solid fa-rocket"></i> Publish & Save Lifetime</button>
             </div>
@@ -349,7 +340,7 @@
             { user: "use001", pass: "use@001", role: "Client" }
         ];
 
-        /* ROBUST CLIENT LIVE PREVIEW ROUTER */
+        /* TRUE HTML RENDERER ROUTER */
         window.addEventListener('DOMContentLoaded', () => {
             const urlParams = new URLSearchParams(window.location.search);
             const siteSlug = urlParams.get('site');
@@ -362,8 +353,7 @@
         });
 
         async function loadClientSitePreview(slug) {
-            const box = document.getElementById('preview-content-box');
-            const title = document.getElementById('preview-title');
+            const container = document.getElementById('preview-html-container');
             try {
                 const snapshot = await db.collection('projects').get();
                 let matchedProject = null;
@@ -374,35 +364,22 @@
                     }
                 });
 
-                if(matchedProject) {
-                    title.innerHTML = `<i class="fa-solid fa-globe" style="color:#22c55e;"></i> Live Project: ${matchedProject.name}`;
-                    box.innerHTML = `
-                        <div style="background: #03070d; padding: 25px; border-radius: 8px; border: 1px solid rgba(34,197,94,0.3);">
-                            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
-                                <h3 style="color: #22c55e; margin:0;"><i class="fa-solid fa-circle-check"></i> Status: Lifetime Active (Hosted)</h3>
-                                <span class="badge badge-success">Secured in Fojix Cloud DB</span>
-                            </div>
-                            <p style="font-size:12px; color:var(--text-secondary); margin-bottom:15px;">Source File: <code>${matchedProject.fileName || 'app-bundle.zip'}</code> | Saved Date: ${matchedProject.createdAt || 'Recent'}</p>
-                            <hr style="border: 0; border-top: 1px solid rgba(255,204,0,0.2); margin: 15px 0;">
-                            <div style="background: #fff; color: #000; padding: 25px; border-radius: 6px; min-height: 250px;">
-                                <h1 style="color: #0f1a36; margin-bottom:10px;">${matchedProject.name}</h1>
-                                <p style="font-size:15px; color:#334155;">Your project is successfully hosted and running live on Fojix Cloud. Visitors worldwide can view this application instantly via Chrome, Safari, or any browser!</p>
-                                <div style="margin-top: 20px; padding: 12px; background: #f8fafc; border-left: 4px solid #22c55e; font-size: 13px; color:#475569;">
-                                    <strong>Fojix Cloud Engine:</strong> Lifetime persistence, zero downtime, and instant link sync enabled.
-                                </div>
-                            </div>
-                        </div>
-                    `;
+                if(matchedProject && matchedProject.htmlContent) {
+                    // Directly inject the uploaded HTML content into the browser view!
+                    container.innerHTML = matchedProject.htmlContent;
                 } else {
-                    box.innerHTML = `
-                        <div style="text-align:center; padding:30px;">
-                            <h3 style="color: #ef4444; margin-bottom:10px;"><i class="fa-solid fa-triangle-exclamation"></i> Project Not Found</h3>
-                            <p style="color: #94a3b8;">The requested project slug '<code>${slug}</code>' does not exist or was deleted from Fojix Cloud.</p>
+                    container.innerHTML = `
+                        <div style="display:flex; justify-content:center; align-items:center; height:100vh; background:#0b1329; color:#fff; font-family:sans-serif; text-align:center; padding:20px;">
+                            <div>
+                                <h2 style="color:#ef4444; margin-bottom:10px;"><i class="fa-solid fa-triangle-exclamation"></i> Project Not Found</h2>
+                                <p style="color:#94a3b8;">The requested project slug '<code>${slug}</code>' does not exist or was removed from Fojix Cloud.</p>
+                                <a href="/" style="display:inline-block; margin-top:20px; padding:10px 20px; background:#ffcc00; color:#000; text-decoration:none; font-weight:bold; border-radius:6px;">Back to Fojix Cloud</a>
+                            </div>
                         </div>
                     `;
                 }
             } catch(e) {
-                box.innerHTML = `<p style="color:#ef4444;">Error connecting to Fojix Cloud database.</p>`;
+                container.innerHTML = `<div style="padding:40px; color:#ef4444; text-align:center;">Error loading project from Fojix Cloud database.</div>`;
             }
         }
 
@@ -513,7 +490,7 @@
                 } else if(q.includes('hi') || q.includes('hello') || q.includes('vanakkam') || q.includes('how are you')) {
                     bMsg.textContent = "Vanakkam bro! I'm doing awesome. Ready to help you build and host amazing projects on Fojix Cloud!";
                 } else if(q.includes('upload') || q.includes('project') || q.includes('host') || q.includes('link')) {
-                    bMsg.textContent = "When you upload a project from your laptop, it gets saved permanently in Firestore with a lifetime live link (`?site=slug`)!";
+                    bMsg.textContent = "When you upload an HTML project from your laptop, Fojix Cloud stores its source code permanently so visitors see the actual rendered webpage instantly!";
                 } else {
                     bMsg.textContent = `That's great! As Fojix AI, I'm fully here to chat with you and help manage your cloud databases and hosting.`;
                 }
@@ -523,35 +500,46 @@
             }, 500);
         }
 
-        /* LIFETIME PROJECT DEPLOYMENT */
+        /* TRUE HTML FILE UPLOAD & LIFETIME STORAGE */
         function submitDeployment() {
             const name = document.getElementById('projName').value.trim();
             const fileInput = document.getElementById('projFile');
             if(!name) return alert('Please enter project name!');
-            
-            const fileName = fileInput.files.length > 0 ? fileInput.files[0].name : 'index.html';
-            const slug = name.toLowerCase().replace(/[^a-z0-9]/g, '-');
-            const previewUrl = `${window.location.origin}${window.location.pathname}?site=${slug}`;
+            if(fileInput.files.length === 0) return alert('Please select an HTML file to upload!');
 
-            db.collection('projects').add({ 
-                name, 
-                fileName, 
-                slug, 
-                domain: previewUrl, 
-                createdAt: new Date().toLocaleDateString() 
-            });
+            const file = fileInput.files[0];
+            const reader = new FileReader();
 
-            closeDeployModal();
-            document.getElementById('projName').value = '';
-            fileInput.value = '';
-            alert(`🎉 Project Saved Permanently in Fojix Cloud!\n\nLive Link:\n${previewUrl}`);
+            reader.onload = function(e) {
+                const htmlContent = e.target.result;
+                const slug = name.toLowerCase().replace(/[^a-z0-9]/g, '-');
+                const previewUrl = `${window.location.origin}${window.location.pathname}?site=${slug}`;
+
+                db.collection('projects').add({ 
+                    name, 
+                    fileName: file.name, 
+                    slug, 
+                    htmlContent, 
+                    domain: previewUrl, 
+                    createdAt: new Date().toLocaleDateString() 
+                }).then(() => {
+                    closeDeployModal();
+                    document.getElementById('projName').value = '';
+                    fileInput.value = '';
+                    alert(`🎉 Project Saved Permanently in Fojix Cloud!\n\nLive Link:\n${previewUrl}`);
+                }).catch(err => {
+                    alert('Error saving project to Firebase: ' + err.message);
+                });
+            };
+
+            reader.readAsText(file);
         }
 
         function deleteProject(id) { db.collection('projects').doc(id).delete(); }
         function renderProjects(projects) {
             const c = document.getElementById('project-list-container');
             if(!c) return;
-            c.innerHTML = projects.length === 0 ? '<p style="color:var(--text-secondary); font-size:13px;">No projects hosted yet. Upload your first project!</p>' :
+            c.innerHTML = projects.length === 0 ? '<p style="color:var(--text-secondary); font-size:13px;">No projects hosted yet. Upload your first HTML project!</p>' :
             projects.map(p => `
                 <div style="background:var(--bg-main); padding:12px; border-radius:6px; border:1px solid var(--border-color); margin-bottom:10px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
                     <div>

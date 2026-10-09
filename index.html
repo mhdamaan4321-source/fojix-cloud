@@ -79,7 +79,7 @@
             background: rgba(255, 204, 0, 0.1); color: var(--accent-color); font-weight: bold;
         }
 
-        .main-content { flex: 1; padding: 25px; max-width: 1200px; }
+        .main-content { flex: 1; padding: 25px; max-width: 1200px; box-sizing: border-box; }
 
         .card, .metric-card { 
             background-color: var(--bg-card) !important; 
@@ -106,6 +106,10 @@
 
         .aws-btn-danger {
             background-color: #ef4444 !important; color: #fff !important;
+        }
+
+        .aws-btn-sm {
+            padding: 4px 8px; font-size: 11px;
         }
 
         .form-input {
@@ -671,6 +675,7 @@
             loadCronJobs();
             loadVaultItems();
             loadIncidents();
+            loadVPNState();
             triggerCopilotWelcome(auth);
         }
 
@@ -737,29 +742,47 @@
             return res + "=";
         }
 
-        function toggleVPN(connect) {
+        function loadVPNState() {
+            const vpnState = localStorage.getItem('fojix_vpn_active');
+            const isConnected = vpnState === null ? true : vpnState === 'true';
+            updateVPNUI(isConnected);
+        }
+
+        function updateVPNUI(isConnected) {
             const statusText = document.getElementById('vpn-status-text');
             const statusBadge = document.getElementById('vpn-badge');
             const btnConnect = document.getElementById('vpn-connect-btn');
             const btnDisconnect = document.getElementById('vpn-disconnect-btn');
             const metricVpnStatus = document.getElementById('metric-vpn-status');
 
-            if (connect) {
-                statusText.textContent = "ACTIVE";
-                statusBadge.textContent = "Connected";
-                statusBadge.className = "badge badge-success";
-                btnConnect.disabled = true;
-                btnDisconnect.disabled = false;
+            if (isConnected) {
+                if(statusText) statusText.textContent = "ACTIVE";
+                if(statusBadge) {
+                    statusBadge.textContent = "Connected";
+                    statusBadge.className = "badge badge-success";
+                }
+                if(btnConnect) btnConnect.disabled = true;
+                if(btnDisconnect) btnDisconnect.disabled = false;
                 if(metricVpnStatus) metricVpnStatus.textContent = "Online & Secure";
+            } else {
+                if(statusText) statusText.textContent = "DISCONNECTED";
+                if(statusBadge) {
+                    statusBadge.textContent = "Offline";
+                    statusBadge.className = "badge badge-danger";
+                }
+                if(btnConnect) btnConnect.disabled = false;
+                if(btnDisconnect) btnDisconnect.disabled = true;
+                if(metricVpnStatus) metricVpnStatus.textContent = "Disconnected";
+            }
+        }
+
+        function toggleVPN(connect) {
+            localStorage.setItem('fojix_vpn_active', connect ? 'true' : 'false');
+            updateVPNUI(connect);
+            if (connect) {
                 logAudit("VPN Tunnel Connected");
                 alert("VPN Tunnel successfully connected!");
             } else {
-                statusText.textContent = "DISCONNECTED";
-                statusBadge.textContent = "Offline";
-                statusBadge.className = "badge badge-danger";
-                btnConnect.disabled = false;
-                btnDisconnect.disabled = true;
-                if(metricVpnStatus) metricVpnStatus.textContent = "Disconnected";
                 logAudit("VPN Tunnel Disconnected");
                 alert("VPN Tunnel disconnected.");
             }
@@ -791,6 +814,14 @@
             logAudit(`Pushed Container Image: ${repo}:${tag}`);
         }
 
+        function deleteRegistryImage(id) {
+            let registry = JSON.parse(localStorage.getItem('fojix_registry') || '[]');
+            registry = registry.filter(r => r.id !== id);
+            localStorage.setItem('fojix_registry', JSON.stringify(registry));
+            loadRegistryImages();
+            logAudit(`Deleted Container Image`);
+        }
+
         function loadRegistryImages() {
             const container = document.getElementById('registry-list-container');
             if(!container) return;
@@ -802,7 +833,10 @@
                         <strong style="color:var(--accent-color); font-size:13px;">${r.repo}:${r.tag}</strong>
                         <div style="font-size:11px; color:var(--text-secondary);">Pushed on: ${r.date}</div>
                     </div>
-                    <span class="badge badge-success">Ready</span>
+                    <div style="display:flex; gap:8px; align-items:center;">
+                        <span class="badge badge-success">Ready</span>
+                        <button onclick="deleteRegistryImage(${r.id})" class="aws-btn aws-btn-danger aws-btn-sm"><i class="fa-solid fa-trash"></i></button>
+                    </div>
                 </div>
             `).join('');
         }
@@ -822,6 +856,14 @@
             logAudit(`WAF Rule Added: ${action} ${ip}:${port}`);
         }
 
+        function deleteFirewallRule(id) {
+            let fw = JSON.parse(localStorage.getItem('fojix_fw') || '[]');
+            fw = fw.filter(f => f.id !== id);
+            localStorage.setItem('fojix_fw', JSON.stringify(fw));
+            loadFirewallRules();
+            logAudit(`Removed WAF Firewall Rule`);
+        }
+
         function loadFirewallRules() {
             const container = document.getElementById('firewall-list-container');
             if(!container) return;
@@ -832,7 +874,10 @@
                     <div>
                         <strong style="color:var(--text-primary); font-size:13px;">${f.ip}:${f.port}</strong>
                     </div>
-                    <span class="badge ${f.action === 'BLOCK' ? 'badge-danger' : 'badge-success'}">${f.action}</span>
+                    <div style="display:flex; gap:8px; align-items:center;">
+                        <span class="badge ${f.action === 'BLOCK' ? 'badge-danger' : 'badge-success'}">${f.action}</span>
+                        <button onclick="deleteFirewallRule(${f.id})" class="aws-btn aws-btn-danger aws-btn-sm"><i class="fa-solid fa-trash"></i></button>
+                    </div>
                 </div>
             `).join('');
         }
@@ -850,6 +895,14 @@
             logAudit(`Created S3 Bucket: ${name}`);
         }
 
+        function deleteS3Bucket(id) {
+            let buckets = JSON.parse(localStorage.getItem('fojix_s3') || '[]');
+            buckets = buckets.filter(b => b.id !== id);
+            localStorage.setItem('fojix_s3', JSON.stringify(buckets));
+            loadS3Buckets();
+            logAudit(`Deleted S3 Bucket`);
+        }
+
         function loadS3Buckets() {
             const container = document.getElementById('s3-bucket-list');
             if(!container) return;
@@ -861,7 +914,10 @@
                         <strong style="color:var(--accent-color); font-size:13px;"><i class="fa-solid fa-folder"></i> s3://${b.name}</strong>
                         <div style="font-size:11px; color:var(--text-secondary);">${b.region}</div>
                     </div>
-                    <span class="badge badge-success">Active</span>
+                    <div style="display:flex; gap:8px; align-items:center;">
+                        <span class="badge badge-success">Active</span>
+                        <button onclick="deleteS3Bucket(${b.id})" class="aws-btn aws-btn-danger aws-btn-sm"><i class="fa-solid fa-trash"></i></button>
+                    </div>
                 </div>
             `).join('');
         }
@@ -878,6 +934,14 @@
             logAudit(`Provisioned SSL Certificate for ${domain}`);
         }
 
+        function deleteSSLCert(id) {
+            let ssl = JSON.parse(localStorage.getItem('fojix_ssl') || '[]');
+            ssl = ssl.filter(s => s.id !== id);
+            localStorage.setItem('fojix_ssl', JSON.stringify(ssl));
+            loadSSLCerts();
+            logAudit(`Revoked SSL Certificate`);
+        }
+
         function loadSSLCerts() {
             const container = document.getElementById('ssl-list-container');
             if(!container) return;
@@ -889,7 +953,10 @@
                         <strong style="color:var(--text-primary); font-size:13px;"><i class="fa-solid fa-lock" style="color:#22c55e;"></i> ${s.domain}</strong>
                         <div style="font-size:11px; color:var(--text-secondary);">Expires in: ${s.expiry}</div>
                     </div>
-                    <span class="badge badge-success">${s.status}</span>
+                    <div style="display:flex; gap:8px; align-items:center;">
+                        <span class="badge badge-success">${s.status}</span>
+                        <button onclick="deleteSSLCert(${s.id})" class="aws-btn aws-btn-danger aws-btn-sm"><i class="fa-solid fa-trash"></i></button>
+                    </div>
                 </div>
             `).join('');
         }
@@ -909,6 +976,14 @@
             logAudit(`Added DNS Record: ${type} ${name} -> ${val}`);
         }
 
+        function deleteDNSRecord(id) {
+            let dns = JSON.parse(localStorage.getItem('fojix_dns') || '[]');
+            dns = dns.filter(d => d.id !== id);
+            localStorage.setItem('fojix_dns', JSON.stringify(dns));
+            loadDNSRecords();
+            logAudit(`Deleted DNS Record`);
+        }
+
         function loadDNSRecords() {
             const container = document.getElementById('dns-list-container');
             if(!container) return;
@@ -920,7 +995,10 @@
                         <strong style="color:var(--accent-color); font-size:13px;">${d.name}</strong> [${d.type}]
                         <div style="font-size:11px; color:var(--text-secondary);">Target: ${d.val}</div>
                     </div>
-                    <span class="badge badge-success">Synced</span>
+                    <div style="display:flex; gap:8px; align-items:center;">
+                        <span class="badge badge-success">Synced</span>
+                        <button onclick="deleteDNSRecord(${d.id})" class="aws-btn aws-btn-danger aws-btn-sm"><i class="fa-solid fa-trash"></i></button>
+                    </div>
                 </div>
             `).join('');
         }
@@ -939,6 +1017,19 @@
             logAudit(`Scheduled Cron Job: ${name} (${schedule})`);
         }
 
+        function runCronJobNow(name) {
+            alert(`Executing scheduled task immediately: ${name}`);
+            logAudit(`Manually triggered Cron Job: ${name}`);
+        }
+
+        function deleteCronJob(id) {
+            let cron = JSON.parse(localStorage.getItem('fojix_cron') || '[]');
+            cron = cron.filter(c => c.id !== id);
+            localStorage.setItem('fojix_cron', JSON.stringify(cron));
+            loadCronJobs();
+            logAudit(`Deleted Cron Job`);
+        }
+
         function loadCronJobs() {
             const container = document.getElementById('cron-list-container');
             if(!container) return;
@@ -950,7 +1041,11 @@
                         <strong style="color:var(--text-primary); font-size:13px;">${c.name}</strong>
                         <div style="font-size:11px; color:var(--text-secondary);">Schedule: <code>${c.schedule}</code></div>
                     </div>
-                    <span class="badge badge-success">${c.status}</span>
+                    <div style="display:flex; gap:6px; align-items:center;">
+                        <span class="badge badge-success">${c.status}</span>
+                        <button onclick="runCronJobNow('${c.name}')" class="aws-btn aws-btn-sm"><i class="fa-solid fa-play"></i> Run</button>
+                        <button onclick="deleteCronJob(${c.id})" class="aws-btn aws-btn-danger aws-btn-sm"><i class="fa-solid fa-trash"></i></button>
+                    </div>
                 </div>
             `).join('');
         }
@@ -975,6 +1070,14 @@
             logAudit(`Saved item to Vault: ${title}`);
         }
 
+        function deleteVaultItem(id) {
+            let vault = JSON.parse(localStorage.getItem('fojix_vault') || '[]');
+            vault = vault.filter(v => v.id !== id);
+            localStorage.setItem('fojix_vault', JSON.stringify(vault));
+            loadVaultItems();
+            logAudit(`Deleted item from Vault`);
+        }
+
         function loadVaultItems() {
             const container = document.getElementById('vault-list-container');
             if(!container) return;
@@ -985,7 +1088,10 @@
                     <div>
                         <strong style="color:var(--accent-color); font-size:13px;"><i class="fa-solid fa-lock"></i> ${v.title}</strong>
                     </div>
-                    <button onclick="alert('Vault Content:\\n${v.data.replace(/'/g, "\\'")}')" class="aws-btn" style="padding:4px 8px; font-size:11px;">Decrypt & View</button>
+                    <div style="display:flex; gap:6px;">
+                        <button onclick="alert('Vault Content:\\n${v.data.replace(/'/g, "\\'")}')" class="aws-btn aws-btn-sm">Decrypt & View</button>
+                        <button onclick="deleteVaultItem(${v.id})" class="aws-btn aws-btn-danger aws-btn-sm"><i class="fa-solid fa-trash"></i></button>
+                    </div>
                 </div>
             `).join('');
         }
@@ -1143,12 +1249,20 @@
             if(!container) return;
             let projects = JSON.parse(localStorage.getItem('fojix_projects') || '[]');
             container.innerHTML = projects.length === 0 ? '<p style="color:var(--text-secondary); font-size:13px;">No projects deployed yet.</p>' : '';
-            projects.forEach(p => {
+            projects.forEach((p, idx) => {
                 const card = document.createElement('div');
                 card.style.cssText = "background:var(--bg-main); padding:12px; border-radius:6px; border:1px solid var(--border-color); margin-bottom:10px; display:flex; justify-content:space-between; align-items:center;";
-                card.innerHTML = `<div><strong style="color:var(--accent-color); font-size:14px;">${p.name}</strong><div style="font-size:12px; color:var(--text-secondary);">${p.env} | <a href="https://${p.domain}" target="_blank" style="color:#22c55e;">${p.domain}</a></div></div><span class="badge badge-success">Active</span>`;
+                card.innerHTML = `<div><strong style="color:var(--accent-color); font-size:14px;">${p.name}</strong><div style="font-size:12px; color:var(--text-secondary);">${p.env} | <a href="https://${p.domain}" target="_blank" style="color:#22c55e;">${p.domain}</a></div></div><div style="display:flex; gap:8px; align-items:center;"><span class="badge badge-success">Active</span><button onclick="deleteProject(${idx})" class="aws-btn aws-btn-danger aws-btn-sm"><i class="fa-solid fa-trash"></i></button></div>`;
                 container.appendChild(card);
             });
+        }
+
+        function deleteProject(idx) {
+            let projects = JSON.parse(localStorage.getItem('fojix_projects') || '[]');
+            projects.splice(idx, 1);
+            localStorage.setItem('fojix_projects', JSON.stringify(projects));
+            loadProjects();
+            logAudit(`Deleted Project Deployment`);
         }
 
         function submitDeployment() {
@@ -1234,11 +1348,19 @@
             logAudit(`Saved secret key: ${name}`);
         }
 
+        function deleteSecret(id) {
+            let secrets = JSON.parse(localStorage.getItem('fojix_secrets') || '[]');
+            secrets = secrets.filter(s => s.id !== id);
+            localStorage.setItem('fojix_secrets', JSON.stringify(secrets));
+            loadSecrets();
+            logAudit(`Deleted Secret Key`);
+        }
+
         function loadSecrets() {
             const container = document.getElementById('secret-list-container');
             if(!container) return;
             let secrets = JSON.parse(localStorage.getItem('fojix_secrets') || '[]');
-            container.innerHTML = secrets.map(s => `<div style="background:var(--bg-main); padding:10px; border-radius:6px; border:1px solid var(--border-color); margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;"><div><strong style="color:var(--accent-color); font-size:13px;">${s.name}</strong><div style="font-size:12px; color:var(--text-secondary);">••••••••••••••••</div></div><button onclick="alert('Secret: ${s.val}')" class="aws-btn" style="padding:4px 8px; font-size:11px;">Reveal</button></div>`).join('');
+            container.innerHTML = secrets.map(s => `<div style="background:var(--bg-main); padding:10px; border-radius:6px; border:1px solid var(--border-color); margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;"><div><strong style="color:var(--accent-color); font-size:13px;">${s.name}</strong><div style="font-size:12px; color:var(--text-secondary);">••••••••••••••••</div></div><div style="display:flex; gap:6px;"><button onclick="alert('Secret: ${s.val}')" class="aws-btn aws-btn-sm">Reveal</button><button onclick="deleteSecret(${s.id})" class="aws-btn aws-btn-danger aws-btn-sm"><i class="fa-solid fa-trash"></i></button></div></div>`).join('');
         }
 
         function logAudit(action) {
@@ -1264,6 +1386,7 @@
             const blob = new Blob([JSON.stringify(localStorage, null, 2)], { type: 'application/json' });
             const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
             a.download = `fojix-backup-${Date.now()}.json`; a.click();
+            logAudit("Exported Cloud Console Backup JSON");
         }
 
         function importCloudBackup(e) {
@@ -1271,10 +1394,14 @@
             if(!file) return;
             const reader = new FileReader();
             reader.onload = function(evt) {
-                const data = JSON.parse(evt.target.result);
-                Object.keys(data).forEach(k => localStorage.setItem(k, data[k]));
-                alert('Restored successfully!');
-                location.reload();
+                try {
+                    const data = JSON.parse(evt.target.result);
+                    Object.keys(data).forEach(k => localStorage.setItem(k, data[k]));
+                    alert('Restored successfully!');
+                    location.reload();
+                } catch(err) {
+                    alert('Invalid JSON Backup file!');
+                }
             };
             reader.readAsText(file);
         }

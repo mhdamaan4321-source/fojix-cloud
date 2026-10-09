@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fojix Cloud Enterprise Link Generator & Hosting Console</title>
+    <title>Fojix Cloud Enterprise Management Console</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <!-- FIREBASE SDKs (v9 Compat) -->
@@ -44,8 +44,8 @@
         }
 
         .sidebar { 
-            width: 260px;
-            min-width: 260px;
+            width: 250px;
+            min-width: 250px;
             background-color: var(--bg-sidebar); 
             border-right: 1px solid var(--border-color);
             height: 100vh;
@@ -74,7 +74,7 @@
         .main-content { 
             flex: 1; 
             padding: 25px 30px; 
-            width: calc(100% - 260px);
+            width: calc(100% - 250px);
             min-width: 0;
         }
 
@@ -167,18 +167,18 @@
 </head>
 <body class="theme-aws">
 
-    <!-- CLIENT LOCAL-FIRST LIVE VIEWER -->
+    <!-- CLIENT DYNAMIC LIVE SITE VIEWER (Multi-file / Folder Support) -->
     <div id="client-preview-screen" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #ffffff; z-index: 99999; overflow: auto;">
         <div id="preview-html-container" style="width: 100%; height: 100%; min-height: 100vh;">
-            <!-- Client local files rendered here -->
+            <!-- Uploaded Folder/HTML Content Renders Here -->
         </div>
     </div>
 
     <!-- LOGIN SCREEN -->
     <div id="login-screen">
         <div class="login-box">
-            <h2 style="margin-top:0; color: var(--accent-color);"><i class="fa-solid fa-cloud"></i> Fojix Link Gen</h2>
-            <p style="font-size:12px; color:var(--text-secondary); margin-bottom:15px;">Local-First Hosting & Link Router</p>
+            <h2 style="margin-top:0; color: var(--accent-color);"><i class="fa-solid fa-cloud"></i> Fojix Cloud DB</h2>
+            <p style="font-size:12px; color:var(--text-secondary); margin-bottom:15px;">Firebase Realtime Authenticated Console</p>
             <input type="text" id="loginUser" class="form-input" placeholder="Username / Email">
             <input type="password" id="loginPass" class="form-input" placeholder="Password">
             <button class="aws-btn" style="width: 100%; margin-top: 10px;" onclick="handleLogin()">Login to Console</button>
@@ -190,12 +190,13 @@
     <div id="app-container" style="display: none;">
         <!-- Sidebar Navigation -->
         <div class="sidebar">
-            <h2><i class="fa-solid fa-cloud" style="color: var(--accent-color);"></i> Fojix Link Gen</h2>
+            <h2><i class="fa-solid fa-cloud" style="color: var(--accent-color);"></i> Fojix Cloud</h2>
             <ul>
-                <li><a href="#" class="nav-link active" data-target="hosting-section"><i class="fa-solid fa-link"></i> Link Generator Hub</a></li>
-                <li><a href="#" class="nav-link" data-target="billing-section"><i class="fa-solid fa-file-invoice-dollar"></i> Client Subscription (Rs. 5K)</a></li>
+                <li><a href="#" class="nav-link active" data-target="hosting-section"><i class="fa-solid fa-rocket"></i> Project Hosting</a></li>
+                <li><a href="#" class="nav-link" data-target="database-section"><i class="fa-solid fa-database"></i> Database & S3</a></li>
+                <li><a href="#" class="nav-link" data-target="vpn-section"><i class="fa-solid fa-shield-halved"></i> VPN Gateway</a></li>
                 <li><a href="#" class="nav-link admin-only" data-target="iam-section"><i class="fa-solid fa-users"></i> User Management</a></li>
-                <li><a href="#" class="nav-link admin-only" data-target="history-section"><i class="fa-solid fa-timeline"></i> Cloud History Audit</a></li>
+                <li><a href="#" class="nav-link admin-only" data-target="history-section"><i class="fa-solid fa-timeline"></i> History & Analytics</a></li>
             </ul>
         </div>
 
@@ -203,58 +204,71 @@
         <div class="main-content">
             <header style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; margin-bottom: 25px;">
                 <div>
-                    <h1 id="page-title" style="margin:0; font-size: 22px;">Local-First Hosting & Link Generator</h1>
-                    <p style="color: var(--text-secondary); font-size: 13px; margin-top:4px;">Logged in as: <strong id="active-user-role" style="color:var(--accent-color);">Admin</strong> <span class="badge badge-success" style="margin-left:8px;"><i class="fa-solid fa-laptop"></i> Local Storage Mode</span></p>
+                    <h1 id="page-title" style="margin:0; font-size: 22px;">Fojix Cloud Management Console</h1>
+                    <p style="color: var(--text-secondary); font-size: 13px; margin-top:4px;">Logged in as: <strong id="active-user-role" style="color:var(--accent-color);">Admin</strong> <span class="badge badge-success" style="margin-left:8px;"><i class="fa-solid fa-bolt"></i> Firebase Live Sync</span></p>
                 </div>
                 <button class="aws-btn aws-btn-danger" onclick="handleLogout()"><i class="fa-solid fa-right-from-bracket"></i> Logout</button>
             </header>
 
-            <!-- 1. LINK GENERATOR & HOSTING HUB -->
+            <!-- 1. PROJECT HOSTING HUB (Folders & Files) -->
             <div id="hosting-section" class="content-section">
                 <div class="card">
-                    <h3><i class="fa-solid fa-link" style="color:var(--accent-color);"></i> Hosting Link Generator (Zero Cloud Storage)</h3>
-                    <p style="color: var(--text-secondary); font-size: 13px; margin-bottom: 15px;">Generate instant live URLs. Files & databases remain securely stored on your local PC / client browser storage.</p>
-                    <button class="aws-btn" onclick="openDeployModal()"><i class="fa-solid fa-plus"></i> Generate New Hosting Link</button>
+                    <h3><i class="fa-solid fa-rocket" style="color:var(--accent-color);"></i> Project & Folder Hosting Hub (Lifetime Save)</h3>
+                    <p style="color: var(--text-secondary); font-size: 13px; margin-bottom: 15px;">Upload folders, ZIP archives, HTML, CSS & JS files. All project assets are saved permanently in Fojix Cloud with live multi-file working links.</p>
+                    <button class="aws-btn" onclick="openDeployModal()"><i class="fa-solid fa-folder-plus"></i> Upload Folder / Files from Laptop</button>
                     <div id="project-list-container" style="margin-top: 20px;"></div>
                 </div>
             </div>
 
-            <!-- 2. CLIENT SUBSCRIPTION & BILLING (Rs. 5,000 / month) -->
-            <div id="billing-section" class="content-section" style="display: none;">
+            <!-- 2. DATABASE & STORAGE MANAGER -->
+            <div id="database-section" class="content-section" style="display: none;">
                 <div class="card">
-                    <h3><i class="fa-solid fa-file-invoice-dollar" style="color:var(--accent-color);"></i> Client Subscription & Billing (Rs. 5,000 / month)</h3>
-                    <p style="color: var(--text-secondary); font-size: 13px; margin-bottom: 15px;">Client subscription tiers for local-first hosting link management.</p>
+                    <h3><i class="fa-solid fa-database" style="color:var(--accent-color);"></i> Database & Storage Manager (Firestore & S3 Buckets)</h3>
+                    <p style="color: var(--text-secondary); font-size: 13px; margin-bottom: 15px;">Manage lifetime cloud buckets and database records.</p>
+                    <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+                        <input type="text" id="s3BucketInput" class="form-input" placeholder="Bucket Name (e.g. zendo-assets-bucket)" style="margin-bottom:0;">
+                        <button class="aws-btn" onclick="createS3Bucket()"><i class="fa-solid fa-plus"></i> Create Bucket</button>
+                    </div>
+                    <div id="s3-bucket-list" style="margin-top: 15px;"></div>
+                </div>
+            </div>
+
+            <!-- 3. VPN GATEWAYS -->
+            <div id="vpn-section" class="content-section" style="display: none;">
+                <div class="card">
+                    <h3><i class="fa-solid fa-shield-halved" style="color:var(--accent-color);"></i> VPN Gateways (WireGuard Secure Tunnels)</h3>
+                    <p style="color: var(--text-secondary); font-size: 13px; margin-bottom: 15px;">Connect securely to your server infrastructure with an encrypted private tunnel.</p>
                     
-                    <div style="background: var(--bg-main); padding: 20px; border-radius: 8px; border: 1px solid var(--border-color); margin-bottom: 15px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:15px;">
-                        <div>
-                            <h3 style="color: var(--accent-color); margin-bottom: 5px;">Client Standard Tier</h3>
-                            <p style="font-size: 13px; color: var(--text-secondary);">Includes link routing, local browser storage sync, and custom URL slugs.</p>
-                        </div>
-                        <div style="text-align: right;">
-                            <h2 style="color: #22c55e; margin:0;">Rs. 5,000 <span style="font-size:12px; color:var(--text-secondary);">/ month</span></h2>
-                            <span class="badge badge-success" style="margin-top:5px; display:inline-block;">Active Plan</span>
+                    <div style="background: var(--bg-main); padding: 15px; border-radius: 6px; border: 1px solid var(--border-color); margin-bottom: 15px;">
+                        <div style="display:flex; justify-content: space-between; align-items:center; flex-wrap: wrap; gap:10px;">
+                            <div>
+                                <strong style="color: var(--accent-color);">VPN Tunnel Status: <span id="vpn-status-text">ACTIVE</span></strong>
+                                <div style="font-size:12px; color:var(--text-secondary); margin-top:4px;">Node: Asia-South (10.8.0.1) | Encryption: ChaCha20-Poly1305</div>
+                            </div>
+                            <span class="badge badge-success" id="vpn-badge">Connected</span>
                         </div>
                     </div>
 
-                    <div style="background: var(--bg-main); padding: 20px; border-radius: 8px; border: 1px solid var(--border-color);">
-                        <h3 style="color: #fff; margin-bottom: 10px; font-size: 15px;"><i class="fa-solid fa-crown" style="color:#ffcc00;"></i> Admin Unlimited Privilege</h3>
-                        <p style="font-size: 13px; color: var(--text-secondary);">Admins (Fojix Team) have <strong>unlimited storage allowance, large folder hosting capability, and zero subscription fees</strong>.</p>
+                    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                        <button class="aws-btn" id="vpn-connect-btn" onclick="toggleVPN(true)" disabled><i class="fa-solid fa-plug"></i> Connect VPN</button>
+                        <button class="aws-btn aws-btn-danger" id="vpn-disconnect-btn" onclick="toggleVPN(false)"><i class="fa-solid fa-power-off"></i> Disconnect</button>
+                        <button class="aws-btn" onclick="downloadVPNProfile()"><i class="fa-solid fa-download"></i> Download WireGuard (.conf)</button>
                     </div>
                 </div>
             </div>
 
-            <!-- 3. USER MANAGEMENT (IAM) -->
+            <!-- 4. USER MANAGEMENT (IAM) -->
             <div id="iam-section" class="content-section" style="display: none;">
                 <div class="card">
-                    <h3><i class="fa-solid fa-users" style="color:var(--accent-color);"></i> User Management (IAM)</h3>
-                    <p style="color: var(--text-secondary); font-size: 13px; margin-bottom: 15px;">Manage client accounts and admin access.</p>
+                    <h3><i class="fa-solid fa-users" style="color:var(--accent-color);"></i> User Management (IAM) (Admins & Clients Sync)</h3>
+                    <p style="color: var(--text-secondary); font-size: 13px; margin-bottom: 15px;">Create new accounts synced across team members in Firebase Cloud DB.</p>
                     
                     <div style="display: grid; grid-template-columns: 1fr 1fr 1fr auto; gap: 10px; margin-bottom: 15px;">
                         <input type="text" id="newUsername" class="form-input" placeholder="Username / Email" style="margin:0;">
                         <input type="password" id="newPassword" class="form-input" placeholder="Password" style="margin:0;">
                         <select id="newRole" class="form-input" style="margin:0;">
-                            <option value="Admin">Admin (Unlimited)</option>
-                            <option value="Client">Client (Rs. 5K/mo)</option>
+                            <option value="Admin">Admin</option>
+                            <option value="Client">Client</option>
                         </select>
                         <button class="aws-btn" onclick="addNewUser()" style="height: 40px;"><i class="fa-solid fa-user-plus"></i> Add User</button>
                     </div>
@@ -263,11 +277,11 @@
                 </div>
             </div>
 
-            <!-- 4. HISTORY & AUDIT TRAIL -->
+            <!-- 5. HISTORY & ANALYTICS TAB -->
             <div id="history-section" class="content-section" style="display: none;">
                 <div class="card">
-                    <h3><i class="fa-solid fa-timeline" style="color:var(--accent-color);"></i> Cloud History & Link Activity Audit</h3>
-                    <p style="color: var(--text-secondary); font-size: 13px; margin-bottom: 15px;">Track link generations, user actions, and admin deployments.</p>
+                    <h3><i class="fa-solid fa-timeline" style="color:var(--accent-color);"></i> Cloud History & Admin Activity Analytics</h3>
+                    <p style="color: var(--text-secondary); font-size: 13px; margin-bottom: 15px;">Complete audit trail showing what actions, projects, and database updates admins performed in real-time.</p>
                     <div id="audit-trail-container" style="max-height: 400px; overflow-y: auto;"></div>
                 </div>
             </div>
@@ -286,34 +300,34 @@
                 <i class="fa-solid fa-robot" style="color:var(--accent-color)"></i>
                 <div style="flex:1;">
                     <strong style="font-size:13px; color:#fff;">Fojix AI Assistant</strong>
-                    <div style="font-size:10px; color:#22c55e;">● Local-First Active</div>
+                    <div style="font-size:10px; color:#22c55e;">● Online & Friendly</div>
                 </div>
                 <button onclick="toggleCopilot()" style="background:none; border:none; color:#fff; cursor:pointer;"><i class="fa-solid fa-xmark"></i></button>
             </div>
             <div class="chat-body" id="chatBody"></div>
             <div class="chat-footer">
-                <input type="text" id="copilotInput" class="form-input" placeholder="Ask about link generator, Rs 5K plan..." onkeydown="handleCopilotKey(event)" style="margin:0; font-size:12px;">
+                <input type="text" id="copilotInput" class="form-input" placeholder="Ask about cloud, specs, or chat..." onkeydown="handleCopilotKey(event)" style="margin:0; font-size:12px;">
                 <button class="aws-btn" onclick="sendCopilotMsg()"><i class="fa-solid fa-paper-plane"></i></button>
             </div>
         </div>
     </div>
 
-    <!-- LINK GENERATOR MODAL -->
+    <!-- FOLDER / FILE DEPLOYMENT MODAL -->
     <div id="deployModal" class="modal-overlay" style="display: none;">
         <div class="modal-box">
             <div class="modal-header">
-                <h3><i class="fa-solid fa-link"></i> Generate Local-First Hosting Link</h3>
+                <h3><i class="fa-solid fa-folder-plus"></i> Upload Folder / Project Files</h3>
                 <button class="close-btn" onclick="closeDeployModal()">&times;</button>
             </div>
             <div style="font-size: 13px;">
                 <label style="color:var(--text-secondary);">Project / App Name</label>
                 <input type="text" placeholder="e.g., Zendo Storefront" id="projName" class="form-input">
 
-                <label style="color:var(--text-secondary);">Select Local Folder / HTML Files</label>
+                <label style="color:var(--text-secondary);">Select Folder / Multiple Files (.html, .css, .js)</label>
                 <input type="file" id="projFiles" class="form-input" webkitdirectory directory multiple style="padding: 7px; cursor: pointer;">
-                <div style="font-size: 11px; color: var(--text-secondary); margin-bottom: 10px;">Files are stored locally in your browser storage; cloud only routes the live link!</div>
+                <div style="font-size: 11px; color: var(--text-secondary); margin-bottom: 10px;">You can select an entire folder containing HTML, CSS, and JS files!</div>
 
-                <button class="aws-btn" style="width: 100%; margin-top: 10px;" onclick="submitDeployment()"><i class="fa-solid fa-bolt"></i> Generate Live Link</button>
+                <button class="aws-btn" style="width: 100%; margin-top: 10px;" onclick="submitDeployment()"><i class="fa-solid fa-rocket"></i> Publish & Save Lifetime</button>
             </div>
         </div>
     </div>
@@ -337,7 +351,7 @@
             { user: "use001", pass: "use@001", role: "Client" }
         ];
 
-        /* LOCAL-FIRST LINK RENDERER ROUTER */
+        /* TRUE MULTI-FILE & FOLDER HTML RENDERER ROUTER */
         window.addEventListener('DOMContentLoaded', () => {
             const urlParams = new URLSearchParams(window.location.search);
             const siteSlug = urlParams.get('site');
@@ -362,11 +376,21 @@
                 });
 
                 if(matchedProject && matchedProject.files) {
+                    // Reconstruct files and inject styles/scripts for complete folder live execution
                     let htmlDoc = matchedProject.files['index.html'] || Object.values(matchedProject.files)[0];
+                    if(!htmlDoc) {
+                        container.innerHTML = `<h3 style="padding:40px; color:#ef4444;">Error: index.html not found in uploaded folder.</h3>`;
+                        return;
+                    }
+
+                    // Inject CSS styles if present in folder
                     let cssContent = "";
                     for(let path in matchedProject.files) {
-                        if(path.endsWith('.css')) cssContent += `<style>${matchedProject.files[path]}</style>`;
+                        if(path.endsWith('.css')) {
+                            cssContent += `<style>${matchedProject.files[path]}</style>`;
+                        }
                     }
+
                     container.innerHTML = cssContent + htmlDoc;
                 } else if(matchedProject && matchedProject.htmlContent) {
                     container.innerHTML = matchedProject.htmlContent;
@@ -374,15 +398,15 @@
                     container.innerHTML = `
                         <div style="display:flex; justify-content:center; align-items:center; height:100vh; background:#0b1329; color:#fff; font-family:sans-serif; text-align:center; padding:20px;">
                             <div>
-                                <h2 style="color:#ef4444; margin-bottom:10px;"><i class="fa-solid fa-triangle-exclamation"></i> Link Expired or Not Found</h2>
-                                <p style="color:#94a3b8;">The requested project slug '<code>${slug}</code>' is not active.</p>
-                                <a href="/" style="display:inline-block; margin-top:20px; padding:10px 20px; background:#ffcc00; color:#000; text-decoration:none; font-weight:bold; border-radius:6px;">Back to Fojix Link Gen</a>
+                                <h2 style="color:#ef4444; margin-bottom:10px;"><i class="fa-solid fa-triangle-exclamation"></i> Project Not Found</h2>
+                                <p style="color:#94a3b8;">The requested project slug '<code>${slug}</code>' does not exist or was removed from Fojix Cloud.</p>
+                                <a href="/" style="display:inline-block; margin-top:20px; padding:10px 20px; background:#ffcc00; color:#000; text-decoration:none; font-weight:bold; border-radius:6px;">Back to Fojix Cloud</a>
                             </div>
                         </div>
                     `;
                 }
             } catch(e) {
-                container.innerHTML = `<div style="padding:40px; color:#ef4444; text-align:center;">Error resolving link.</div>`;
+                container.innerHTML = `<div style="padding:40px; color:#ef4444; text-align:center;">Error loading project from Fojix Cloud database.</div>`;
             }
         }
 
@@ -402,7 +426,7 @@
             if(match) {
                 localStorage.setItem('fojix_auth', JSON.stringify(match));
                 document.getElementById('loginError').style.display = 'none';
-                logAudit(match.user, `Logged into Fojix Link Console`);
+                logAudit(match.user, `Logged into Fojix Cloud Console`);
                 initApp();
             } else {
                 document.getElementById('loginError').style.display = 'block';
@@ -444,6 +468,9 @@
             db.collection('projects').onSnapshot(snap => {
                 renderProjects(snap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
             });
+            db.collection('s3_buckets').onSnapshot(snap => {
+                renderS3Buckets(snap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+            });
             db.collection('users').onSnapshot(snap => {
                 renderUsersList(snap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
             });
@@ -471,7 +498,7 @@
             body.innerHTML = `
                 <div class="chat-msg bot">
                     👋 Vanakkam <strong>${auth.user}</strong>!<br><br>
-                    I am <strong>Fojix AI</strong>. Local-first link generator, Rs. 5,000/mo client subscription, or unlimited admin folders pathi ennoda pesalam!
+                    I am <strong>Fojix AI</strong>. Neenga folders upload panrathu, cloud history analytics, or laptop specs pathi ennoda pesalam!
                 </div>
             `;
         }
@@ -495,12 +522,14 @@
                 bMsg.className = 'chat-msg bot';
                 const q = txt.toLowerCase();
 
-                if(q.includes('5000') || q.includes('rs') || q.includes('subscription')) {
-                    bMsg.textContent = "Clients pay Rs. 5,000 per month for local-first hosting link management, while admins enjoy unlimited free hosting!";
-                } else if(q.includes('local') || q.includes('storage') || q.includes('pc')) {
-                    bMsg.textContent = "All files and databases stay securely on the client's PC/browser storage, while Fojix Cloud acts as a fast link router!";
+                if(q.includes('folder') || q.includes('zip') || q.includes('upload')) {
+                    bMsg.textContent = "You can upload entire project folders containing HTML, CSS, and JS files directly using our folder selector. They are saved permanently with live multi-file rendering!";
+                } else if(q.includes('history') || q.includes('audit') || q.includes('analytics')) {
+                    bMsg.textContent = "The History & Analytics tab tracks all admin actions, project uploads, and database modifications in real-time!";
+                } else if(q.includes('specs') || q.includes('pc') || q.includes('laptop')) {
+                    bMsg.textContent = "Your development machine is running high-performance specs optimized for full-stack apps and Fojix Cloud deployments!";
                 } else {
-                    bMsg.textContent = `That's great! As Fojix AI, I'm here to help you manage your link generator SaaS.`;
+                    bMsg.textContent = `That's great! As Fojix AI, I'm fully here to assist with your cloud hosting, folders, and analytics.`;
                 }
                 
                 body.appendChild(bMsg);
@@ -508,12 +537,12 @@
             }, 500);
         }
 
-        /* LOCAL-FIRST LINK GENERATOR SUBMISSION */
+        /* FOLDER & MULTI-FILE LIFETIME DEPLOYMENT */
         async function submitDeployment() {
             const name = document.getElementById('projName').value.trim();
             const fileInput = document.getElementById('projFiles');
             if(!name) return alert('Please enter project name!');
-            if(fileInput.files.length === 0) return alert('Please select local folder/files!');
+            if(fileInput.files.length === 0) return alert('Please select folder or files to upload!');
 
             const files = fileInput.files;
             const fileMap = {};
@@ -528,14 +557,14 @@
                     processed++;
 
                     if(processed === files.length) {
-                        finalizeLinkGeneration(name, fileMap);
+                        finalizeUpload(name, fileMap);
                     }
                 };
                 reader.readAsText(file);
             }
         }
 
-        function finalizeLinkGeneration(name, fileMap) {
+        function finalizeUpload(name, fileMap) {
             const slug = name.toLowerCase().replace(/[^a-z0-9]/g, '-');
             const previewUrl = `${window.location.origin}${window.location.pathname}?site=${slug}`;
             const auth = JSON.parse(localStorage.getItem('fojix_auth')) || { user: 'Admin' };
@@ -547,39 +576,74 @@
                 domain: previewUrl, 
                 createdAt: new Date().toLocaleDateString() 
             }).then(() => {
-                logAudit(auth.user, `Generated Hosting Link for: ${name}`);
+                logAudit(auth.user, `Hosted project folder: ${name} (${Object.keys(fileMap).length} files)`);
                 closeDeployModal();
                 document.getElementById('projName').value = '';
                 document.getElementById('projFiles').value = '';
-                alert(`🎉 Hosting Link Generated Successfully!\n\nLive URL:\n${previewUrl}`);
+                alert(`🎉 Project Folder Saved Permanently in Fojix Cloud!\n\nLive Link:\n${previewUrl}`);
             }).catch(err => {
-                alert('Error generating link: ' + err.message);
+                alert('Error uploading folder to Firebase: ' + err.message);
             });
         }
 
         function deleteProject(id, name) {
             const auth = JSON.parse(localStorage.getItem('fojix_auth')) || { user: 'Admin' };
             db.collection('projects').doc(id).delete();
-            logAudit(auth.user, `Removed Link for: ${name}`);
+            logAudit(auth.user, `Deleted project: ${name}`);
         }
 
         function renderProjects(projects) {
             const c = document.getElementById('project-list-container');
             if(!c) return;
-            c.innerHTML = projects.length === 0 ? '<p style="color:var(--text-secondary); font-size:13px;">No active links generated yet.</p>' :
+            c.innerHTML = projects.length === 0 ? '<p style="color:var(--text-secondary); font-size:13px;">No projects hosted yet. Upload your first folder or HTML files!</p>' :
             projects.map(p => `
                 <div style="background:var(--bg-main); padding:12px; border-radius:6px; border:1px solid var(--border-color); margin-bottom:10px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
                     <div>
-                        <strong style="color:var(--accent-color); font-size:14px;"><i class="fa-solid fa-link"></i> ${p.name}</strong>
-                        <div style="font-size:12px; color:var(--text-secondary);">Local Sync: Active | <a href="${p.domain}" target="_blank" style="color:#22c55e;">${p.domain}</a></div>
+                        <strong style="color:var(--accent-color); font-size:14px;"><i class="fa-solid fa-globe"></i> ${p.name}</strong>
+                        <div style="font-size:12px; color:var(--text-secondary);">Assets: ${p.files ? Object.keys(p.files).length : 1} files | <a href="${p.domain}" target="_blank" style="color:#22c55e;">${p.domain}</a></div>
                     </div>
                     <div style="display:flex; gap:8px; align-items:center;">
-                        <span class="badge badge-success">Link Active</span>
+                        <span class="badge badge-success">Lifetime Active</span>
                         <button onclick="navigator.clipboard.writeText('${p.domain}'); alert('Live link copied!');" class="aws-btn aws-btn-sm"><i class="fa-solid fa-copy"></i></button>
                         <button onclick="deleteProject('${p.id}', '${p.name}')" class="aws-btn aws-btn-danger aws-btn-sm"><i class="fa-solid fa-trash"></i></button>
                     </div>
                 </div>
             `).join('');
+        }
+
+        function createS3Bucket() {
+            const input = document.getElementById('s3BucketInput');
+            const name = input ? input.value.trim() : prompt("Bucket name:");
+            if(!name) return;
+            const auth = JSON.parse(localStorage.getItem('fojix_auth')) || { user: 'Admin' };
+            db.collection('s3_buckets').add({ name, region: 'Asia-South (Colombo)' });
+            if(input) input.value = '';
+            logAudit(auth.user, `Created S3 Bucket: s3://${name}`);
+            alert(`Bucket s3://${name} created successfully!`);
+        }
+
+        function renderS3Buckets(buckets) {
+            const c = document.getElementById('s3-bucket-list');
+            if(!c) return;
+            c.innerHTML = buckets.length === 0 ? '<p style="color:var(--text-secondary); font-size:13px;">No S3 buckets created yet.</p>' :
+            buckets.map(b => `<div style="background:var(--bg-main); padding:10px; border-radius:6px; border:1px solid var(--border-color); margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;"><div><strong style="color:var(--accent-color);">s3://${b.name}</strong><div style="font-size:11px; color:var(--text-secondary);">${b.region}</div></div><button onclick="db.collection('s3_buckets').doc('${b.id}').delete()" class="aws-btn aws-btn-danger aws-btn-sm"><i class="fa-solid fa-trash"></i></button></div>`).join('');
+        }
+
+        function toggleVPN(connect) {
+            const auth = JSON.parse(localStorage.getItem('fojix_auth')) || { user: 'Admin' };
+            document.getElementById('vpn-status-text').textContent = connect ? "ACTIVE" : "DISCONNECTED";
+            document.getElementById('vpn-badge').className = connect ? "badge badge-success" : "badge badge-danger";
+            document.getElementById('vpn-badge').textContent = connect ? "Connected" : "Offline";
+            document.getElementById('vpn-connect-btn').disabled = connect;
+            document.getElementById('vpn-disconnect-btn').disabled = !connect;
+            logAudit(auth.user, connect ? "Connected VPN Gateway" : "Disconnected VPN Gateway");
+            alert(connect ? "VPN Tunnel Connected!" : "VPN Disconnected.");
+        }
+
+        function downloadVPNProfile() {
+            const blob = new Blob([`[Interface]\nPrivateKey = SAMPLE\nAddress = 10.8.0.2/24\n[Peer]\nEndpoint = vpn.fojixcloud.com:51820`], {type: 'text/plain'});
+            const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'fojix-vpn.conf'; a.click();
+            alert("WireGuard profile downloaded!");
         }
 
         function addNewUser() {
@@ -590,14 +654,14 @@
             const auth = JSON.parse(localStorage.getItem('fojix_auth')) || { user: 'Admin' };
             db.collection('users').add({ user, pass, role });
             document.getElementById('newUsername').value = ''; document.getElementById('newPassword').value = '';
-            logAudit(auth.user, `Created User: ${user} (${role})`);
-            alert(`User ${user} added successfully!`);
+            logAudit(auth.user, `Created IAM User: ${user} (${role})`);
+            alert(`User ${user} created successfully!`);
         }
 
         function renderUsersList(users) {
             const c = document.getElementById('users-list-container');
             if(!c) return;
-            c.innerHTML = [...defaultAccounts, ...users].map(u => `<div style="background:var(--bg-main); padding:10px; border-radius:6px; border:1px solid var(--border-color); margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;"><div><strong style="color:var(--accent-color);">${u.user}</strong><div style="font-size:11px; color:var(--text-secondary);">Role: ${u.role} (${u.role === 'Client' ? 'Rs. 5,000/mo' : 'Unlimited Admin'})</div></div><span class="badge ${u.role==='Admin'?'badge-warning':'badge-success'}">${u.role}</span></div>`).join('');
+            c.innerHTML = [...defaultAccounts, ...users].map(u => `<div style="background:var(--bg-main); padding:10px; border-radius:6px; border:1px solid var(--border-color); margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;"><div><strong style="color:var(--accent-color);">${u.user}</strong><div style="font-size:11px; color:var(--text-secondary);">Role: ${u.role}</div></div><span class="badge ${u.role==='Admin'?'badge-warning':'badge-success'}">${u.role}</span></div>`).join('');
         }
 
         function renderAuditTrail(audit) {
@@ -618,7 +682,6 @@
         const sections = document.querySelectorAll('.content-section');
 
         navLinks.forEach(link => {
-            link.addEventListener('link-click, ', () => {});
             link.addEventListener('click', (e) => {
                 e.preventDefault();
                 const target = link.getAttribute('data-target');

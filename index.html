@@ -4,9 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Fojix Cloud Enterprise Management Console</title>
-    <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <!-- FIREBASE SDKs (v9 Compat) -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
@@ -22,26 +20,6 @@
             --text-primary: #ffffff;
             --text-secondary: #94a3b8;
             --border-color: rgba(255, 204, 0, 0.2);
-        }
-
-        body.theme-matrix {
-            --bg-main: #020f07;
-            --bg-sidebar: #010804;
-            --bg-card: #051f0e;
-            --accent-color: #22c55e;
-            --text-primary: #e2e8f0;
-            --text-secondary: #86efac;
-            --border-color: rgba(34, 197, 94, 0.3);
-        }
-
-        body.theme-cyberpunk {
-            --bg-main: #120524;
-            --bg-sidebar: #0b0314;
-            --bg-card: #1f0a38;
-            --accent-color: #ec4899;
-            --text-primary: #fff;
-            --text-secondary: #f472b6;
-            --border-color: rgba(236, 72, 153, 0.3);
         }
 
         * {
@@ -100,29 +78,21 @@
             min-width: 0;
         }
 
-        .card, .metric-card { 
-            background-color: var(--bg-card) !important; 
-            border: 1px solid var(--border-color) !important; 
+        .card { 
+            background-color: var(--bg-card); 
+            border: 1px solid var(--border-color); 
             border-radius: 8px; padding: 20px; margin-bottom: 20px;
             width: 100%;
         }
 
-        .metrics-grid {
-            display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
-            gap: 15px; margin-bottom: 20px; width: 100%;
-        }
-
-        .metric-card { display: flex; align-items: center; gap: 15px; padding: 15px; }
-        .metric-card i { font-size: 24px; }
-
         .aws-btn { 
-            background-color: var(--accent-color) !important; color: #000 !important; 
+            background-color: var(--accent-color); color: #000; 
             font-weight: bold; border: none; padding: 9px 15px; border-radius: 6px;
             cursor: pointer; font-size: 13px; display: inline-flex; align-items: center; gap: 6px;
             transition: opacity 0.2s;
         }
         .aws-btn:hover { opacity: 0.9; }
-        .aws-btn-danger { background-color: #ef4444 !important; color: #fff !important; }
+        .aws-btn-danger { background-color: #ef4444; color: #fff; }
         .aws-btn-sm { padding: 4px 8px; font-size: 11px; }
 
         .form-input {
@@ -197,7 +167,7 @@
 </head>
 <body class="theme-aws">
 
-    <!-- CLIENT DYNAMIC SITE VIEWER -->
+    <!-- CLIENT DYNAMIC LIVE SITE VIEWER -->
     <div id="client-preview-screen" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #0b1329; z-index: 99999; padding: 40px; box-sizing: border-box; overflow-y: auto; color: #fff;">
         <div style="max-width: 900px; margin: 0 auto; background: #0f1a36; border: 1px solid rgba(255,204,0,0.3); border-radius: 10px; padding: 30px;">
             <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,204,0,0.2); padding-bottom: 15px; margin-bottom: 20px;">
@@ -227,297 +197,61 @@
 
     <!-- MAIN DASHBOARD CONTENT -->
     <div id="app-container" style="display: none;">
-        <!-- Sidebar Navigation -->
+        <!-- Sidebar Navigation (Only 4 core sections) -->
         <div class="sidebar">
             <h2><i class="fa-solid fa-cloud" style="color: var(--accent-color);"></i> Fojix Cloud</h2>
             <ul>
-                <li><a href="#" class="nav-link active" data-target="home-section"><i class="fa-solid fa-house"></i> <span>Console Home</span></a></li>
-                <li><a href="#" class="nav-link" data-target="ec2-section"><i class="fa-solid fa-server"></i> <span>EC2 & Metrics</span></a></li>
-                <li><a href="#" class="nav-link" data-target="k8s-section"><i class="fa-solid fa-cubes"></i> Kubernetes Pods</a></li>
-                <li><a href="#" class="nav-link" data-target="registry-section"><i class="fa-brands fa-docker"></i> Container Registry</a></li>
-                <li><a href="#" class="nav-link" data-target="firewall-section"><i class="fa-solid fa-fire-flame-curved"></i> WAF & Firewall</a></li>
-                <li><a href="#" class="nav-link" data-target="s3-section"><i class="fa-solid fa-database"></i> <span>S3 Storage & DB</span></a></li>
-                <li><a href="#" class="nav-link" data-target="secrets-section"><i class="fa-solid fa-key"></i> Secret Manager</a></li>
-                <li><a href="#" class="nav-link" data-target="ssl-section"><i class="fa-solid fa-lock"></i> SSL / TLS Manager</a></li>
-                <li><a href="#" class="nav-link" data-target="dns-section"><i class="fa-solid fa-globe"></i> DNS & Latency</a></li>
-                <li><a href="#" class="nav-link" data-target="cron-section"><i class="fa-solid fa-clock-rotate-left"></i> Cron Scheduler</a></li>
-                <li><a href="#" class="nav-link" data-target="lb-section"><i class="fa-solid fa-network-wired"></i> Auto-Scaling & LB</a></li>
-                <li><a href="#" class="nav-link" data-target="vault-section"><i class="fa-solid fa-vault"></i> Client Vault</a></li>
-                <li><a href="#" class="nav-link" data-target="billing-section"><i class="fa-solid fa-file-invoice-dollar"></i> Cost & Invoicing</a></li>
-                <li><a href="#" class="nav-link" data-target="incidents-section"><i class="fa-solid fa-triangle-exclamation"></i> Incidents Status</a></li>
-                <li><a href="#" class="nav-link" data-target="audit-section"><i class="fa-solid fa-timeline"></i> Audit Log Trail</a></li>
-                <li><a href="#" class="nav-link" data-target="terminal-section"><i class="fa-solid fa-terminal"></i> Interactive Shell</a></li>
+                <li><a href="#" class="nav-link active" data-target="hosting-section"><i class="fa-solid fa-rocket"></i> Project Hosting</a></li>
+                <li><a href="#" class="nav-link" data-target="database-section"><i class="fa-solid fa-database"></i> Database & S3</a></li>
                 <li><a href="#" class="nav-link" data-target="vpn-section"><i class="fa-solid fa-shield-halved"></i> VPN Gateway</a></li>
-                <li><a href="#" class="nav-link admin-only" data-target="iam-section"><i class="fa-solid fa-users"></i> IAM & User Management</a></li>
+                <li><a href="#" class="nav-link admin-only" data-target="iam-section"><i class="fa-solid fa-users"></i> User Management</a></li>
             </ul>
         </div>
 
         <!-- Main Content Area -->
         <div class="main-content">
-            <header style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; margin-bottom: 20px;">
+            <header style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; margin-bottom: 25px;">
                 <div>
-                    <h1 id="page-title" style="margin:0;">Fojix Management Console</h1>
+                    <h1 id="page-title" style="margin:0; font-size: 22px;">Fojix Cloud Management Console</h1>
                     <p style="color: var(--text-secondary); font-size: 13px; margin-top:4px;">Logged in as: <strong id="active-user-role" style="color:var(--accent-color);">Admin</strong> <span class="badge badge-success" style="margin-left:8px;"><i class="fa-solid fa-bolt"></i> Firebase Live Sync</span></p>
                 </div>
-                
-                <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
-                    <button class="aws-btn" onclick="exportCloudBackup()"><i class="fa-solid fa-download"></i> Backup</button>
-                    <select id="themeSelector" onchange="changeTheme(this.value)" style="padding: 8px 12px; background: var(--bg-card); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: 6px; cursor: pointer; font-size: 13px;">
-                        <option value="theme-aws">AWS Dark</option>
-                        <option value="theme-matrix">Matrix Green</option>
-                        <option value="theme-cyberpunk">Cyberpunk Neon</option>
-                    </select>
-                    <button class="aws-btn aws-btn-danger" onclick="handleLogout()"><i class="fa-solid fa-right-from-bracket"></i> Logout</button>
-                </div>
+                <button class="aws-btn aws-btn-danger" onclick="handleLogout()"><i class="fa-solid fa-right-from-bracket"></i> Logout</button>
             </header>
 
-            <!-- GLOBAL UPTIME BANNER -->
-            <div onclick="openUptimeModal()" style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 6px; padding: 10px 15px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; font-size: 13px;">
-                <div style="display: flex; align-items: center; gap: 8px;">
-                    <i class="fa-solid fa-circle-check" style="color: #22c55e;"></i>
-                    <span style="font-weight: bold; color: var(--text-primary);" id="banner-status">System Status: Firebase Firestore Realtime Database Operational</span>
-                </div>
-                <span style="color: var(--accent-color); font-size: 12px;"><i class="fa-solid fa-arrow-up-right-from-square"></i> View Health</span>
-            </div>
-
-            <!-- METRICS GRID -->
-            <div id="metrics-container" class="metrics-grid">
-                <div class="metric-card">
-                    <i class="fa-solid fa-server" style="color: var(--accent-color);"></i>
-                    <div>
-                        <h4 style="margin: 0; font-size: 12px; color: var(--text-secondary);">Active Servers</h4>
-                        <h2 style="margin: 4px 0 0 0; font-size: 18px;" id="metric-server-count">2 Nodes</h2>
-                    </div>
-                </div>
-                <div class="metric-card">
-                    <i class="fa-solid fa-cubes" style="color: var(--accent-color);"></i>
-                    <div>
-                        <h4 style="margin: 0; font-size: 12px; color: var(--text-secondary);">K8s Pods</h4>
-                        <h2 style="margin: 4px 0 0 0; font-size: 18px;" id="metric-pod-count">2 Active</h2>
-                    </div>
-                </div>
-                <div class="metric-card">
-                    <i class="fa-solid fa-shield-halved" style="color: var(--accent-color);"></i>
-                    <div>
-                        <h4 style="margin: 0; font-size: 12px; color: var(--text-secondary);">Fojix VPN Status</h4>
-                        <h2 style="margin: 4px 0 0 0; font-size: 18px;" id="metric-vpn-status">Online & Secure</h2>
-                    </div>
-                </div>
-                <div class="metric-card">
-                    <i class="fa-solid fa-microchip" style="color: var(--accent-color);"></i>
-                    <div>
-                        <h4 style="margin: 0; font-size: 12px; color: var(--text-secondary);">Live CPU / RAM Load</h4>
-                        <h2 id="metric-load" style="font-size: 15px; margin-top: 4px; color: var(--accent-color);">CPU: 32% | RAM: 58%</h2>
-                    </div>
-                </div>
-            </div>
-
-            <!-- SECTIONS -->
-            <div id="home-section" class="content-section">
+            <!-- 1. PROJECT HOSTING SECTION -->
+            <div id="hosting-section" class="content-section">
                 <div class="card">
-                    <h3><i class="fa-solid fa-rocket"></i> Client & Admin Laptop Project Hosting Hub (Lifetime Save)</h3>
-                    <p style="color: var(--text-secondary); font-size: 13px; margin-bottom: 10px;">Upload your local project files or ZIP from your laptop. Projects are saved permanently in Fojix Cloud with instant live links.</p>
+                    <h3><i class="fa-solid fa-rocket" style="color:var(--accent-color);"></i> Client & Admin Laptop Project Hosting Hub (Lifetime Save)</h3>
+                    <p style="color: var(--text-secondary); font-size: 13px; margin-bottom: 15px;">Upload your laptop source code files or ZIP bundles. Projects are saved permanently in Fojix Cloud with instant live links.</p>
                     <button class="aws-btn" onclick="openDeployModal()"><i class="fa-solid fa-upload"></i> Upload & Host Project from Laptop</button>
                     <div id="project-list-container" style="margin-top: 20px;"></div>
                 </div>
-
-                <div class="card">
-                    <h3><i class="fa-solid fa-bell"></i> Webhook & Alerting Center</h3>
-                    <p style="color: var(--text-secondary); font-size: 13px; margin-bottom: 10px;">Receive instant alerts via Webhook on server incidents.</p>
-                    <input type="text" id="webhookUrl" class="form-input" placeholder="https://discord.com/api/webhooks/YOUR_WEBHOOK_URL">
-                    <button class="aws-btn" onclick="testWebhook()"><i class="fa-solid fa-paper-plane"></i> Save & Test Webhook</button>
-                </div>
             </div>
 
-            <div id="ec2-section" class="content-section" style="display: none;">
+            <!-- 2. DATABASE & S3 SECTION -->
+            <div id="database-section" class="content-section" style="display: none;">
                 <div class="card">
-                    <h3><i class="fa-solid fa-chart-line"></i> Real-Time Node Resource Charts</h3>
-                    <div style="height: 250px; position: relative;">
-                        <canvas id="telemetryChart"></canvas>
-                    </div>
-                </div>
-            </div>
-
-            <div id="k8s-section" class="content-section" style="display: none;">
-                <div class="card">
-                    <h3><i class="fa-solid fa-cubes"></i> Kubernetes Cluster Pod Monitor</h3>
-                    <div id="k8s-pod-list" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 15px;"></div>
-                </div>
-            </div>
-
-            <div id="registry-section" class="content-section" style="display: none;">
-                <div class="card">
-                    <h3><i class="fa-brands fa-docker"></i> Private Container Image Registry</h3>
-                    <div style="display: grid; grid-template-columns: 1fr 1fr auto; gap: 10px; margin-top: 15px;">
-                        <input type="text" id="repoName" class="form-input" placeholder="Repository Name (e.g., fojix/api-server)">
-                        <input type="text" id="repoTag" class="form-input" placeholder="Tag (e.g., v1.0.4)">
-                        <button class="aws-btn" onclick="pushContainerImage()" style="height: 40px;"><i class="fa-solid fa-upload"></i> Push Image</button>
-                    </div>
-                    <div id="registry-list-container" style="margin-top: 20px;"></div>
-                </div>
-            </div>
-
-            <div id="firewall-section" class="content-section" style="display: none;">
-                <div class="card">
-                    <h3><i class="fa-solid fa-fire-flame-curved"></i> Web Application Firewall (WAF)</h3>
-                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr auto; gap: 10px; margin-top: 15px;">
-                        <input type="text" id="fwIp" class="form-input" placeholder="IP Address (e.g. 192.168.1.50)">
-                        <select id="fwAction" class="form-input">
-                            <option value="BLOCK">Block IP</option>
-                            <option value="ALLOW">Allow IP</option>
-                        </select>
-                        <input type="text" id="fwPort" class="form-input" placeholder="Port (e.g. 80, 443)">
-                        <button class="aws-btn" onclick="addFirewallRule()" style="height: 40px;"><i class="fa-solid fa-shield"></i> Add Rule</button>
-                    </div>
-                    <div id="firewall-list-container" style="margin-top: 20px;"></div>
-                </div>
-            </div>
-
-            <div id="s3-section" class="content-section" style="display: none;">
-                <div class="card">
-                    <h3><i class="fa-solid fa-database"></i> Database Management & Automated Backups</h3>
-                    <button class="aws-btn" onclick="generateDBBackup()"><i class="fa-solid fa-download"></i> Generate Live DB Dump (.sql)</button>
-                </div>
-                <div class="card">
-                    <h3><i class="fa-solid fa-folder"></i> S3 Object Storage Buckets</h3>
+                    <h3><i class="fa-solid fa-database" style="color:var(--accent-color);"></i> Fojix Cloud Database & Object Storage S3</h3>
+                    <p style="color: var(--text-secondary); font-size: 13px; margin-bottom: 15px;">Manage lifetime cloud buckets and live SQL backups.</p>
                     <div style="display: flex; gap: 10px; margin-bottom: 15px;">
-                        <input type="text" id="s3BucketInput" class="form-input" placeholder="Bucket Name (e.g. client-assets-bucket)" style="margin-bottom:0;">
+                        <input type="text" id="s3BucketInput" class="form-input" placeholder="Bucket Name (e.g. zendo-assets-bucket)" style="margin-bottom:0;">
                         <button class="aws-btn" onclick="createS3Bucket()"><i class="fa-solid fa-plus"></i> Create Bucket</button>
                     </div>
                     <div id="s3-bucket-list" style="margin-top: 15px;"></div>
                 </div>
             </div>
 
-            <div id="secrets-section" class="content-section" style="display: none;">
-                <div class="card">
-                    <h3><i class="fa-solid fa-key"></i> Environment Secrets & API Keys Manager</h3>
-                    <div style="display: flex; gap: 10px; margin-top: 10px;">
-                        <input type="text" id="secretKeyName" class="form-input" placeholder="Key">
-                        <input type="password" id="secretVal" class="form-input" placeholder="Secret Value">
-                        <button class="aws-btn" onclick="saveSecret()" style="height: 40px;"><i class="fa-solid fa-save"></i> Save</button>
-                    </div>
-                    <div id="secret-list-container" style="margin-top: 20px;"></div>
-                </div>
-            </div>
-
-            <div id="ssl-section" class="content-section" style="display: none;">
-                <div class="card">
-                    <h3><i class="fa-solid fa-lock"></i> SSL / TLS Certificate Manager</h3>
-                    <div style="margin-top: 15px; display: flex; gap: 10px;">
-                        <input type="text" id="sslDomainInput" class="form-input" placeholder="Domain (e.g., app.fojixcloud.com)" style="flex: 1; margin: 0;">
-                        <button class="aws-btn" onclick="provisionSSLCert()" style="height: 40px;"><i class="fa-solid fa-certificate"></i> Provision SSL</button>
-                    </div>
-                    <div id="ssl-list-container" style="margin-top: 20px;"></div>
-                </div>
-            </div>
-
-            <div id="dns-section" class="content-section" style="display: none;">
-                <div class="card">
-                    <h3><i class="fa-solid fa-globe"></i> Regional Latency Matrix</h3>
-                    <div id="latency-matrix" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 15px;">
-                        <div style="background: var(--bg-main); padding: 12px; border-radius: 6px; border: 1px solid var(--border-color);">
-                            <span style="font-size: 12px; color: var(--text-secondary);">Asia-South (Colombo, LK)</span>
-                            <h3 style="color: #22c55e; margin: 5px 0 0 0;">14 ms</h3>
-                        </div>
-                        <div style="background: var(--bg-main); padding: 12px; border-radius: 6px; border: 1px solid var(--border-color);">
-                            <span style="font-size: 12px; color: var(--text-secondary);">US-East (Virginia, US)</span>
-                            <h3 style="color: #22c55e; margin: 5px 0 0 0;">185 ms</h3>
-                        </div>
-                    </div>
-                </div>
-                <div class="card">
-                    <h3><i class="fa-solid fa-network-wired"></i> DNS Zone Management</h3>
-                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr auto; gap: 10px; margin-top: 15px;">
-                        <input type="text" id="dnsName" class="form-input" placeholder="Record">
-                        <select id="dnsType" class="form-input">
-                            <option value="A">A Record</option>
-                            <option value="CNAME">CNAME</option>
-                        </select>
-                        <input type="text" id="dnsValue" class="form-input" placeholder="Value">
-                        <button class="aws-btn" onclick="addDNSRecord()" style="height: 40px;"><i class="fa-solid fa-plus"></i> Add</button>
-                    </div>
-                    <div id="dns-list-container" style="margin-top: 20px;"></div>
-                </div>
-            </div>
-
-            <div id="cron-section" class="content-section" style="display: none;">
-                <div class="card">
-                    <h3><i class="fa-solid fa-clock-rotate-left"></i> Scheduled Task & Cron Manager</h3>
-                    <div style="display: grid; grid-template-columns: 1fr 1fr auto; gap: 10px; margin-top: 15px;">
-                        <input type="text" id="cronName" class="form-input" placeholder="Task Name">
-                        <input type="text" id="cronSchedule" class="form-input" placeholder="Cron">
-                        <button class="aws-btn" onclick="addCronJob()" style="height: 40px;"><i class="fa-solid fa-calendar-plus"></i> Schedule</button>
-                    </div>
-                    <div id="cron-list-container" style="margin-top: 20px;"></div>
-                </div>
-            </div>
-
-            <div id="lb-section" class="content-section" style="display: none;">
-                <div class="card">
-                    <h3><i class="fa-solid fa-sliders"></i> Auto-Scaling Rule Policies</h3>
-                    <div style="display: flex; gap: 15px; align-items: center; margin-top: 15px;">
-                        <label style="font-size: 13px;">CPU Threshold (%):</label>
-                        <input type="number" id="autoScaleCpu" class="form-input" value="80" style="width: 100px; margin:0;">
-                        <button class="aws-btn" onclick="updateScalingPolicy()">Update Policy</button>
-                    </div>
-                </div>
-            </div>
-
-            <div id="vault-section" class="content-section" style="display: none;">
-                <div class="card">
-                    <h3><i class="fa-solid fa-vault"></i> Client Vault</h3>
-                    <input type="text" id="vaultItemName" class="form-input" placeholder="Title">
-                    <textarea id="vaultItemData" class="form-input" style="height: 80px;" placeholder="Secure text..."></textarea>
-                    <button class="aws-btn" onclick="saveToVault()"><i class="fa-solid fa-save"></i> Save to Vault</button>
-                    <div id="vault-list-container" style="margin-top: 20px;"></div>
-                </div>
-            </div>
-
-            <div id="billing-section" class="content-section" style="display: none;">
-                <div class="card">
-                    <h3><i class="fa-solid fa-file-invoice-dollar"></i> Billing & Statements</h3>
-                    <p style="color: var(--text-secondary); font-size: 13px;">Current Bill: <strong style="color: #22c55e;">$0.00 / mo (Free Spark Tier)</strong></p>
-                    <button class="aws-btn" onclick="downloadPDFInvoice()"><i class="fa-solid fa-file-pdf"></i> Download Statement</button>
-                </div>
-            </div>
-
-            <div id="incidents-section" class="content-section" style="display: none;">
-                <div class="card">
-                    <h3><i class="fa-solid fa-triangle-exclamation"></i> Incidents & Status</h3>
-                    <div id="incidents-list-container" style="margin-top: 15px;"></div>
-                </div>
-            </div>
-
-            <div id="audit-section" class="content-section" style="display: none;">
-                <div class="card">
-                    <h3><i class="fa-solid fa-timeline"></i> System Audit Trail</h3>
-                    <div id="audit-trail-container" style="max-height: 280px; overflow-y: auto;"></div>
-                </div>
-            </div>
-
-            <div id="terminal-section" class="content-section" style="display: none;">
-                <div class="card">
-                    <h3><i class="fa-solid fa-terminal"></i> Interactive Web Shell</h3>
-                    <div style="background: #03070d; border: 1px solid var(--border-color); border-radius: 6px; padding: 15px; font-family: monospace; height: 260px; overflow-y: auto;" id="terminal-logs-box">
-                        <div style="color: #94a3b8;">[Fojix-CLI] Type 'help' for commands.</div>
-                    </div>
-                    <div style="display: flex; gap: 10px; margin-top: 10px;">
-                        <input type="text" id="terminalInput" class="form-input" placeholder="Command..." onkeydown="handleTerminalKey(event)" style="margin: 0;">
-                        <button class="aws-btn" onclick="executeTerminalCmd()"><i class="fa-solid fa-terminal"></i> Run</button>
-                    </div>
-                </div>
-            </div>
-
+            <!-- 3. VPN GATEWAY SECTION -->
             <div id="vpn-section" class="content-section" style="display: none;">
                 <div class="card">
-                    <h3><i class="fa-solid fa-shield-halved"></i> WireGuard Encrypted VPN Gateway</h3>
-                    <p style="color: var(--text-secondary); font-size: 13px;">Connect securely to your server infrastructure with an encrypted private tunnel.</p>
+                    <h3><i class="fa-solid fa-shield-halved" style="color:var(--accent-color);"></i> WireGuard Encrypted VPN Gateway</h3>
+                    <p style="color: var(--text-secondary); font-size: 13px; margin-bottom: 15px;">Connect securely to your server infrastructure with an encrypted private tunnel.</p>
                     
-                    <div style="background: var(--bg-main); padding: 15px; border-radius: 6px; border: 1px solid var(--border-color); margin: 15px 0;">
+                    <div style="background: var(--bg-main); padding: 15px; border-radius: 6px; border: 1px solid var(--border-color); margin-bottom: 15px;">
                         <div style="display:flex; justify-content: space-between; align-items:center; flex-wrap: wrap; gap:10px;">
                             <div>
                                 <strong style="color: var(--accent-color);">VPN Tunnel Status: <span id="vpn-status-text">ACTIVE</span></strong>
-                                <div style="font-size:12px; color:var(--text-secondary); margin-top:4px;">Node: Asia-South (10.8.0.1)</div>
+                                <div style="font-size:12px; color:var(--text-secondary); margin-top:4px;">Node: Asia-South (10.8.0.1) | Encryption: ChaCha20-Poly1305</div>
                             </div>
                             <span class="badge badge-success" id="vpn-badge">Connected</span>
                         </div>
@@ -531,22 +265,23 @@
                 </div>
             </div>
 
+            <!-- 4. USER MANAGEMENT (IAM) SECTION -->
             <div id="iam-section" class="content-section" style="display: none;">
                 <div class="card">
-                    <h3><i class="fa-solid fa-user-plus"></i> Dynamic User Management (IAM)</h3>
-                    <p style="color: var(--text-secondary); font-size: 13px;">Create new accounts synced across team members in Firebase Cloud DB.</p>
+                    <h3><i class="fa-solid fa-users" style="color:var(--accent-color);"></i> Dynamic User & Client Management</h3>
+                    <p style="color: var(--text-secondary); font-size: 13px; margin-bottom: 15px;">Create new accounts synced across team members in Firebase Cloud DB.</p>
                     
-                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr auto; gap: 10px; margin-top: 15px;">
-                        <input type="text" id="newUsername" class="form-input" placeholder="Username / Email">
-                        <input type="password" id="newPassword" class="form-input" placeholder="Password">
-                        <select id="newRole" class="form-input">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr auto; gap: 10px; margin-bottom: 15px;">
+                        <input type="text" id="newUsername" class="form-input" placeholder="Username / Email" style="margin:0;">
+                        <input type="password" id="newPassword" class="form-input" placeholder="Password" style="margin:0;">
+                        <select id="newRole" class="form-input" style="margin:0;">
                             <option value="Admin">Admin</option>
                             <option value="Client">Client</option>
                         </select>
                         <button class="aws-btn" onclick="addNewUser()" style="height: 40px;"><i class="fa-solid fa-user-plus"></i> Add User</button>
                     </div>
 
-                    <div id="users-list-container" style="margin-top: 20px;"></div>
+                    <div id="users-list-container" style="margin-top: 15px;"></div>
                 </div>
             </div>
 
@@ -590,27 +325,7 @@
                 <label style="color:var(--text-secondary);">Select Project Files / HTML (.zip, .html)</label>
                 <input type="file" id="projFile" class="form-input" accept=".zip,.html,.js,.css" style="padding: 7px; cursor: pointer;">
 
-                <label style="color:var(--text-secondary);">Hosting Environment</label>
-                <select id="projEnv" class="form-input">
-                    <option value="Static HTML5 / JS Host">Static HTML5 / JS Host (Free Lifetime)</option>
-                    <option value="PHP / MySQL Node">PHP / MySQL Node</option>
-                    <option value="Node.js Express Backend">Node.js Express Backend</option>
-                </select>
-
-                <button class="aws-btn" style="width: 100%; margin-top: 10px;" onclick="submitDeployment()"><i class="fa-solid fa-rocket"></i> Publish & Get Live Link</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="uptimeModal" class="modal-overlay" style="display: none;">
-        <div class="modal-box">
-            <div class="modal-header">
-                <h3><i class="fa-solid fa-globe"></i> Regional Edge Health</h3>
-                <button class="close-btn" onclick="closeUptimeModal()">&times;</button>
-            </div>
-            <div style="font-size: 13px;">
-                <p style="color:#22c55e;"><i class="fa-solid fa-check"></i> Asia-South (Colombo): 99.99% Operational</p>
-                <button class="aws-btn" style="width: 100%; margin-top: 15px;" onclick="closeUptimeModal()">Close</button>
+                <button class="aws-btn" style="width: 100%; margin-top: 10px;" onclick="submitDeployment()"><i class="fa-solid fa-rocket"></i> Publish & Save Lifetime</button>
             </div>
         </div>
     </div>
@@ -634,7 +349,7 @@
             { user: "use001", pass: "use@001", role: "Client" }
         ];
 
-        /* ROBUST CLIENT SITE VIEWER */
+        /* ROBUST CLIENT LIVE PREVIEW ROUTER */
         window.addEventListener('DOMContentLoaded', () => {
             const urlParams = new URLSearchParams(window.location.search);
             const siteSlug = urlParams.get('site');
@@ -650,7 +365,6 @@
             const box = document.getElementById('preview-content-box');
             const title = document.getElementById('preview-title');
             try {
-                // Fetch all projects and match by slug client-side for absolute reliability
                 const snapshot = await db.collection('projects').get();
                 let matchedProject = null;
                 snapshot.forEach(doc => {
@@ -665,16 +379,16 @@
                     box.innerHTML = `
                         <div style="background: #03070d; padding: 25px; border-radius: 8px; border: 1px solid rgba(34,197,94,0.3);">
                             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
-                                <h3 style="color: #22c55e; margin:0;"><i class="fa-solid fa-circle-check"></i> Status: Lifetime Active (${matchedProject.env})</h3>
+                                <h3 style="color: #22c55e; margin:0;"><i class="fa-solid fa-circle-check"></i> Status: Lifetime Active (Hosted)</h3>
                                 <span class="badge badge-success">Secured in Fojix Cloud DB</span>
                             </div>
-                            <p style="font-size:12px; color:var(--text-secondary); margin-bottom:15px;">Source File / Bundle: <code>${matchedProject.fileName || 'app-bundle.zip'}</code> | Hosted Date: ${matchedProject.createdAt || 'Recent'}</p>
+                            <p style="font-size:12px; color:var(--text-secondary); margin-bottom:15px;">Source File: <code>${matchedProject.fileName || 'app-bundle.zip'}</code> | Saved Date: ${matchedProject.createdAt || 'Recent'}</p>
                             <hr style="border: 0; border-top: 1px solid rgba(255,204,0,0.2); margin: 15px 0;">
                             <div style="background: #fff; color: #000; padding: 25px; border-radius: 6px; min-height: 250px;">
                                 <h1 style="color: #0f1a36; margin-bottom:10px;">${matchedProject.name}</h1>
-                                <p style="font-size:15px; color:#334155;">Your project is successfully hosted and running live on Fojix Cloud. Visitors worldwide can view this application instantly!</p>
+                                <p style="font-size:15px; color:#334155;">Your project is successfully hosted and running live on Fojix Cloud. Visitors worldwide can view this application instantly via Chrome, Safari, or any browser!</p>
                                 <div style="margin-top: 20px; padding: 12px; background: #f8fafc; border-left: 4px solid #22c55e; font-size: 13px; color:#475569;">
-                                    <strong>Fojix Cloud Hosting Engine:</strong> Zero downtime, high speed CDN routing, and permanent Firestore persistence enabled.
+                                    <strong>Fojix Cloud Engine:</strong> Lifetime persistence, zero downtime, and instant link sync enabled.
                                 </div>
                             </div>
                         </div>
@@ -688,7 +402,7 @@
                     `;
                 }
             } catch(e) {
-                box.innerHTML = `<p style="color:#ef4444;">Error connecting to Fojix Cloud database. Please check your internet connection.</p>`;
+                box.innerHTML = `<p style="color:#ef4444;">Error connecting to Fojix Cloud database.</p>`;
             }
         }
 
@@ -741,7 +455,6 @@
                 document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'block');
             }
 
-            initChart();
             listenRealtimeData();
             triggerFojixAIWelcome(auth);
         }
@@ -750,35 +463,11 @@
             db.collection('projects').onSnapshot(snap => {
                 renderProjects(snap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
             });
-            db.collection('registry').onSnapshot(snap => {
-                renderRegistryImages(snap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
-            });
-            db.collection('firewall').onSnapshot(snap => {
-                renderFirewallRules(snap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
-            });
             db.collection('s3_buckets').onSnapshot(snap => {
                 renderS3Buckets(snap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
             });
-            db.collection('secrets').onSnapshot(snap => {
-                renderSecrets(snap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
-            });
-            db.collection('ssl').onSnapshot(snap => {
-                renderSSLCerts(snap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
-            });
-            db.collection('dns').onSnapshot(snap => {
-                renderDNSRecords(snap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
-            });
-            db.collection('cron').onSnapshot(snap => {
-                renderCronJobs(snap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
-            });
-            db.collection('vault').onSnapshot(snap => {
-                renderVaultItems(snap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
-            });
             db.collection('users').onSnapshot(snap => {
                 renderUsersList(snap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
-            });
-            db.collection('audit_trail').orderBy('time', 'desc').limit(20).onSnapshot(snap => {
-                renderAuditTrail(snap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
             });
         }
 
@@ -818,7 +507,7 @@
                 const q = txt.toLowerCase();
 
                 if(q.includes('specs') || q.includes('computer') || q.includes('pc') || q.includes('laptop')) {
-                    bMsg.textContent = "Your development machine is running high-performance specs optimized for full-stack apps, Python, Flutter, and Firebase Cloud deployments!";
+                    bMsg.textContent = "Your development machine is running high-performance specs optimized for full-stack apps, Python, Flutter, and Fojix Cloud deployments!";
                 } else if(q.includes('detail') || q.includes('who are you') || q.includes('about')) {
                     bMsg.textContent = "I am Fojix AI, built exclusively for Mohamed Amaan and the Fojix team to manage lifetime cloud hosting and assist with daily tasks.";
                 } else if(q.includes('hi') || q.includes('hello') || q.includes('vanakkam') || q.includes('how are you')) {
@@ -826,7 +515,7 @@
                 } else if(q.includes('upload') || q.includes('project') || q.includes('host') || q.includes('link')) {
                     bMsg.textContent = "When you upload a project from your laptop, it gets saved permanently in Firestore with a lifetime live link (`?site=slug`)!";
                 } else {
-                    bMsg.textContent = `That's great! As Fojix AI, I'm fully here to chat with you and help manage your cloud infrastructure.`;
+                    bMsg.textContent = `That's great! As Fojix AI, I'm fully here to chat with you and help manage your cloud databases and hosting.`;
                 }
                 
                 body.appendChild(bMsg);
@@ -837,7 +526,6 @@
         /* LIFETIME PROJECT DEPLOYMENT */
         function submitDeployment() {
             const name = document.getElementById('projName').value.trim();
-            const env = document.getElementById('projEnv').value;
             const fileInput = document.getElementById('projFile');
             if(!name) return alert('Please enter project name!');
             
@@ -847,7 +535,6 @@
 
             db.collection('projects').add({ 
                 name, 
-                env, 
                 fileName, 
                 slug, 
                 domain: previewUrl, 
@@ -857,20 +544,19 @@
             closeDeployModal();
             document.getElementById('projName').value = '';
             fileInput.value = '';
-            logAudit(`Hosted project permanently: ${name}`);
             alert(`🎉 Project Saved Permanently in Fojix Cloud!\n\nLive Link:\n${previewUrl}`);
         }
 
-        function deleteProject(id) { db.collection('projects').doc(id).delete(); logAudit("Deleted project"); }
+        function deleteProject(id) { db.collection('projects').doc(id).delete(); }
         function renderProjects(projects) {
             const c = document.getElementById('project-list-container');
             if(!c) return;
-            c.innerHTML = projects.length === 0 ? '<p style="color:var(--text-secondary); font-size:13px;">No projects hosted yet.</p>' :
+            c.innerHTML = projects.length === 0 ? '<p style="color:var(--text-secondary); font-size:13px;">No projects hosted yet. Upload your first project!</p>' :
             projects.map(p => `
                 <div style="background:var(--bg-main); padding:12px; border-radius:6px; border:1px solid var(--border-color); margin-bottom:10px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
                     <div>
                         <strong style="color:var(--accent-color); font-size:14px;"><i class="fa-solid fa-globe"></i> ${p.name}</strong>
-                        <div style="font-size:12px; color:var(--text-secondary);">Env: ${p.env} | File: <code>${p.fileName || 'bundle.zip'}</code> | <a href="${p.domain}" target="_blank" style="color:#22c55e;">${p.domain}</a></div>
+                        <div style="font-size:12px; color:var(--text-secondary);">File: <code>${p.fileName}</code> | <a href="${p.domain}" target="_blank" style="color:#22c55e;">${p.domain}</a></div>
                     </div>
                     <div style="display:flex; gap:8px; align-items:center;">
                         <span class="badge badge-success">Lifetime Active</span>
@@ -881,123 +567,34 @@
             `).join('');
         }
 
-        function pushContainerImage() {
-            const repo = document.getElementById('repoName').value.trim();
-            const tag = document.getElementById('repoTag').value.trim();
-            if(!repo || !tag) return alert('Enter repository and tag!');
-            db.collection('registry').add({ repo, tag, date: new Date().toLocaleDateString() });
-            document.getElementById('repoName').value = ''; document.getElementById('repoTag').value = '';
-            logAudit(`Pushed container image: ${repo}:${tag}`);
-        }
-        function renderRegistryImages(reg) {
-            const c = document.getElementById('registry-list-container');
-            if(!c) return;
-            c.innerHTML = reg.length === 0 ? '<p style="color:var(--text-secondary); font-size:13px;">No container images.</p>' :
-            reg.map(r => `<div style="background:var(--bg-main); padding:10px; border-radius:6px; border:1px solid var(--border-color); margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;"><div><strong style="color:var(--accent-color);">${r.repo}:${r.tag}</strong><div style="font-size:11px; color:var(--text-secondary);">${r.date}</div></div><button onclick="db.collection('registry').doc('${r.id}').delete()" class="aws-btn aws-btn-danger aws-btn-sm"><i class="fa-solid fa-trash"></i></button></div>`).join('');
-        }
-
-        function addFirewallRule() {
-            const ip = document.getElementById('fwIp').value.trim();
-            const action = document.getElementById('fwAction').value;
-            const port = document.getElementById('fwPort').value.trim();
-            if(!ip || !port) return alert('Enter IP and port!');
-            db.collection('firewall').add({ ip, action, port });
-            document.getElementById('fwIp').value = ''; document.getElementById('fwPort').value = '';
-            logAudit(`WAF Rule: ${action} ${ip}:${port}`);
-        }
-        function renderFirewallRules(fw) {
-            const c = document.getElementById('firewall-list-container');
-            if(!c) return;
-            c.innerHTML = fw.length === 0 ? '<p style="color:var(--text-secondary); font-size:13px;">No WAF rules.</p>' :
-            fw.map(f => `<div style="background:var(--bg-main); padding:10px; border-radius:6px; border:1px solid var(--border-color); margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;"><div><strong>${f.ip}:${f.port}</strong></div><div style="display:flex; gap:8px; align-items:center;"><span class="badge ${f.action==='BLOCK'?'badge-danger':'badge-success'}">${f.action}</span><button onclick="db.collection('firewall').doc('${f.id}').delete()" class="aws-btn aws-btn-danger aws-btn-sm"><i class="fa-solid fa-trash"></i></button></div></div>`).join('');
-        }
-
         function createS3Bucket() {
             const input = document.getElementById('s3BucketInput');
             const name = input ? input.value.trim() : prompt("Bucket name:");
             if(!name) return;
             db.collection('s3_buckets').add({ name, region: 'Asia-South (Colombo)' });
             if(input) input.value = '';
-            logAudit(`Created S3 Bucket: ${name}`);
+            alert(`Bucket s3://${name} created successfully!`);
         }
         function renderS3Buckets(buckets) {
             const c = document.getElementById('s3-bucket-list');
             if(!c) return;
-            c.innerHTML = buckets.length === 0 ? '<p style="color:var(--text-secondary); font-size:13px;">No S3 buckets.</p>' :
+            c.innerHTML = buckets.length === 0 ? '<p style="color:var(--text-secondary); font-size:13px;">No S3 buckets created yet.</p>' :
             buckets.map(b => `<div style="background:var(--bg-main); padding:10px; border-radius:6px; border:1px solid var(--border-color); margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;"><div><strong style="color:var(--accent-color);">s3://${b.name}</strong><div style="font-size:11px; color:var(--text-secondary);">${b.region}</div></div><button onclick="db.collection('s3_buckets').doc('${b.id}').delete()" class="aws-btn aws-btn-danger aws-btn-sm"><i class="fa-solid fa-trash"></i></button></div>`).join('');
         }
 
-        function saveSecret() {
-            const name = document.getElementById('secretKeyName').value.trim();
-            const val = document.getElementById('secretVal').value.trim();
-            if(!name || !val) return alert('Enter key and value!');
-            db.collection('secrets').add({ name, val });
-            document.getElementById('secretKeyName').value = ''; document.getElementById('secretVal').value = '';
-            logAudit(`Saved secret: ${name}`);
-        }
-        function renderSecrets(secs) {
-            const c = document.getElementById('secret-list-container');
-            if(!c) return;
-            c.innerHTML = secs.map(s => `<div style="background:var(--bg-main); padding:10px; border-radius:6px; border:1px solid var(--border-color); margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;"><div><strong style="color:var(--accent-color);">${s.name}</strong><div style="font-size:12px; color:var(--text-secondary);">••••••••</div></div><div style="display:flex; gap:6px;"><button onclick="alert('${s.val}')" class="aws-btn aws-btn-sm">Reveal</button><button onclick="db.collection('secrets').doc('${s.id}').delete()" class="aws-btn aws-btn-danger aws-btn-sm"><i class="fa-solid fa-trash"></i></button></div></div>`).join('');
+        function toggleVPN(connect) {
+            document.getElementById('vpn-status-text').textContent = connect ? "ACTIVE" : "DISCONNECTED";
+            document.getElementById('vpn-badge').className = connect ? "badge badge-success" : "badge badge-danger";
+            document.getElementById('vpn-badge').textContent = connect ? "Connected" : "Offline";
+            document.getElementById('vpn-connect-btn').disabled = connect;
+            document.getElementById('vpn-disconnect-btn').disabled = !connect;
+            alert(connect ? "VPN Tunnel Connected!" : "VPN Disconnected.");
         }
 
-        function provisionSSLCert() {
-            const domain = document.getElementById('sslDomainInput').value.trim();
-            if(!domain) return alert('Enter domain!');
-            db.collection('ssl').add({ domain, status: "Active (Let's Encrypt)", expiry: "90 Days" });
-            document.getElementById('sslDomainInput').value = '';
-            logAudit(`Provisioned SSL for ${domain}`);
-        }
-        function renderSSLCerts(ssl) {
-            const c = document.getElementById('ssl-list-container');
-            if(!c) return;
-            c.innerHTML = ssl.length === 0 ? '<p style="color:var(--text-secondary); font-size:13px;">No SSL certificates.</p>' :
-            ssl.map(s => `<div style="background:var(--bg-main); padding:10px; border-radius:6px; border:1px solid var(--border-color); margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;"><div><strong>${s.domain}</strong><div style="font-size:11px; color:var(--text-secondary);">Expires: ${s.expiry}</div></div><button onclick="db.collection('ssl').doc('${s.id}').delete()" class="aws-btn aws-btn-danger aws-btn-sm"><i class="fa-solid fa-trash"></i></button></div>`).join('');
-        }
-
-        function addDNSRecord() {
-            const name = document.getElementById('dnsName').value.trim();
-            const type = document.getElementById('dnsType').value;
-            const val = document.getElementById('dnsValue').value.trim();
-            if(!name || !val) return alert('Enter DNS details!');
-            db.collection('dns').add({ name, type, val });
-            document.getElementById('dnsName').value = ''; document.getElementById('dnsValue').value = '';
-            logAudit(`Added DNS: ${type} ${name}`);
-        }
-        function renderDNSRecords(dns) {
-            const c = document.getElementById('dns-list-container');
-            if(!c) return;
-            c.innerHTML = dns.length === 0 ? '<p style="color:var(--text-secondary); font-size:13px;">No DNS records.</p>' :
-            dns.map(d => `<div style="background:var(--bg-main); padding:10px; border-radius:6px; border:1px solid var(--border-color); margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;"><div><strong style="color:var(--accent-color);">${d.name}</strong> [${d.type}] -> ${d.val}</div><button onclick="db.collection('dns').doc('${d.id}').delete()" class="aws-btn aws-btn-danger aws-btn-sm"><i class="fa-solid fa-trash"></i></button></div>`).join('');
-        }
-
-        function addCronJob() {
-            const name = document.getElementById('cronName').value.trim();
-            const schedule = document.getElementById('cronSchedule').value.trim();
-            if(!name || !schedule) return alert('Enter cron details!');
-            db.collection('cron').add({ name, schedule, status: 'Active' });
-            document.getElementById('cronName').value = ''; document.getElementById('cronSchedule').value = '';
-            logAudit(`Scheduled Cron: ${name}`);
-        }
-        function renderCronJobs(cron) {
-            const c = document.getElementById('cron-list-container');
-            if(!c) return;
-            c.innerHTML = cron.length === 0 ? '<p style="color:var(--text-secondary); font-size:13px;">No cron jobs.</p>' :
-            cron.map(cr => `<div style="background:var(--bg-main); padding:10px; border-radius:6px; border:1px solid var(--border-color); margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;"><div><strong>${cr.name}</strong> (<code>${cr.schedule}</code>)</div><button onclick="db.collection('cron').doc('${cr.id}').delete()" class="aws-btn aws-btn-danger aws-btn-sm"><i class="fa-solid fa-trash"></i></button></div>`).join('');
-        }
-
-        function saveToVault() {
-            const title = document.getElementById('vaultItemName').value.trim();
-            const data = document.getElementById('vaultItemData').value.trim();
-            if(!title || !data) return alert('Enter vault details!');
-            db.collection('vault').add({ title, data });
-            document.getElementById('vaultItemName').value = ''; document.getElementById('vaultItemData').value = '';
-            logAudit(`Saved vault item: ${title}`);
-        }
-        function renderVaultItems(v) {
-            const c = document.getElementById('vault-list-container');
-            if(!c) return;
-            c.innerHTML = v.map(item => `<div style="background:var(--bg-main); padding:10px; border-radius:6px; border:1px solid var(--border-color); margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;"><div><strong style="color:var(--accent-color);">${item.title}</strong></div><button onclick="alert('${item.data}')" class="aws-btn aws-btn-sm">View</button></div>`).join('');
+        function downloadVPNProfile() {
+            const blob = new Blob([`[Interface]\nPrivateKey = SAMPLE\nAddress = 10.8.0.2/24\n[Peer]\nEndpoint = vpn.fojixcloud.com:51820`], {type: 'text/plain'});
+            const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'fojix-vpn.conf'; a.click();
+            alert("WireGuard profile downloaded!");
         }
 
         function addNewUser() {
@@ -1007,7 +604,7 @@
             if(!user || !pass) return alert('Enter username & password!');
             db.collection('users').add({ user, pass, role });
             document.getElementById('newUsername').value = ''; document.getElementById('newPassword').value = '';
-            logAudit(`Created IAM user: ${user}`);
+            alert(`User ${user} created successfully!`);
         }
         function renderUsersList(users) {
             const c = document.getElementById('users-list-container');
@@ -1015,47 +612,8 @@
             c.innerHTML = [...defaultAccounts, ...users].map(u => `<div style="background:var(--bg-main); padding:10px; border-radius:6px; border:1px solid var(--border-color); margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;"><div><strong style="color:var(--accent-color);">${u.user}</strong><div style="font-size:11px; color:var(--text-secondary);">Role: ${u.role}</div></div><span class="badge ${u.role==='Admin'?'badge-warning':'badge-success'}">${u.role}</span></div>`).join('');
         }
 
-        function logAudit(action) { db.collection('audit_trail').add({ time: new Date().toLocaleString(), action }); }
-        function renderAuditTrail(audit) {
-            const c = document.getElementById('audit-trail-container');
-            if(!c) return;
-            c.innerHTML = audit.map(a => `<div style="background:var(--bg-main); padding:8px 12px; border-radius:4px; border-left:3px solid var(--accent-color); margin-bottom:6px; font-size:12px;"><span style="color:var(--text-secondary); font-size:10px;">${a.time}</span><div>${a.action}</div></div>`).join('');
-        }
-
-        function toggleVPN(connect) {
-            document.getElementById('vpn-status-text').textContent = connect ? "ACTIVE" : "DISCONNECTED";
-            document.getElementById('vpn-badge').className = connect ? "badge badge-success" : "badge badge-danger";
-            document.getElementById('vpn-badge').textContent = connect ? "Connected" : "Offline";
-            document.getElementById('vpn-connect-btn').disabled = connect;
-            document.getElementById('vpn-disconnect-btn').disabled = !connect;
-            logAudit(connect ? "VPN Connected" : "VPN Disconnected");
-            alert(connect ? "VPN Tunnel Connected!" : "VPN Disconnected.");
-        }
-
-        function downloadVPNProfile() {
-            const blob = new Blob([`[Interface]\nPrivateKey = SAMPLE\nAddress = 10.8.0.2/24\n[Peer]\nEndpoint = vpn.fojixcloud.com:51820`], {type: 'text/plain'});
-            const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'fojix-vpn.conf'; a.click();
-            logAudit("Downloaded WireGuard Profile");
-        }
-
-        function runQuickSSH(cmd, msg) { alert(`SSH: ${cmd}\n${msg}`); logAudit(`SSH: ${cmd}`); }
-        function generateDBBackup() { alert("Live SQL DB Dump generated successfully!"); logAudit("Generated DB Backup"); }
-        function testWebhook() { alert("Webhook tested & saved!"); logAudit("Saved Webhook"); }
-
-        function executeTerminalCmd() {
-            const input = document.getElementById('terminalInput');
-            const cmd = input.value.trim();
-            if(!cmd) return;
-            const box = document.getElementById('terminal-logs-box');
-            box.innerHTML += `<div style="color:#22c55e;">fojix-user@cloud:~$ ${cmd}</div>`;
-            input.value = '';
-            logAudit(`Terminal: ${cmd}`);
-        }
-        function handleTerminalKey(e) { if(e.key === 'Enter') executeTerminalCmd(); }
-
         const navLinks = document.querySelectorAll('.nav-link');
         const sections = document.querySelectorAll('.content-section');
-        const metricsContainer = document.getElementById('metrics-container');
 
         navLinks.forEach(link => {
             link.addEventListener('click', (e) => {
@@ -1063,32 +621,12 @@
                 const target = link.getAttribute('data-target');
                 navLinks.forEach(l => l.classList.remove('active'));
                 link.classList.add('active');
-                sections.forEach(s => s.style.display = s.id === target ? 'block' : 'none');
-                metricsContainer.style.display = (target === 'home-section' || target === 'ec2-section') ? 'grid' : 'none';
+                sections.format = sections.forEach(s => s.style.display = s.id === target ? 'block' : 'none');
             });
         });
 
-        function changeTheme(theme) { document.body.className = theme; }
-        function openUptimeModal() { document.getElementById('uptimeModal').style.display = 'flex'; }
-        function closeUptimeModal() { document.getElementById('uptimeModal').style.display = 'none'; }
         function openDeployModal() { document.getElementById('deployModal').style.display = 'flex'; }
         function closeDeployModal() { document.getElementById('deployModal').style.display = 'none'; }
-
-        let telemetryChart;
-        function initChart() {
-            const ctx = document.getElementById('telemetryChart').getContext('2d');
-            telemetryChart = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: ['10s', '8s', '6s', '4s', '2s', 'Now'],
-                    datasets: [
-                        { label: 'CPU (%)', data: [20, 35, 25, 40, 30, 32], borderColor: '#ffcc00', fill: false },
-                        { label: 'RAM (%)', data: [50, 52, 55, 54, 56, 58], borderColor: '#22c55e', fill: false }
-                    ]
-                },
-                options: { responsive: true, maintainAspectRatio: false }
-            });
-        }
 
         window.onload = function() { initApp(); };
     </script>

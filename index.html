@@ -197,7 +197,7 @@
 
     <!-- MAIN DASHBOARD CONTENT -->
     <div id="app-container" style="display: none;">
-        <!-- Sidebar Navigation (Only 4 core sections) -->
+        <!-- Sidebar Navigation (Only 4 Core Features) -->
         <div class="sidebar">
             <h2><i class="fa-solid fa-cloud" style="color: var(--accent-color);"></i> Fojix Cloud</h2>
             <ul>
@@ -218,21 +218,21 @@
                 <button class="aws-btn aws-btn-danger" onclick="handleLogout()"><i class="fa-solid fa-right-from-bracket"></i> Logout</button>
             </header>
 
-            <!-- 1. PROJECT HOSTING SECTION -->
+            <!-- 1. PROJECT HOSTING HUB -->
             <div id="hosting-section" class="content-section">
                 <div class="card">
-                    <h3><i class="fa-solid fa-rocket" style="color:var(--accent-color);"></i> Client & Admin Laptop Project Hosting Hub (Lifetime Save)</h3>
+                    <h3><i class="fa-solid fa-rocket" style="color:var(--accent-color);"></i> Project Hosting Hub (Lifetime Save & Live Test)</h3>
                     <p style="color: var(--text-secondary); font-size: 13px; margin-bottom: 15px;">Upload your laptop source code files or ZIP bundles. Projects are saved permanently in Fojix Cloud with instant live links.</p>
                     <button class="aws-btn" onclick="openDeployModal()"><i class="fa-solid fa-upload"></i> Upload & Host Project from Laptop</button>
                     <div id="project-list-container" style="margin-top: 20px;"></div>
                 </div>
             </div>
 
-            <!-- 2. DATABASE & S3 SECTION -->
+            <!-- 2. DATABASE & STORAGE MANAGER -->
             <div id="database-section" class="content-section" style="display: none;">
                 <div class="card">
-                    <h3><i class="fa-solid fa-database" style="color:var(--accent-color);"></i> Fojix Cloud Database & Object Storage S3</h3>
-                    <p style="color: var(--text-secondary); font-size: 13px; margin-bottom: 15px;">Manage lifetime cloud buckets and live SQL backups.</p>
+                    <h3><i class="fa-solid fa-database" style="color:var(--accent-color);"></i> Database & Storage Manager (Firestore & S3 Buckets)</h3>
+                    <p style="color: var(--text-secondary); font-size: 13px; margin-bottom: 15px;">Manage lifetime cloud buckets and database records.</p>
                     <div style="display: flex; gap: 10px; margin-bottom: 15px;">
                         <input type="text" id="s3BucketInput" class="form-input" placeholder="Bucket Name (e.g. zendo-assets-bucket)" style="margin-bottom:0;">
                         <button class="aws-btn" onclick="createS3Bucket()"><i class="fa-solid fa-plus"></i> Create Bucket</button>
@@ -241,10 +241,10 @@
                 </div>
             </div>
 
-            <!-- 3. VPN GATEWAY SECTION -->
+            <!-- 3. VPN GATEWAYS -->
             <div id="vpn-section" class="content-section" style="display: none;">
                 <div class="card">
-                    <h3><i class="fa-solid fa-shield-halved" style="color:var(--accent-color);"></i> WireGuard Encrypted VPN Gateway</h3>
+                    <h3><i class="fa-solid fa-shield-halved" style="color:var(--accent-color);"></i> VPN Gateways (WireGuard Secure Tunnels)</h3>
                     <p style="color: var(--text-secondary); font-size: 13px; margin-bottom: 15px;">Connect securely to your server infrastructure with an encrypted private tunnel.</p>
                     
                     <div style="background: var(--bg-main); padding: 15px; border-radius: 6px; border: 1px solid var(--border-color); margin-bottom: 15px;">
@@ -265,10 +265,10 @@
                 </div>
             </div>
 
-            <!-- 4. USER MANAGEMENT (IAM) SECTION -->
+            <!-- 4. USER MANAGEMENT (IAM) -->
             <div id="iam-section" class="content-section" style="display: none;">
                 <div class="card">
-                    <h3><i class="fa-solid fa-users" style="color:var(--accent-color);"></i> Dynamic User & Client Management</h3>
+                    <h3><i class="fa-solid fa-users" style="color:var(--accent-color);"></i> User Management (IAM) (Admins & Clients Sync)</h3>
                     <p style="color: var(--text-secondary); font-size: 13px; margin-bottom: 15px;">Create new accounts synced across team members in Firebase Cloud DB.</p>
                     
                     <div style="display: grid; grid-template-columns: 1fr 1fr 1fr auto; gap: 10px; margin-bottom: 15px;">
@@ -621,7 +621,7 @@
                 const target = link.getAttribute('data-target');
                 navLinks.forEach(l => l.classList.remove('active'));
                 link.classList.add('active');
-                sections.format = sections.forEach(s => s.style.display = s.id === target ? 'block' : 'none');
+                sections.forEach(s => s.style.display = s.id === target ? 'block' : 'none');
             });
         });
 

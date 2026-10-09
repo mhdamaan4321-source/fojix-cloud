@@ -52,12 +52,19 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             margin: 0;
             padding: 0;
-            display: flex;
+            min-height: 100vh;
         }
 
-        /* Customized Sidebar & Scroll Fix */
+        /* Full Dashboard Layout Fix */
+        #app-container {
+            display: flex;
+            width: 100vw;
+            min-height: 100vh;
+        }
+
         .sidebar { 
             width: 260px;
+            min-width: 260px;
             background-color: var(--bg-sidebar); 
             border-right: 1px solid var(--border-color);
             height: 100vh;
@@ -66,6 +73,7 @@
             top: 0;
             padding: 20px 10px;
             box-sizing: border-box;
+            flex-shrink: 0;
         }
 
         .sidebar::-webkit-scrollbar { width: 6px; }
@@ -85,17 +93,26 @@
             background: rgba(255, 204, 0, 0.1); color: var(--accent-color); font-weight: bold;
         }
 
-        .main-content { flex: 1; padding: 25px; max-width: 1200px; box-sizing: border-box; }
+        /* Responsive Main Content area stretching 100% */
+        .main-content { 
+            flex: 1; 
+            padding: 25px 35px; 
+            width: calc(100vw - 260px); 
+            box-sizing: border-box; 
+            overflow-x: hidden;
+        }
 
         .card, .metric-card { 
             background-color: var(--bg-card) !important; 
             border: 1px solid var(--border-color) !important; 
             border-radius: 8px; padding: 20px; margin-bottom: 20px;
+            width: 100%;
+            box-sizing: border-box;
         }
 
         .metrics-grid {
-            display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 15px; margin-bottom: 20px;
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 15px; margin-bottom: 20px; width: 100%;
         }
 
         .metric-card { display: flex; align-items: center; gap: 15px; padding: 15px; }
@@ -199,354 +216,351 @@
     </div>
 
     <!-- MAIN DASHBOARD CONTENT -->
-    <div id="app-container" style="display: none; width: 100%;">
-        <div style="display: flex; width: 100%;">
-            
-            <!-- Sidebar Navigation -->
-            <div class="sidebar">
-                <h2><i class="fa-solid fa-cloud" style="color: var(--accent-color);"></i> Fojix Cloud</h2>
-                <ul>
-                    <li><a href="#" class="nav-link active" data-target="home-section"><i class="fa-solid fa-house"></i> <span data-i18n="nav_home">Console Home</span></a></li>
-                    <li><a href="#" class="nav-link" data-target="ec2-section"><i class="fa-solid fa-server"></i> <span data-i18n="nav_ec2">EC2 & Metrics</span></a></li>
-                    <li><a href="#" class="nav-link" data-target="k8s-section"><i class="fa-solid fa-cubes"></i> Kubernetes Pods</a></li>
-                    <li><a href="#" class="nav-link" data-target="registry-section"><i class="fa-brands fa-docker"></i> Container Registry</a></li>
-                    <li><a href="#" class="nav-link" data-target="firewall-section"><i class="fa-solid fa-fire-flame-curved"></i> WAF & Firewall</a></li>
-                    <li><a href="#" class="nav-link" data-target="s3-section"><i class="fa-solid fa-database"></i> <span data-i18n="nav_s3">S3 Storage & DB</span></a></li>
-                    <li><a href="#" class="nav-link" data-target="secrets-section"><i class="fa-solid fa-key"></i> Secret Manager</a></li>
-                    <li><a href="#" class="nav-link" data-target="ssl-section"><i class="fa-solid fa-lock"></i> SSL / TLS Manager</a></li>
-                    <li><a href="#" class="nav-link" data-target="dns-section"><i class="fa-solid fa-globe"></i> DNS & Latency</a></li>
-                    <li><a href="#" class="nav-link" data-target="cron-section"><i class="fa-solid fa-clock-rotate-left"></i> Cron Scheduler</a></li>
-                    <li><a href="#" class="nav-link" data-target="lb-section"><i class="fa-solid fa-network-wired"></i> Auto-Scaling & LB</a></li>
-                    <li><a href="#" class="nav-link" data-target="vault-section"><i class="fa-solid fa-vault"></i> Client Vault</a></li>
-                    <li><a href="#" class="nav-link" data-target="billing-section"><i class="fa-solid fa-file-invoice-dollar"></i> Cost & Invoicing</a></li>
-                    <li><a href="#" class="nav-link" data-target="incidents-section"><i class="fa-solid fa-triangle-exclamation"></i> Incidents Status</a></li>
-                    <li><a href="#" class="nav-link" data-target="audit-section"><i class="fa-solid fa-timeline"></i> Audit Log Trail</a></li>
-                    <li><a href="#" class="nav-link" data-target="terminal-section"><i class="fa-solid fa-terminal"></i> Interactive Shell</a></li>
-                    <li><a href="#" class="nav-link" data-target="vpn-section"><i class="fa-solid fa-shield-halved"></i> VPN Gateway</a></li>
-                    <li><a href="#" class="nav-link admin-only" data-target="iam-section"><i class="fa-solid fa-users"></i> IAM & User Management</a></li>
-                </ul>
+    <div id="app-container" style="display: none;">
+        <!-- Sidebar Navigation -->
+        <div class="sidebar">
+            <h2><i class="fa-solid fa-cloud" style="color: var(--accent-color);"></i> Fojix Cloud</h2>
+            <ul>
+                <li><a href="#" class="nav-link active" data-target="home-section"><i class="fa-solid fa-house"></i> <span data-i18n="nav_home">Console Home</span></a></li>
+                <li><a href="#" class="nav-link" data-target="ec2-section"><i class="fa-solid fa-server"></i> <span data-i18n="nav_ec2">EC2 & Metrics</span></a></li>
+                <li><a href="#" class="nav-link" data-target="k8s-section"><i class="fa-solid fa-cubes"></i> Kubernetes Pods</a></li>
+                <li><a href="#" class="nav-link" data-target="registry-section"><i class="fa-brands fa-docker"></i> Container Registry</a></li>
+                <li><a href="#" class="nav-link" data-target="firewall-section"><i class="fa-solid fa-fire-flame-curved"></i> WAF & Firewall</a></li>
+                <li><a href="#" class="nav-link" data-target="s3-section"><i class="fa-solid fa-database"></i> <span data-i18n="nav_s3">S3 Storage & DB</span></a></li>
+                <li><a href="#" class="nav-link" data-target="secrets-section"><i class="fa-solid fa-key"></i> Secret Manager</a></li>
+                <li><a href="#" class="nav-link" data-target="ssl-section"><i class="fa-solid fa-lock"></i> SSL / TLS Manager</a></li>
+                <li><a href="#" class="nav-link" data-target="dns-section"><i class="fa-solid fa-globe"></i> DNS & Latency</a></li>
+                <li><a href="#" class="nav-link" data-target="cron-section"><i class="fa-solid fa-clock-rotate-left"></i> Cron Scheduler</a></li>
+                <li><a href="#" class="nav-link" data-target="lb-section"><i class="fa-solid fa-network-wired"></i> Auto-Scaling & LB</a></li>
+                <li><a href="#" class="nav-link" data-target="vault-section"><i class="fa-solid fa-vault"></i> Client Vault</a></li>
+                <li><a href="#" class="nav-link" data-target="billing-section"><i class="fa-solid fa-file-invoice-dollar"></i> Cost & Invoicing</a></li>
+                <li><a href="#" class="nav-link" data-target="incidents-section"><i class="fa-solid fa-triangle-exclamation"></i> Incidents Status</a></li>
+                <li><a href="#" class="nav-link" data-target="audit-section"><i class="fa-solid fa-timeline"></i> Audit Log Trail</a></li>
+                <li><a href="#" class="nav-link" data-target="terminal-section"><i class="fa-solid fa-terminal"></i> Interactive Shell</a></li>
+                <li><a href="#" class="nav-link" data-target="vpn-section"><i class="fa-solid fa-shield-halved"></i> VPN Gateway</a></li>
+                <li><a href="#" class="nav-link admin-only" data-target="iam-section"><i class="fa-solid fa-users"></i> IAM & User Management</a></li>
+            </ul>
+        </div>
+
+        <!-- Main Content Area -->
+        <div class="main-content">
+            <header style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; margin-bottom: 20px;">
+                <div>
+                    <h1 id="page-title" style="margin:0;">Fojix Management Console</h1>
+                    <p id="page-subtitle" style="color: var(--text-secondary); font-size: 13px; margin:5px 0 0 0;">Logged in as: <strong id="active-user-role" style="color:var(--accent-color);">Admin</strong> <span class="badge badge-success" style="margin-left:8px;"><i class="fa-solid fa-bolt"></i> Firebase Live Sync</span></p>
+                </div>
+                
+                <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                    <select id="langSelector" onchange="changeLanguage(this.value)" style="padding: 8px 12px; background: var(--bg-card); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: 6px; cursor: pointer; font-size: 13px;">
+                        <option value="en">English</option>
+                        <option value="ta">தமிழ்</option>
+                        <option value="si">සිංහල</option>
+                    </select>
+
+                    <button class="aws-btn" onclick="exportCloudBackup()"><i class="fa-solid fa-download"></i> Backup</button>
+
+                    <select id="themeSelector" onchange="changeTheme(this.value)" style="padding: 8px 12px; background: var(--bg-card); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: 6px; cursor: pointer; font-size: 13px;">
+                        <option value="theme-aws">AWS Dark</option>
+                        <option value="theme-matrix">Matrix Green</option>
+                        <option value="theme-cyberpunk">Cyberpunk Neon</option>
+                    </select>
+
+                    <button class="aws-btn aws-btn-danger" onclick="handleLogout()"><i class="fa-solid fa-right-from-bracket"></i> Logout</button>
+                </div>
+            </header>
+
+            <!-- GLOBAL UPTIME BANNER -->
+            <div onclick="openUptimeModal()" style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 6px; padding: 10px 15px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; font-size: 13px;">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <i class="fa-solid fa-circle-check" style="color: #22c55e;"></i>
+                    <span style="font-weight: bold; color: var(--text-primary);" id="banner-status">System Status: Firebase Firestore Realtime Database Operational</span>
+                </div>
+                <span style="color: var(--accent-color); font-size: 12px;"><i class="fa-solid fa-arrow-up-right-from-square"></i> View Health</span>
             </div>
 
-            <!-- Main Content Area -->
-            <div class="main-content">
-                <header style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; margin-bottom: 20px;">
+            <!-- METRICS GRID -->
+            <div id="metrics-container" class="metrics-grid">
+                <div class="metric-card">
+                    <i class="fa-solid fa-server" style="color: var(--accent-color);"></i>
                     <div>
-                        <h1 id="page-title">Fojix Management Console</h1>
-                        <p id="page-subtitle" style="color: var(--text-secondary); font-size: 13px;">Logged in as: <strong id="active-user-role" style="color:var(--accent-color);">Admin</strong> <span class="badge badge-success" style="margin-left:8px;"><i class="fa-solid fa-bolt"></i> Firebase Live Sync</span></p>
-                    </div>
-                    
-                    <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
-                        <select id="langSelector" onchange="changeLanguage(this.value)" style="padding: 8px 12px; background: var(--bg-card); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: 6px; cursor: pointer; font-size: 13px;">
-                            <option value="en">English</option>
-                            <option value="ta">தமிழ்</option>
-                            <option value="si">සිංහල</option>
-                        </select>
-
-                        <button class="aws-btn" onclick="exportCloudBackup()"><i class="fa-solid fa-download"></i> Backup</button>
-
-                        <select id="themeSelector" onchange="changeTheme(this.value)" style="padding: 8px 12px; background: var(--bg-card); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: 6px; cursor: pointer; font-size: 13px;">
-                            <option value="theme-aws">AWS Dark</option>
-                            <option value="theme-matrix">Matrix Green</option>
-                            <option value="theme-cyberpunk">Cyberpunk Neon</option>
-                        </select>
-
-                        <button class="aws-btn aws-btn-danger" onclick="handleLogout()"><i class="fa-solid fa-right-from-bracket"></i> Logout</button>
-                    </div>
-                </header>
-
-                <!-- GLOBAL UPTIME BANNER -->
-                <div onclick="openUptimeModal()" style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 6px; padding: 10px 15px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; font-size: 13px;">
-                    <div style="display: flex; align-items: center; gap: 8px;">
-                        <i class="fa-solid fa-circle-check" style="color: #22c55e;"></i>
-                        <span style="font-weight: bold; color: var(--text-primary);" id="banner-status">System Status: Firebase Firestore Realtime Database Operational</span>
-                    </div>
-                    <span style="color: var(--accent-color); font-size: 12px;"><i class="fa-solid fa-arrow-up-right-from-square"></i> View Health</span>
-                </div>
-
-                <!-- METRICS GRID -->
-                <div id="metrics-container" class="metrics-grid">
-                    <div class="metric-card">
-                        <i class="fa-solid fa-server" style="color: var(--accent-color);"></i>
-                        <div>
-                            <h4 style="margin: 0; font-size: 12px; color: var(--text-secondary);">Active Servers</h4>
-                            <h2 style="margin: 4px 0 0 0; font-size: 18px;" id="metric-server-count">2 Nodes</h2>
-                        </div>
-                    </div>
-                    <div class="metric-card">
-                        <i class="fa-solid fa-cubes" style="color: var(--accent-color);"></i>
-                        <div>
-                            <h4 style="margin: 0; font-size: 12px; color: var(--text-secondary);">K8s Pods</h4>
-                            <h2 style="margin: 4px 0 0 0; font-size: 18px;" id="metric-pod-count">2 Active</h2>
-                        </div>
-                    </div>
-                    <div class="metric-card">
-                        <i class="fa-solid fa-shield-halved" style="color: var(--accent-color);"></i>
-                        <div>
-                            <h4 style="margin: 0; font-size: 12px; color: var(--text-secondary);">Fojix VPN Status</h4>
-                            <h2 style="margin: 4px 0 0 0; font-size: 18px;" id="metric-vpn-status">Online & Secure</h2>
-                        </div>
-                    </div>
-                    <div class="metric-card">
-                        <i class="fa-solid fa-microchip" style="color: var(--accent-color);"></i>
-                        <div>
-                            <h4 style="margin: 0; font-size: 12px; color: var(--text-secondary);">Live CPU / RAM Load</h4>
-                            <h2 id="metric-load" style="font-size: 15px; margin-top: 4px; color: var(--accent-color);">CPU: 32% | RAM: 58%</h2>
-                        </div>
+                        <h4 style="margin: 0; font-size: 12px; color: var(--text-secondary);">Active Servers</h4>
+                        <h2 style="margin: 4px 0 0 0; font-size: 18px;" id="metric-server-count">2 Nodes</h2>
                     </div>
                 </div>
-
-                <!-- SECTIONS -->
-                <div id="home-section" class="content-section">
-                    <div class="card">
-                        <h3><i class="fa-solid fa-rocket"></i> Client Deployments & Project Hub</h3>
-                        <p style="color: var(--text-secondary); font-size: 13px;">Deploy client web apps, PHP backend nodes, and static frontends instantly.</p>
-                        <button class="aws-btn" onclick="openDeployModal()"><i class="fa-solid fa-plus"></i> Deploy New Client Project</button>
-                        <div id="project-list-container" style="margin-top: 20px;"></div>
-                    </div>
-
-                    <div class="card">
-                        <h3><i class="fa-solid fa-bell"></i> Webhook & Alerting Center</h3>
-                        <p style="color: var(--text-secondary); font-size: 13px;">Receive instant alerts via Webhook (Slack / Telegram / Discord) on server incidents.</p>
-                        <input type="text" id="webhookUrl" class="form-input" placeholder="https://discord.com/api/webhooks/YOUR_WEBHOOK_URL">
-                        <button class="aws-btn" onclick="testWebhook()"><i class="fa-solid fa-paper-plane"></i> Save & Test Webhook</button>
+                <div class="metric-card">
+                    <i class="fa-solid fa-cubes" style="color: var(--accent-color);"></i>
+                    <div>
+                        <h4 style="margin: 0; font-size: 12px; color: var(--text-secondary);">K8s Pods</h4>
+                        <h2 style="margin: 4px 0 0 0; font-size: 18px;" id="metric-pod-count">2 Active</h2>
                     </div>
                 </div>
-
-                <div id="ec2-section" class="content-section" style="display: none;">
-                    <div class="card">
-                        <h3><i class="fa-solid fa-chart-line"></i> Real-Time Node Resource Charts</h3>
-                        <div style="height: 250px; position: relative;">
-                            <canvas id="telemetryChart"></canvas>
-                        </div>
-                    </div>
-
-                    <div class="card">
-                        <h3><i class="fa-solid fa-terminal"></i> Server SSH Action Runners</h3>
-                        <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px;">
-                            <button class="aws-btn" onclick="runQuickSSH('sudo systemctl restart nginx', 'Restarting Nginx web server...')"><i class="fa-solid fa-rotate"></i> Restart Nginx</button>
-                            <button class="aws-btn" onclick="runQuickSSH('docker ps -a', 'Fetching active Docker container instances...')"><i class="fa-brands fa-docker"></i> Docker Status</button>
-                            <button class="aws-btn" onclick="runQuickSSH('df -h', 'Checking disk space storage allocation...')"><i class="fa-solid fa-hard-drive"></i> Disk Usage</button>
-                        </div>
+                <div class="metric-card">
+                    <i class="fa-solid fa-shield-halved" style="color: var(--accent-color);"></i>
+                    <div>
+                        <h4 style="margin: 0; font-size: 12px; color: var(--text-secondary);">Fojix VPN Status</h4>
+                        <h2 style="margin: 4px 0 0 0; font-size: 18px;" id="metric-vpn-status">Online & Secure</h2>
                     </div>
                 </div>
-
-                <div id="k8s-section" class="content-section" style="display: none;">
-                    <div class="card">
-                        <h3><i class="fa-solid fa-cubes"></i> Kubernetes Cluster Pod Monitor</h3>
-                        <div id="k8s-pod-list" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 15px;"></div>
-                        <button class="aws-btn" style="margin-top: 15px;" onclick="addK8sPod()"><i class="fa-solid fa-plus"></i> Spin New Pod</button>
+                <div class="metric-card">
+                    <i class="fa-solid fa-microchip" style="color: var(--accent-color);"></i>
+                    <div>
+                        <h4 style="margin: 0; font-size: 12px; color: var(--text-secondary);">Live CPU / RAM Load</h4>
+                        <h2 id="metric-load" style="font-size: 15px; margin-top: 4px; color: var(--accent-color);">CPU: 32% | RAM: 58%</h2>
                     </div>
                 </div>
-
-                <div id="registry-section" class="content-section" style="display: none;">
-                    <div class="card">
-                        <h3><i class="fa-brands fa-docker"></i> Private Container Image Registry</h3>
-                        <div style="display: grid; grid-template-columns: 1fr 1fr auto; gap: 10px; margin-top: 15px;">
-                            <input type="text" id="repoName" class="form-input" placeholder="Repository Name (e.g., fojix/api-server)">
-                            <input type="text" id="repoTag" class="form-input" placeholder="Tag (e.g., v1.0.4)">
-                            <button class="aws-btn" onclick="pushContainerImage()" style="height: 40px;"><i class="fa-solid fa-upload"></i> Push Image</button>
-                        </div>
-                        <div id="registry-list-container" style="margin-top: 20px;"></div>
-                    </div>
-                </div>
-
-                <div id="firewall-section" class="content-section" style="display: none;">
-                    <div class="card">
-                        <h3><i class="fa-solid fa-fire-flame-curved"></i> Web Application Firewall (WAF)</h3>
-                        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr auto; gap: 10px; margin-top: 15px;">
-                            <input type="text" id="fwIp" class="form-input" placeholder="IP Address (e.g. 192.168.1.50)">
-                            <select id="fwAction" class="form-input">
-                                <option value="BLOCK">Block IP</option>
-                                <option value="ALLOW">Allow IP</option>
-                            </select>
-                            <input type="text" id="fwPort" class="form-input" placeholder="Port (e.g. 80, 443)">
-                            <button class="aws-btn" onclick="addFirewallRule()" style="height: 40px;"><i class="fa-solid fa-shield"></i> Add Rule</button>
-                        </div>
-                        <div id="firewall-list-container" style="margin-top: 20px;"></div>
-                    </div>
-                </div>
-
-                <div id="s3-section" class="content-section" style="display: none;">
-                    <div class="card">
-                        <h3><i class="fa-solid fa-database"></i> Database Management & Automated Backups</h3>
-                        <button class="aws-btn" onclick="generateDBBackup()"><i class="fa-solid fa-download"></i> Generate Live DB Dump (.sql)</button>
-                    </div>
-                    <div class="card">
-                        <h3><i class="fa-solid fa-folder"></i> S3 Object Storage Buckets</h3>
-                        <div style="display: flex; gap: 10px; margin-bottom: 15px;">
-                            <input type="text" id="s3BucketInput" class="form-input" placeholder="Bucket Name (e.g. client-assets-bucket)" style="margin-bottom:0;">
-                            <button class="aws-btn" onclick="createS3Bucket()"><i class="fa-solid fa-plus"></i> Create Bucket</button>
-                        </div>
-                        <div id="s3-bucket-list" style="margin-top: 15px;"></div>
-                    </div>
-                </div>
-
-                <div id="secrets-section" class="content-section" style="display: none;">
-                    <div class="card">
-                        <h3><i class="fa-solid fa-key"></i> Environment Secrets & API Keys Manager</h3>
-                        <div style="display: flex; gap: 10px; margin-top: 10px;">
-                            <input type="text" id="secretKeyName" class="form-input" placeholder="Key (e.g. STRIPE_SECRET_KEY)">
-                            <input type="password" id="secretVal" class="form-input" placeholder="Secret Value">
-                            <button class="aws-btn" onclick="saveSecret()" style="height: 40px;"><i class="fa-solid fa-save"></i> Save</button>
-                        </div>
-                        <div id="secret-list-container" style="margin-top: 20px;"></div>
-                    </div>
-                </div>
-
-                <div id="ssl-section" class="content-section" style="display: none;">
-                    <div class="card">
-                        <h3><i class="fa-solid fa-lock"></i> SSL / TLS Certificate Manager</h3>
-                        <div style="margin-top: 15px; display: flex; gap: 10px;">
-                            <input type="text" id="sslDomainInput" class="form-input" placeholder="Domain (e.g., app.fojixcloud.com)" style="flex: 1; margin: 0;">
-                            <button class="aws-btn" onclick="provisionSSLCert()" style="height: 40px;"><i class="fa-solid fa-certificate"></i> Provision SSL</button>
-                        </div>
-                        <div id="ssl-list-container" style="margin-top: 20px;"></div>
-                    </div>
-                </div>
-
-                <div id="dns-section" class="content-section" style="display: none;">
-                    <div class="card">
-                        <h3><i class="fa-solid fa-globe"></i> Regional Latency Matrix</h3>
-                        <div id="latency-matrix" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 15px;">
-                            <div style="background: var(--bg-main); padding: 12px; border-radius: 6px; border: 1px solid var(--border-color);">
-                                <span style="font-size: 12px; color: var(--text-secondary);">Asia-South (Colombo, LK)</span>
-                                <h3 style="color: #22c55e; margin: 5px 0 0 0;" id="ping-colombo">14 ms</h3>
-                            </div>
-                            <div style="background: var(--bg-main); padding: 12px; border-radius: 6px; border: 1px solid var(--border-color);">
-                                <span style="font-size: 12px; color: var(--text-secondary);">US-East (Virginia, US)</span>
-                                <h3 style="color: #22c55e; margin: 5px 0 0 0;" id="ping-virginia">185 ms</h3>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="card">
-                        <h3><i class="fa-solid fa-network-wired"></i> DNS Zone Management</h3>
-                        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr auto; gap: 10px; margin-top: 15px;">
-                            <input type="text" id="dnsName" class="form-input" placeholder="Record (e.g. api.domain.com)">
-                            <select id="dnsType" class="form-input">
-                                <option value="A">A Record</option>
-                                <option value="CNAME">CNAME</option>
-                            </select>
-                            <input type="text" id="dnsValue" class="form-input" placeholder="Value (e.g. 192.168.1.1)">
-                            <button class="aws-btn" onclick="addDNSRecord()" style="height: 40px;"><i class="fa-solid fa-plus"></i> Add</button>
-                        </div>
-                        <div id="dns-list-container" style="margin-top: 20px;"></div>
-                    </div>
-                </div>
-
-                <div id="cron-section" class="content-section" style="display: none;">
-                    <div class="card">
-                        <h3><i class="fa-solid fa-clock-rotate-left"></i> Scheduled Task & Cron Manager</h3>
-                        <div style="display: grid; grid-template-columns: 1fr 1fr auto; gap: 10px; margin-top: 15px;">
-                            <input type="text" id="cronName" class="form-input" placeholder="Task Name (e.g., DB Vacuum)">
-                            <input type="text" id="cronSchedule" class="form-input" placeholder="Cron (e.g., 0 0 * * *)">
-                            <button class="aws-btn" onclick="addCronJob()" style="height: 40px;"><i class="fa-solid fa-calendar-plus"></i> Schedule</button>
-                        </div>
-                        <div id="cron-list-container" style="margin-top: 20px;"></div>
-                    </div>
-                </div>
-
-                <div id="lb-section" class="content-section" style="display: none;">
-                    <div class="card">
-                        <h3><i class="fa-solid fa-sliders"></i> Auto-Scaling Rule Policies</h3>
-                        <div style="display: flex; gap: 15px; align-items: center; margin-top: 15px;">
-                            <label style="font-size: 13px;">CPU Threshold (%):</label>
-                            <input type="number" id="autoScaleCpu" class="form-input" value="80" style="width: 100px; margin:0;">
-                            <button class="aws-btn" onclick="updateScalingPolicy()">Update Policy</button>
-                        </div>
-                    </div>
-                </div>
-
-                <div id="vault-section" class="content-section" style="display: none;">
-                    <div class="card">
-                        <h3><i class="fa-solid fa-vault"></i> Client Vault</h3>
-                        <input type="text" id="vaultItemName" class="form-input" placeholder="Title / Client Name">
-                        <textarea id="vaultItemData" class="form-input" style="height: 80px;" placeholder="Secure text..."></textarea>
-                        <button class="aws-btn" onclick="saveToVault()"><i class="fa-solid fa-save"></i> Save to Vault</button>
-                        <div id="vault-list-container" style="margin-top: 20px;"></div>
-                    </div>
-                </div>
-
-                <div id="billing-section" class="content-section" style="display: none;">
-                    <div class="card">
-                        <h3><i class="fa-solid fa-file-invoice-dollar"></i> Billing & Statements</h3>
-                        <p style="color: var(--text-secondary); font-size: 13px;">Current Bill: <strong style="color: #22c55e;">$36.70 / mo</strong></p>
-                        <button class="aws-btn" onclick="downloadPDFInvoice()"><i class="fa-solid fa-file-pdf"></i> Download Statement</button>
-                    </div>
-                </div>
-
-                <div id="incidents-section" class="content-section" style="display: none;">
-                    <div class="card">
-                        <h3><i class="fa-solid fa-triangle-exclamation"></i> Incidents & Status</h3>
-                        <div id="incidents-list-container" style="margin-top: 15px;"></div>
-                    </div>
-                </div>
-
-                <div id="audit-section" class="content-section" style="display: none;">
-                    <div class="card">
-                        <h3><i class="fa-solid fa-timeline"></i> System Audit Trail</h3>
-                        <div id="audit-trail-container" style="max-height: 280px; overflow-y: auto;"></div>
-                    </div>
-                </div>
-
-                <div id="terminal-section" class="content-section" style="display: none;">
-                    <div class="card">
-                        <h3><i class="fa-solid fa-terminal"></i> Interactive Web Shell</h3>
-                        <div style="background: #03070d; border: 1px solid var(--border-color); border-radius: 6px; padding: 15px; font-family: monospace; height: 260px; overflow-y: auto;" id="terminal-logs-box">
-                            <div style="color: #94a3b8;">[Fojix-CLI] Type 'help' for commands.</div>
-                        </div>
-                        <div style="display: flex; gap: 10px; margin-top: 10px;">
-                            <input type="text" id="terminalInput" class="form-input" placeholder="Command..." onkeydown="handleTerminalKey(event)" style="margin: 0;">
-                            <button class="aws-btn" onclick="executeTerminalCmd()"><i class="fa-solid fa-terminal"></i> Run</button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- VPN GATEWAY SECTION -->
-                <div id="vpn-section" class="content-section" style="display: none;">
-                    <div class="card">
-                        <h3><i class="fa-solid fa-shield-halved"></i> WireGuard / Tailscale Encrypted VPN Gateway</h3>
-                        <p style="color: var(--text-secondary); font-size: 13px;">Connect securely to your server infrastructure with an encrypted private tunnel.</p>
-                        
-                        <div style="background: var(--bg-main); padding: 15px; border-radius: 6px; border: 1px solid var(--border-color); margin: 15px 0;">
-                            <div style="display:flex; justify-content: space-between; align-items:center; flex-wrap: wrap; gap:10px;">
-                                <div>
-                                    <strong style="color: var(--accent-color);">VPN Tunnel Status: <span id="vpn-status-text">ACTIVE</span></strong>
-                                    <div style="font-size:12px; color:var(--text-secondary); margin-top:4px;">Node: Asia-South (10.8.0.1) | Encryption: ChaCha20-Poly1305</div>
-                                </div>
-                                <span class="badge badge-success" id="vpn-badge">Connected</span>
-                            </div>
-                        </div>
-
-                        <!-- Action Buttons -->
-                        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-                            <button class="aws-btn" id="vpn-connect-btn" onclick="toggleVPN(true)" disabled><i class="fa-solid fa-plug"></i> Connect VPN</button>
-                            <button class="aws-btn aws-btn-danger" id="vpn-disconnect-btn" onclick="toggleVPN(false)"><i class="fa-solid fa-power-off"></i> Disconnect</button>
-                            <button class="aws-btn" onclick="downloadVPNProfile()"><i class="fa-solid fa-download"></i> Download WireGuard Profile (.conf)</button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- IAM Section -->
-                <div id="iam-section" class="content-section" style="display: none;">
-                    <div class="card">
-                        <h3><i class="fa-solid fa-user-plus"></i> Dynamic User Management (IAM)</h3>
-                        <p style="color: var(--text-secondary); font-size: 13px;">Create new accounts synced across all team members in Firebase Cloud DB.</p>
-                        
-                        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr auto; gap: 10px; margin-top: 15px;">
-                            <input type="text" id="newUsername" class="form-input" placeholder="Username / Email">
-                            <input type="password" id="newPassword" class="form-input" placeholder="Password">
-                            <select id="newRole" class="form-input">
-                                <option value="Admin">Admin</option>
-                                <option value="Client">Client</option>
-                            </select>
-                            <button class="aws-btn" onclick="addNewUser()" style="height: 40px;"><i class="fa-solid fa-user-plus"></i> Add User</button>
-                        </div>
-
-                        <div id="users-list-container" style="margin-top: 20px;"></div>
-                    </div>
-                </div>
-
             </div>
+
+            <!-- SECTIONS -->
+            <div id="home-section" class="content-section">
+                <div class="card">
+                    <h3><i class="fa-solid fa-rocket"></i> Client Deployments & Project Hub</h3>
+                    <p style="color: var(--text-secondary); font-size: 13px;">Deploy client web apps, PHP backend nodes, and static frontends instantly.</p>
+                    <button class="aws-btn" onclick="openDeployModal()"><i class="fa-solid fa-plus"></i> Deploy New Client Project</button>
+                    <div id="project-list-container" style="margin-top: 20px;"></div>
+                </div>
+
+                <div class="card">
+                    <h3><i class="fa-solid fa-bell"></i> Webhook & Alerting Center</h3>
+                    <p style="color: var(--text-secondary); font-size: 13px;">Receive instant alerts via Webhook (Slack / Telegram / Discord) on server incidents.</p>
+                    <input type="text" id="webhookUrl" class="form-input" placeholder="https://discord.com/api/webhooks/YOUR_WEBHOOK_URL">
+                    <button class="aws-btn" onclick="testWebhook()"><i class="fa-solid fa-paper-plane"></i> Save & Test Webhook</button>
+                </div>
+            </div>
+
+            <div id="ec2-section" class="content-section" style="display: none;">
+                <div class="card">
+                    <h3><i class="fa-solid fa-chart-line"></i> Real-Time Node Resource Charts</h3>
+                    <div style="height: 250px; position: relative;">
+                        <canvas id="telemetryChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3><i class="fa-solid fa-terminal"></i> Server SSH Action Runners</h3>
+                    <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px;">
+                        <button class="aws-btn" onclick="runQuickSSH('sudo systemctl restart nginx', 'Restarting Nginx web server...')"><i class="fa-solid fa-rotate"></i> Restart Nginx</button>
+                        <button class="aws-btn" onclick="runQuickSSH('docker ps -a', 'Fetching active Docker container instances...')"><i class="fa-brands fa-docker"></i> Docker Status</button>
+                        <button class="aws-btn" onclick="runQuickSSH('df -h', 'Checking disk space storage allocation...')"><i class="fa-solid fa-hard-drive"></i> Disk Usage</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="k8s-section" class="content-section" style="display: none;">
+                <div class="card">
+                    <h3><i class="fa-solid fa-cubes"></i> Kubernetes Cluster Pod Monitor</h3>
+                    <div id="k8s-pod-list" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 15px;"></div>
+                    <button class="aws-btn" style="margin-top: 15px;" onclick="addK8sPod()"><i class="fa-solid fa-plus"></i> Spin New Pod</button>
+                </div>
+            </div>
+
+            <div id="registry-section" class="content-section" style="display: none;">
+                <div class="card">
+                    <h3><i class="fa-brands fa-docker"></i> Private Container Image Registry</h3>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr auto; gap: 10px; margin-top: 15px;">
+                        <input type="text" id="repoName" class="form-input" placeholder="Repository Name (e.g., fojix/api-server)">
+                        <input type="text" id="repoTag" class="form-input" placeholder="Tag (e.g., v1.0.4)">
+                        <button class="aws-btn" onclick="pushContainerImage()" style="height: 40px;"><i class="fa-solid fa-upload"></i> Push Image</button>
+                    </div>
+                    <div id="registry-list-container" style="margin-top: 20px;"></div>
+                </div>
+            </div>
+
+            <div id="firewall-section" class="content-section" style="display: none;">
+                <div class="card">
+                    <h3><i class="fa-solid fa-fire-flame-curved"></i> Web Application Firewall (WAF)</h3>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr auto; gap: 10px; margin-top: 15px;">
+                        <input type="text" id="fwIp" class="form-input" placeholder="IP Address (e.g. 192.168.1.50)">
+                        <select id="fwAction" class="form-input">
+                            <option value="BLOCK">Block IP</option>
+                            <option value="ALLOW">Allow IP</option>
+                        </select>
+                        <input type="text" id="fwPort" class="form-input" placeholder="Port (e.g. 80, 443)">
+                        <button class="aws-btn" onclick="addFirewallRule()" style="height: 40px;"><i class="fa-solid fa-shield"></i> Add Rule</button>
+                    </div>
+                    <div id="firewall-list-container" style="margin-top: 20px;"></div>
+                </div>
+            </div>
+
+            <div id="s3-section" class="content-section" style="display: none;">
+                <div class="card">
+                    <h3><i class="fa-solid fa-database"></i> Database Management & Automated Backups</h3>
+                    <button class="aws-btn" onclick="generateDBBackup()"><i class="fa-solid fa-download"></i> Generate Live DB Dump (.sql)</button>
+                </div>
+                <div class="card">
+                    <h3><i class="fa-solid fa-folder"></i> S3 Object Storage Buckets</h3>
+                    <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+                        <input type="text" id="s3BucketInput" class="form-input" placeholder="Bucket Name (e.g. client-assets-bucket)" style="margin-bottom:0;">
+                        <button class="aws-btn" onclick="createS3Bucket()"><i class="fa-solid fa-plus"></i> Create Bucket</button>
+                    </div>
+                    <div id="s3-bucket-list" style="margin-top: 15px;"></div>
+                </div>
+            </div>
+
+            <div id="secrets-section" class="content-section" style="display: none;">
+                <div class="card">
+                    <h3><i class="fa-solid fa-key"></i> Environment Secrets & API Keys Manager</h3>
+                    <div style="display: flex; gap: 10px; margin-top: 10px;">
+                        <input type="text" id="secretKeyName" class="form-input" placeholder="Key (e.g. STRIPE_SECRET_KEY)">
+                        <input type="password" id="secretVal" class="form-input" placeholder="Secret Value">
+                        <button class="aws-btn" onclick="saveSecret()" style="height: 40px;"><i class="fa-solid fa-save"></i> Save</button>
+                    </div>
+                    <div id="secret-list-container" style="margin-top: 20px;"></div>
+                </div>
+            </div>
+
+            <div id="ssl-section" class="content-section" style="display: none;">
+                <div class="card">
+                    <h3><i class="fa-solid fa-lock"></i> SSL / TLS Certificate Manager</h3>
+                    <div style="margin-top: 15px; display: flex; gap: 10px;">
+                        <input type="text" id="sslDomainInput" class="form-input" placeholder="Domain (e.g., app.fojixcloud.com)" style="flex: 1; margin: 0;">
+                        <button class="aws-btn" onclick="provisionSSLCert()" style="height: 40px;"><i class="fa-solid fa-certificate"></i> Provision SSL</button>
+                    </div>
+                    <div id="ssl-list-container" style="margin-top: 20px;"></div>
+                </div>
+            </div>
+
+            <div id="dns-section" class="content-section" style="display: none;">
+                <div class="card">
+                    <h3><i class="fa-solid fa-globe"></i> Regional Latency Matrix</h3>
+                    <div id="latency-matrix" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 15px;">
+                        <div style="background: var(--bg-main); padding: 12px; border-radius: 6px; border: 1px solid var(--border-color);">
+                            <span style="font-size: 12px; color: var(--text-secondary);">Asia-South (Colombo, LK)</span>
+                            <h3 style="color: #22c55e; margin: 5px 0 0 0;" id="ping-colombo">14 ms</h3>
+                        </div>
+                        <div style="background: var(--bg-main); padding: 12px; border-radius: 6px; border: 1px solid var(--border-color);">
+                            <span style="font-size: 12px; color: var(--text-secondary);">US-East (Virginia, US)</span>
+                            <h3 style="color: #22c55e; margin: 5px 0 0 0;" id="ping-virginia">185 ms</h3>
+                        </div>
+                    </div>
+                </div>
+                <div class="card">
+                    <h3><i class="fa-solid fa-network-wired"></i> DNS Zone Management</h3>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr auto; gap: 10px; margin-top: 15px;">
+                        <input type="text" id="dnsName" class="form-input" placeholder="Record (e.g. api.domain.com)">
+                        <select id="dnsType" class="form-input">
+                            <option value="A">A Record</option>
+                            <option value="CNAME">CNAME</option>
+                        </select>
+                        <input type="text" id="dnsValue" class="form-input" placeholder="Value (e.g. 192.168.1.1)">
+                        <button class="aws-btn" onclick="addDNSRecord()" style="height: 40px;"><i class="fa-solid fa-plus"></i> Add</button>
+                    </div>
+                    <div id="dns-list-container" style="margin-top: 20px;"></div>
+                </div>
+            </div>
+
+            <div id="cron-section" class="content-section" style="display: none;">
+                <div class="card">
+                    <h3><i class="fa-solid fa-clock-rotate-left"></i> Scheduled Task & Cron Manager</h3>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr auto; gap: 10px; margin-top: 15px;">
+                        <input type="text" id="cronName" class="form-input" placeholder="Task Name (e.g., DB Vacuum)">
+                        <input type="text" id="cronSchedule" class="form-input" placeholder="Cron (e.g., 0 0 * * *)">
+                        <button class="aws-btn" onclick="addCronJob()" style="height: 40px;"><i class="fa-solid fa-calendar-plus"></i> Schedule</button>
+                    </div>
+                    <div id="cron-list-container" style="margin-top: 20px;"></div>
+                </div>
+            </div>
+
+            <div id="lb-section" class="content-section" style="display: none;">
+                <div class="card">
+                    <h3><i class="fa-solid fa-sliders"></i> Auto-Scaling Rule Policies</h3>
+                    <div style="display: flex; gap: 15px; align-items: center; margin-top: 15px;">
+                        <label style="font-size: 13px;">CPU Threshold (%):</label>
+                        <input type="number" id="autoScaleCpu" class="form-input" value="80" style="width: 100px; margin:0;">
+                        <button class="aws-btn" onclick="updateScalingPolicy()">Update Policy</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="vault-section" class="content-section" style="display: none;">
+                <div class="card">
+                    <h3><i class="fa-solid fa-vault"></i> Client Vault</h3>
+                    <input type="text" id="vaultItemName" class="form-input" placeholder="Title / Client Name">
+                    <textarea id="vaultItemData" class="form-input" style="height: 80px;" placeholder="Secure text..."></textarea>
+                    <button class="aws-btn" onclick="saveToVault()"><i class="fa-solid fa-save"></i> Save to Vault</button>
+                    <div id="vault-list-container" style="margin-top: 20px;"></div>
+                </div>
+            </div>
+
+            <div id="billing-section" class="content-section" style="display: none;">
+                <div class="card">
+                    <h3><i class="fa-solid fa-file-invoice-dollar"></i> Billing & Statements</h3>
+                    <p style="color: var(--text-secondary); font-size: 13px;">Current Bill: <strong style="color: #22c55e;">$36.70 / mo</strong></p>
+                    <button class="aws-btn" onclick="downloadPDFInvoice()"><i class="fa-solid fa-file-pdf"></i> Download Statement</button>
+                </div>
+            </div>
+
+            <div id="incidents-section" class="content-section" style="display: none;">
+                <div class="card">
+                    <h3><i class="fa-solid fa-triangle-exclamation"></i> Incidents & Status</h3>
+                    <div id="incidents-list-container" style="margin-top: 15px;"></div>
+                </div>
+            </div>
+
+            <div id="audit-section" class="content-section" style="display: none;">
+                <div class="card">
+                    <h3><i class="fa-solid fa-timeline"></i> System Audit Trail</h3>
+                    <div id="audit-trail-container" style="max-height: 280px; overflow-y: auto;"></div>
+                </div>
+            </div>
+
+            <div id="terminal-section" class="content-section" style="display: none;">
+                <div class="card">
+                    <h3><i class="fa-solid fa-terminal"></i> Interactive Web Shell</h3>
+                    <div style="background: #03070d; border: 1px solid var(--border-color); border-radius: 6px; padding: 15px; font-family: monospace; height: 260px; overflow-y: auto;" id="terminal-logs-box">
+                        <div style="color: #94a3b8;">[Fojix-CLI] Type 'help' for commands.</div>
+                    </div>
+                    <div style="display: flex; gap: 10px; margin-top: 10px;">
+                        <input type="text" id="terminalInput" class="form-input" placeholder="Command..." onkeydown="handleTerminalKey(event)" style="margin: 0;">
+                        <button class="aws-btn" onclick="executeTerminalCmd()"><i class="fa-solid fa-terminal"></i> Run</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- VPN GATEWAY SECTION -->
+            <div id="vpn-section" class="content-section" style="display: none;">
+                <div class="card">
+                    <h3><i class="fa-solid fa-shield-halved"></i> WireGuard / Tailscale Encrypted VPN Gateway</h3>
+                    <p style="color: var(--text-secondary); font-size: 13px;">Connect securely to your server infrastructure with an encrypted private tunnel.</p>
+                    
+                    <div style="background: var(--bg-main); padding: 15px; border-radius: 6px; border: 1px solid var(--border-color); margin: 15px 0;">
+                        <div style="display:flex; justify-content: space-between; align-items:center; flex-wrap: wrap; gap:10px;">
+                            <div>
+                                <strong style="color: var(--accent-color);">VPN Tunnel Status: <span id="vpn-status-text">ACTIVE</span></strong>
+                                <div style="font-size:12px; color:var(--text-secondary); margin-top:4px;">Node: Asia-South (10.8.0.1) | Encryption: ChaCha20-Poly1305</div>
+                            </div>
+                            <span class="badge badge-success" id="vpn-badge">Connected</span>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                        <button class="aws-btn" id="vpn-connect-btn" onclick="toggleVPN(true)" disabled><i class="fa-solid fa-plug"></i> Connect VPN</button>
+                        <button class="aws-btn aws-btn-danger" id="vpn-disconnect-btn" onclick="toggleVPN(false)"><i class="fa-solid fa-power-off"></i> Disconnect</button>
+                        <button class="aws-btn" onclick="downloadVPNProfile()"><i class="fa-solid fa-download"></i> Download WireGuard Profile (.conf)</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- IAM Section -->
+            <div id="iam-section" class="content-section" style="display: none;">
+                <div class="card">
+                    <h3><i class="fa-solid fa-user-plus"></i> Dynamic User Management (IAM)</h3>
+                    <p style="color: var(--text-secondary); font-size: 13px;">Create new accounts synced across all team members in Firebase Cloud DB.</p>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr auto; gap: 10px; margin-top: 15px;">
+                        <input type="text" id="newUsername" class="form-input" placeholder="Username / Email">
+                        <input type="password" id="newPassword" class="form-input" placeholder="Password">
+                        <select id="newRole" class="form-input">
+                            <option value="Admin">Admin</option>
+                            <option value="Client">Client</option>
+                        </select>
+                        <button class="aws-btn" onclick="addNewUser()" style="height: 40px;"><i class="fa-solid fa-user-plus"></i> Add User</button>
+                    </div>
+
+                    <div id="users-list-container" style="margin-top: 20px;"></div>
+                </div>
+            </div>
+
         </div>
     </div>
 
@@ -610,7 +624,7 @@
     </div>
 
     <script>
-        // FIREBASE INITIALIZATION WITH YOUR KEYS
+        // FIREBASE INITIALIZATION
         const firebaseConfig = {
             apiKey: "AIzaSyA3xupgO_IYBfBADdOcpXh254OpwCEWtGg",
             authDomain: "fojix-cloud.firebaseapp.com",
@@ -666,7 +680,7 @@
             }
 
             document.getElementById('login-screen').style.display = 'none';
-            document.getElementById('app-container').style.display = 'block';
+            document.getElementById('app-container').style.display = 'flex';
             document.getElementById('copilot-widget').style.display = 'block';
             document.getElementById('active-user-role').textContent = `${auth.user} (${auth.role})`;
 

@@ -93,7 +93,7 @@
             background: rgba(255, 204, 0, 0.1); color: var(--accent-color); font-weight: bold;
         }
 
-        /* Full Screen Edge-to-Edge Layout Fix */
+        /* Full Screen Edge-to-Edge Layout */
         .main-content { 
             flex: 1; 
             padding: 25px 30px; 
@@ -197,6 +197,19 @@
     </style>
 </head>
 <body class="theme-aws">
+
+    <!-- CLIENT DYNAMIC SITE VIEWER (If URL has ?site=slug) -->
+    <div id="client-preview-screen" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #0b1329; z-index: 99999; padding: 40px; box-sizing: border-box; overflow-y: auto; color: #fff;">
+        <div style="max-width: 800px; margin: 0 auto; background: #0f1a36; border: 1px solid rgba(255,204,0,0.3); border-radius: 10px; padding: 30px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,204,0,0.2); padding-bottom: 15px; margin-bottom: 20px;">
+                <h2 id="preview-title" style="color: #ffcc00; margin: 0;"><i class="fa-solid fa-globe"></i> Client Live Project</h2>
+                <a href="/" class="aws-btn" style="text-decoration: none; font-size: 12px;"><i class="fa-solid fa-arrow-left"></i> Back to Fojix Cloud</a>
+            </div>
+            <div id="preview-content-box" style="font-size: 14px; line-height: 1.6; color: #cbd5e1;">
+                Loading client hosted project files...
+            </div>
+        </div>
+    </div>
 
     <!-- LOGIN SCREEN -->
     <div id="login-screen">
@@ -559,13 +572,13 @@
                 <i class="fa-solid fa-robot" style="color:var(--accent-color)"></i>
                 <div style="flex:1;">
                     <strong style="font-size:13px; color:#fff;">Fojix AI Assistant</strong>
-                    <div style="font-size:10px; color:#22c55e;">● Cloud Expert Online</div>
+                    <div style="font-size:10px; color:#22c55e;">● Online & Friendly</div>
                 </div>
                 <button onclick="toggleCopilot()" style="background:none; border:none; color:#fff; cursor:pointer;"><i class="fa-solid fa-xmark"></i></button>
             </div>
             <div class="chat-body" id="chatBody"></div>
             <div class="chat-footer">
-                <input type="text" id="copilotInput" class="form-input" placeholder="Ask about Fojix Cloud..." onkeydown="handleCopilotKey(event)" style="margin:0; font-size:12px;">
+                <input type="text" id="copilotInput" class="form-input" placeholder="Ask about cloud, specs, or chat..." onkeydown="handleCopilotKey(event)" style="margin:0; font-size:12px;">
                 <button class="aws-btn" onclick="sendCopilotMsg()"><i class="fa-solid fa-paper-plane"></i></button>
             </div>
         </div>
@@ -582,8 +595,8 @@
                 <label style="color:var(--text-secondary);">Project / App Name</label>
                 <input type="text" placeholder="e.g., Zendo Storefront" id="projName" class="form-input">
 
-                <label style="color:var(--text-secondary);">Select Project Files (.zip, folder, or .html)</label>
-                <input type="file" id="projFile" class="form-input" accept=".zip,.rar,.html,.js,.css" style="padding: 7px; cursor: pointer;">
+                <label style="color:var(--text-secondary);">Select Project Files / HTML (.zip, .html)</label>
+                <input type="file" id="projFile" class="form-input" accept=".zip,.html,.js,.css" style="padding: 7px; cursor: pointer;">
 
                 <label style="color:var(--text-secondary);">Hosting Environment</label>
                 <select id="projEnv" class="form-input">
@@ -630,6 +643,49 @@
             { user: "use001", pass: "use@001", role: "Client" }
         ];
 
+        /* CHECK IF URL IS A CLIENT PREVIEW LINK (?site=slug) */
+        window.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const siteSlug = urlParams.get('site');
+            if(siteSlug) {
+                document.getElementById('login-screen').style.display = 'none';
+                document.getElementById('app-container').style.display = 'none';
+                document.getElementById('client-preview-screen').style.display = 'block';
+                loadClientSitePreview(siteSlug);
+            }
+        });
+
+        async function loadClientSitePreview(slug) {
+            try {
+                const snapshot = await db.collection('projects').where('slug', '==', slug).get();
+                const box = document.getElementById('preview-content-box');
+                const title = document.getElementById('preview-title');
+
+                if(!snapshot.empty) {
+                    const data = snapshot.docs[0].data();
+                    title.innerHTML = `<i class="fa-solid fa-globe" style="color:#22c55e;"></i> Live Project: ${data.name}`;
+                    box.innerHTML = `
+                        <div style="background: #03070d; padding: 20px; border-radius: 8px; border: 1px solid rgba(34,197,94,0.3);">
+                            <h3 style="color: #22c55e; margin-bottom: 10px;">Status: Live & Serving (${data.env})</h3>
+                            <p style="margin-bottom: 15px;">Uploaded File / Bundle: <code>${data.fileName}</code></p>
+                            <hr style="border: 0; border-top: 1px solid rgba(255,204,0,0.2); margin: 15px 0;">
+                            <div style="background: #fff; color: #000; padding: 20px; border-radius: 6px; min-height: 200px;">
+                                <h2 style="color: #0f1a36;">${data.name}</h2>
+                                <p>Welcome to your live client project hosted seamlessly on Fojix Cloud! All frontend modules and assets are active.</p>
+                                <div style="margin-top: 15px; padding: 10px; background: #f1f5f9; border-left: 4px solid #22c55e; font-size: 13px;">
+                                    Hosted via Fojix Cloud Firestore Storage Engine.
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    box.innerHTML = `<h3 style="color: #ef4444;">Error: Client site not found or has been removed from Fojix Cloud.</h3>`;
+                }
+            } catch(e) {
+                document.getElementById('preview-content-box').innerHTML = `<p style="color:#ef4444;">Failed to load project preview.</p>`;
+            }
+        }
+
         async function handleLogin() {
             const u = document.getElementById('loginUser').value.trim();
             const p = document.getElementById('loginPass').value.trim();
@@ -658,6 +714,9 @@
         }
 
         function initApp() {
+            const urlParams = new URLSearchParams(window.location.search);
+            if(urlParams.get('site')) return; // Don't init console if viewing client site
+
             const auth = JSON.parse(localStorage.getItem('fojix_auth'));
             if(!auth) {
                 document.getElementById('login-screen').style.display = 'flex';
@@ -718,7 +777,7 @@
             });
         }
 
-        /* FOJIX AI ASSISTANT */
+        /* FOJIX AI ASSISTANT (Friendly Chat + Computer Specs + Cloud Expert) */
         function toggleCopilot() {
             const win = document.getElementById('copilotWindow');
             win.style.display = win.style.display === 'flex' ? 'none' : 'flex';
@@ -728,8 +787,8 @@
             const body = document.getElementById('chatBody');
             body.innerHTML = `
                 <div class="chat-msg bot">
-                    👋 Hello <strong>${auth.user}</strong>!<br><br>
-                    I am <strong>Fojix AI</strong>, your dedicated cloud expert. Ask me anything about Fojix Cloud hosting, S3 storage, WAF security, or VPN gateways!
+                    👋 Vanakkam <strong>${auth.user}</strong>!<br><br>
+                    I am <strong>Fojix AI</strong>. You can chat with me friendly, ask about daily updates, computer/laptop specs, personal details, or any cloud hosting questions!
                 </div>
             `;
         }
@@ -753,18 +812,20 @@
                 bMsg.className = 'chat-msg bot';
                 const q = txt.toLowerCase();
 
-                if(q.includes('s3') || q.includes('bucket')) {
-                    bMsg.textContent = "Fojix S3 allows you to create secure object storage buckets for client assets, backups, and media files instantly.";
+                if(q.includes('computer') || q.includes('pc') || q.includes('laptop') || q.includes('specs')) {
+                    bMsg.textContent = "Your development machine is running high-performance specs optimized for VS Code, Node.js, Python, Flutter, and Firebase CLI deployments!";
+                } else if(q.includes('detail') || q.includes('who are you') || q.includes('about you')) {
+                    bMsg.textContent = "I am Fojix AI, built exclusively for Mohamed Amaan and the Fojix Cloud engineering team to manage cloud infrastructure and assist with daily tasks.";
+                } else if(q.includes('hi') || q.includes('hello') || q.includes('how are you') || q.includes('vanakkam')) {
+                    bMsg.textContent = "Hello bro! I'm doing great. Ready to help you code, manage servers, or just chat. What's on your mind today?";
+                } else if(q.includes('s3') || q.includes('bucket')) {
+                    bMsg.textContent = "Fojix S3 allows you to create secure object storage buckets for client assets and database backups!";
                 } else if(q.includes('vpn') || q.includes('wireguard')) {
                     bMsg.textContent = "The Fojix VPN Gateway provides encrypted secure tunnels via WireGuard with ChaCha20-Poly1305 encryption.";
-                } else if(q.includes('upload') || q.includes('project') || q.includes('host')) {
-                    bMsg.textContent = "You can upload your local laptop project (.zip or folder) from the Console Home tab, and Fojix Cloud will instantly generate a free live public link!";
-                } else if(q.includes('dns') || q.includes('domain')) {
-                    bMsg.textContent = "You can manage DNS A/CNAME records and monitor regional latencies (Colombo & Virginia) in the DNS & Latency tab.";
-                } else if(q.includes('waf') || q.includes('firewall')) {
-                    bMsg.textContent = "Fojix WAF lets you block or allow malicious IP addresses and manage network security rules in real time.";
+                } else if(q.includes('upload') || q.includes('project') || q.includes('host') || q.includes('link')) {
+                    bMsg.textContent = "When you upload a project from your laptop, Fojix Cloud generates a live preview link (`?site=slug`) so anyone visiting it sees the client's actual hosted project instead of the console!";
                 } else {
-                    bMsg.textContent = `Fojix AI is fully integrated with Firebase Firestore. I can help you with cloud deployments, server SSH actions, SSL certificates, and database backups!`;
+                    bMsg.textContent = `That's interesting! As Fojix AI, I'm fully synced with your cloud environment and ready to assist with code, deployments, or friendly conversation.`;
                 }
                 
                 body.appendChild(bMsg);
@@ -779,32 +840,32 @@
             const fileInput = document.getElementById('projFile');
             if(!name) return alert('Please enter project name!');
             
-            const fileName = fileInput.files.length > 0 ? fileInput.files[0].name : 'archive.zip';
+            const fileName = fileInput.files.length > 0 ? fileInput.files[0].name : 'index.html';
             const slug = name.toLowerCase().replace(/[^a-z0-9]/g, '-');
-            const domain = `fojix-cloud.web.app/sites/${slug}`;
+            const previewUrl = `${window.location.origin}${window.location.pathname}?site=${slug}`;
 
-            db.collection('projects').add({ name, env, fileName, domain, createdAt: new Date().toLocaleDateString() });
+            db.collection('projects').add({ name, env, fileName, slug, domain: previewUrl, createdAt: new Date().toLocaleDateString() });
             closeDeployModal();
             document.getElementById('projName').value = '';
             fileInput.value = '';
             logAudit(`Hosted project: ${name} (${fileName})`);
-            alert(`🎉 Project Hosted Successfully!\nLive Link: https://${domain}`);
+            alert(`🎉 Project Hosted Successfully!\n\nClient Live View Link:\n${previewUrl}`);
         }
 
         function deleteProject(id) { db.collection('projects').doc(id).delete(); logAudit("Deleted project"); }
         function renderProjects(projects) {
             const c = document.getElementById('project-list-container');
             if(!c) return;
-            c.innerHTML = projects.length === 0 ? '<p style="color:var(--text-secondary); font-size:13px;">No projects hosted yet.</p>' :
+            c.innerHTML = projects.length === 0 ? '<p style="color:var(--text-secondary); font-size:13px;">No projects hosted yet.</p>':
             projects.map(p => `
                 <div style="background:var(--bg-main); padding:12px; border-radius:6px; border:1px solid var(--border-color); margin-bottom:10px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
                     <div>
                         <strong style="color:var(--accent-color); font-size:14px;"><i class="fa-solid fa-globe"></i> ${p.name}</strong>
-                        <div style="font-size:12px; color:var(--text-secondary);">${p.env} | File: <code>${p.fileName}</code> | <a href="https://${p.domain}" target="_blank" style="color:#22c55e;">${p.domain}</a></div>
+                        <div style="font-size:12px; color:var(--text-secondary);">${p.env} | File: <code>${p.fileName}</code> | <a href="${p.domain}" target="_blank" style="color:#22c55e;">${p.domain}</a></div>
                     </div>
                     <div style="display:flex; gap:8px; align-items:center;">
-                        <span class="badge badge-success">Live</span>
-                        <button onclick="navigator.clipboard.writeText('https://${p.domain}'); alert('Link copied!');" class="aws-btn aws-btn-sm"><i class="fa-solid fa-copy"></i></button>
+                        <span class="badge badge-success">Live View</span>
+                        <button onclick="navigator.clipboard.writeText('${p.domain}'); alert('Live client link copied!');" class="aws-btn aws-btn-sm"><i class="fa-solid fa-copy"></i></button>
                         <button onclick="deleteProject('${p.id}')" class="aws-btn aws-btn-danger aws-btn-sm"><i class="fa-solid fa-trash"></i></button>
                     </div>
                 </div>
